@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.holacampus.api.mappers.UserMapper">
+    
+    <resultMap id="userResult" type="User">
+        <id     column="user_id"    property="id" />
+        <result column="user_firstname"  property="name.firstName" />
+        <result column="user_lastname"   property="name.lastName" />
+        <result column="user_email" property="email" />
+        <result column="user_birth" property="birthDate" />
+        <result column="user_gender" property="gender" />
+        <result column="user_type"  property="userType" />
+       <!-- <association property="commentContainer" column="comment_container_id" javaType="CommentContainer"
+                resultMap="com.holacampus.api.mappers.CommentContainerMapper.ccResult" />-->
+    </resultMap>
+    
+    <select id="getAllUsers" parameterType="int" resultMap="userResult">
+        select  U.UserID        as user_id, 
+                U.FirstName     as user_firstname,
+                U.LastName      as user_lastname,
+                U.Email         as user_email,
+                U.BirthDate     as user_birth,
+                U.Gender        as user_gender,
+                U.Type          as user_type
+        from user U
+    </select>
+    
+    <select id="getUser" parameterType="long" resultMap="userResult">
+        
+          select  U.UserID        as user_id, 
+                U.FirstName     as user_firstname,
+                U.LastName      as user_lastname,
+                U.Email         as user_email,
+                U.BirthDate     as user_birth,
+                U.Gender        as user_gender,
+                U.Type          as user_type
+        from user U
+            where U.UserID = #{id}
+        
+    </select>
+    
+    <insert id="createUser" parameterType="map" statementType="CALLABLE">
+        CALL newUser( 
+            #{ user.name.firstName, mode=IN, javaType=String, jdbcType=VARCHAR},
+            #{ user.name.lastName,  mode=IN, javaType=String, jdbcType=VARCHAR},
+            #{ user.email,          mode=IN, javaType=String, jdbcType=VARCHAR},
+            #{ user.userType,       mode=IN, javaType=String, jdbcType=VARCHAR},
+            #{ user.birthDate,      mode=IN, javaType=java.sql.Date, jdbcType=DATE},
+            #{ user.gender,         mode=IN, javaType=String, jdbcType=VARCHAR},
+            #{ user.id,             mode=OUT, javaType=Long, jdbcType=INTEGER}
+        )
+    </insert>
+</mapper>
