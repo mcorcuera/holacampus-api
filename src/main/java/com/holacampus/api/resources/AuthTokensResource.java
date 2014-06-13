@@ -112,7 +112,8 @@ public class AuthTokensResource {
     @Produces( { RepresentationFactory.HAL_JSON})
     public Representation getAuthenticationToken( @PathParam("auth-token") String token, @PathParam("id") Long id, @Context SecurityContext sc)
     {
-        logger.info( "[GET] /auth-tokens/" + token);
+        logger.info( "[GET] /users/" + id + "/auth-tokens");        
+        
         AuthToken authToken;
         
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
