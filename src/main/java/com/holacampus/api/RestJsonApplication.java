@@ -16,14 +16,14 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 
 /**
- *
+ * 
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 
 @ApplicationPath("/")
 public class RestJsonApplication extends ResourceConfig{
     
-    /**d
+    /**
      *
      */
     public RestJsonApplication() {
