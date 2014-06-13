@@ -8,7 +8,6 @@ package com.holacampus.api.resources;
 
 import com.holacampus.api.beans.AuthToken;
 import com.holacampus.api.beans.User;
-import com.holacampus.api.exceptions.ConflictException;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.mappers.AuthTokenMapper;
 import com.holacampus.api.security.AuthTokenGenerator;
@@ -41,6 +40,7 @@ import org.apache.log4j.Logger;
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 
+@Path( "/")
 public class AuthTokensResource {
     
     private static final Logger logger = LogManager.getLogger( AuthTokensResource.class.getName());
