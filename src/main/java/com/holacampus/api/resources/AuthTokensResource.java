@@ -85,7 +85,7 @@ public class AuthTokensResource {
     @AuthenticationRequired( scheme=AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     public void deleteAllUserTokens( @Context SecurityContext sc, @PathParam( "id") Long id)
     {
-        logger.info( "[DELETE] /auth-tokens");
+        logger.info( "[DELETE] /users/" + id + "/auth-tokens");
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
         
            /*
