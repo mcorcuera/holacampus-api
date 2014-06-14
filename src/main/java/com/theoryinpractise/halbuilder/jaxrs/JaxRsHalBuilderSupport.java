@@ -1,6 +1,7 @@
 package com.theoryinpractise.halbuilder.jaxrs;
 
 import com.holacampus.api.exceptions.HTTPErrorException;
+import com.holacampus.api.resources.UsersResource;
 import com.holacampus.api.utils.HALBuilderUtils;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
 import com.theoryinpractise.halbuilder.api.RepresentationException;
@@ -19,6 +20,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -33,6 +36,8 @@ public class JaxRsHalBuilderSupport implements MessageBodyWriter, MessageBodyRea
     
     private static final MediaType JSON_TYPE = new MediaType( "application", "json");
 
+        private static final Logger logger = LogManager.getLogger( JaxRsHalBuilderSupport.class.getName());
+
     /**
      *
      * @param aClass
@@ -43,6 +48,8 @@ public class JaxRsHalBuilderSupport implements MessageBodyWriter, MessageBodyRea
      */
     @Override
     public boolean isWriteable(Class aClass, Type type, Annotation[] annotations, MediaType mediaType) {
+        
+        logger.info( "Creating HAL");
         return ReadableRepresentation.class.isAssignableFrom(aClass) 
                 && (mediaType.isCompatible(HAL_JSON_TYPE) || mediaType.isCompatible(HAL_XML_TYPE));
     }
@@ -76,6 +83,7 @@ public class JaxRsHalBuilderSupport implements MessageBodyWriter, MessageBodyRea
      */
     @Override
     public void writeTo(Object o, Class aClass, Type type, Annotation[] annotations, MediaType mediaType, MultivaluedMap multivaluedMap, OutputStream outputStream) throws IOException, WebApplicationException {
+        
         ReadableRepresentation representation = (ReadableRepresentation) o;
         representation.toString(mediaType.toString(), new OutputStreamWriter(outputStream));
     }

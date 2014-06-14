@@ -26,4 +26,9 @@ public class Utils {
     {
         return BASE_URL + path;
     }
+    
+    public static String getRelativePath( String absolute)
+    {
+        return absolute.replace( BASE_URL, "");
+    }
 }

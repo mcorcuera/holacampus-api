@@ -27,7 +27,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import javax.ws.rs.*;
+import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -49,14 +51,15 @@ public class UsersResource {
      *
      * @param sc
      * @return
-     */
+     */    
+    
     @GET
     @AuthenticationRequired( scheme=AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
-    public Representation getUsers( @Context SecurityContext sc)
+    public ReadableRepresentation getUsers( @Context SecurityContext sc)
     {
         logger.info( "[GET] /users");
-        logger.info( sc.getUserPrincipal().getName());
+        logger.info( "Accessed by" + sc.getUserPrincipal().getName());
         SqlSession session          = MyBatisConnectionFactory.getSession().openSession();
         RepresentationFactory rf    = HALBuilderUtils.getRepresentationFactory();
         Representation usersRep     = null;
@@ -75,6 +78,7 @@ public class UsersResource {
         finally {
             session.close();
         }
+        
         return usersRep;
     }
     

@@ -39,7 +39,6 @@ import org.apache.log4j.Logger;
  *
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
-
 @Path( "/")
 public class AuthTokensResource {
     
