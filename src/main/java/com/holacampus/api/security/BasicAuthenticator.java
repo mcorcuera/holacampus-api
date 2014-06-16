@@ -28,8 +28,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.jboss.resteasy.core.ServerResponse;
-import org.jboss.resteasy.util.Base64;
+import org.glassfish.jersey.internal.util.Base64;
 
 /**
  *
@@ -108,8 +107,8 @@ public final class BasicAuthenticator implements Authenticator{
         String userPassword = null;
         
         try {
-            userPassword = new String( Base64.decode( encodedUserPassword));
-        }catch ( IOException e) {
+            userPassword = new String( Base64.decode( encodedUserPassword.getBytes()));
+        }catch ( Exception e) {
             logger.error( e.toString());
             return Authenticator.BAD_SINTAX;
         }

@@ -21,6 +21,7 @@ import com.holacampus.api.beans.Credentials;
 import com.holacampus.api.beans.User;
 import com.holacampus.api.exceptions.ConflictException;
 import com.holacampus.api.exceptions.HTTPErrorException;
+import com.holacampus.api.hal.HalList;
 import com.holacampus.api.hal.builders.UserHALBuilder;
 import com.holacampus.api.hal.contracts.UserContract.UserCreateContract;
 import com.holacampus.api.mappers.CredentialsMapper;
@@ -65,23 +66,23 @@ public class UsersResource {
      */    
     
     @GET
-    @AuthenticationRequired( scheme=AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
-    public ReadableRepresentation getUsers( @Context SecurityContext sc)
+    public HalList<User> getUsers( @Context SecurityContext sc)
     {
         logger.info( "[GET] /users");
         logger.info( "Accessed by" + sc.getUserPrincipal().getName());
         SqlSession session          = MyBatisConnectionFactory.getSession().openSession();
         RepresentationFactory rf    = HALBuilderUtils.getRepresentationFactory();
-        Representation usersRep     = null;
+        HalList<User> users;
         
         try {            
             UserMapper userMapper   = session.getMapper( UserMapper.class);
-            List<User> users        = userMapper.getAllUsers( );
+            List usersList          = userMapper.getAllUsers( );
             session.commit();
             
-            usersRep = rf.newRepresentation( Utils.createLink("/users"));
-            HALBuilderUtils.addList(usersRep, users, "users");
+            users = new HalList( usersList, usersList.size());
+            users.setSelfLink( Utils.createLink("/users"));
         }catch( Exception e) {
             logger.error( e.toString());
             throw new InternalServerErrorException();
@@ -90,7 +91,7 @@ public class UsersResource {
             session.close();
         }
         
-        return usersRep;
+        return users;
     }
     
     /**
@@ -99,10 +100,10 @@ public class UsersResource {
      * @return
      */
     @POST
-    @AuthenticationRequired( scheme=AuthenticationScheme.AUTHENTICATION_SCHEME_NONE)
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_NONE)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
     @Produces( { RepresentationFactory.HAL_JSON})
-    public ReadableRepresentation createUser( ReadableRepresentation input)
+    public User createUser( ReadableRepresentation input)
     {
         logger.info("[POST] /users");
         
@@ -148,6 +149,6 @@ public class UsersResource {
         } finally {
             session.close();
         }
-        return HALBuilderUtils.fromRepresentable(user);
+        return user;
     }
 }

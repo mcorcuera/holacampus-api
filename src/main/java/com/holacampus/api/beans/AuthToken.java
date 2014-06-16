@@ -16,11 +16,11 @@
  */
 
 package com.holacampus.api.beans;
-
 import com.holacampus.api.hal.Linkable;
 import com.holacampus.api.utils.Utils;
 import com.theoryinpractise.halbuilder.api.Representable;
 import com.theoryinpractise.halbuilder.api.Representation;
+import com.theoryinpractise.halbuilder.jaxrs.*;
 import java.util.Date;
 
 
@@ -28,10 +28,15 @@ import java.util.Date;
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
+
+@HalRootElement
 public class AuthToken implements Representable, Linkable{
     
+    @HalProperty( name="authToken")
     private String      authToken;
     private User        user;
+    
+    @HalProperty( name="creationDate")
     private Date        creationDate;
 
     public String getAuthToken() {
@@ -65,6 +70,7 @@ public class AuthToken implements Representable, Linkable{
                 .withProperty("creationDate", getCreationDate().toString());
     }
 
+    @HalSelfLink
     @Override
     public String selfLink() {
         return Utils.createLink("/users/" + getUser().getId() + "/auth-tokens/" + getAuthToken());

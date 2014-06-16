@@ -35,8 +35,6 @@ import javax.ws.rs.ext.Provider;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.glassfish.jersey.server.ExtendedUriInfo;
-import org.jboss.resteasy.core.Headers;
-import org.jboss.resteasy.core.ServerResponse;
 
 /**
  *
@@ -46,9 +44,6 @@ import org.jboss.resteasy.core.ServerResponse;
 public class SecurityContextFilter implements ContainerRequestFilter{
 
     private static final Logger logger = LogManager.getLogger( SecurityContextFilter.class.getName());
-    
-    private static final ServerResponse ACCESS_DENIED        = new ServerResponse( "Access denied", 401, new Headers<Object>());
-    private static final ServerResponse BAD_REQUEST          = new ServerResponse( "The request cannot be fullfilled due to bad sintax", 400, new Headers<Object>());
     
     @Override
     public void filter(ContainerRequestContext crc) throws IOException {
@@ -71,7 +66,7 @@ public class SecurityContextFilter implements ContainerRequestFilter{
             
             AuthenticationRequired authentication = method.getAnnotation( AuthenticationRequired.class);
             
-            authenticationScheme = authentication.scheme();
+            authenticationScheme = authentication.value();
         }
         
         logger.info("[AUTH] Scheme " + authenticationScheme);   

@@ -37,19 +37,6 @@
             <version>2.2.3</version>
         </dependency>
       
-      <!-- Hibernate dependencies
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-            <version>4.3.5.Final</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>4.3.5.Final</version>
-        </dependency>
-         -->
         <!-- My batis dependencies -->
         <dependency>
             <groupId>org.mybatis</groupId>
@@ -90,11 +77,11 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.2</version>
         </dependency>
+        
         <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jaxrs</artifactId>
-            <version>3.0.5.Final</version>
-            <type>jar</type>
+            <groupId>com.theoryinpractise</groupId>
+            <artifactId>halbuilder-jaxrs</artifactId>
+            <version> 0.1</version>
         </dependency>
     </dependencies>
 

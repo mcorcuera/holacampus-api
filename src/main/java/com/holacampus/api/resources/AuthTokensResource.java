@@ -57,9 +57,9 @@ public class AuthTokensResource {
     
     @Path("/auth-tokens")
     @POST
-    @AuthenticationRequired( scheme=AuthenticationScheme.AUTHENTICATION_SCHEME_BASIC)
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_BASIC)
     @Produces( { RepresentationFactory.HAL_JSON})
-    public Representation newAuthenticationToken ( @Context SecurityContext sc)
+    public AuthToken newAuthenticationToken ( @Context SecurityContext sc)
     {
         logger.info( "[POST] /auth-tokens");
         
@@ -87,12 +87,12 @@ public class AuthTokensResource {
         } finally {
             session.close();
         }
-        return HALBuilderUtils.fromRepresentable(authToken);
+        return authToken;
     }
     
     @Path("/users/{id}/auth-tokens")
     @DELETE
-    @AuthenticationRequired( scheme=AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @AuthenticationRequired(AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     public void deleteAllUserTokens( @Context SecurityContext sc, @PathParam( "id") Long id)
     {
         logger.info( "[DELETE] /users/" + id + "/auth-tokens");
@@ -118,7 +118,7 @@ public class AuthTokensResource {
     
     @Path("/users/{id}/auth-tokens/{auth-token}")
     @GET
-    @AuthenticationRequired( scheme=AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
     public Representation getAuthenticationToken( @PathParam("auth-token") String token, @PathParam("id") Long id, @Context SecurityContext sc)
     {
@@ -164,7 +164,7 @@ public class AuthTokensResource {
     
     @Path("/users/{id}/auth-tokens/{auth-token}")
     @DELETE
-    @AuthenticationRequired( scheme=AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     public void deleteAtuthenticationToken( @PathParam("auth-token") String token, @PathParam( "id") Long id, @Context SecurityContext sc)
     {
         logger.info( "[DELETE] /auth-tokens/" + token);

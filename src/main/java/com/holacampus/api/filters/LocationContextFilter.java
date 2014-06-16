@@ -17,6 +17,7 @@
 
 package com.holacampus.api.filters;
 
+import com.holacampus.api.hal.Linkable;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
 import java.io.IOException;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -39,9 +40,9 @@ public class LocationContextFilter implements ContainerResponseFilter{
         * Set location header based on self link in HAL representation
         */
         
-        if( responseContext.getEntity() != null && ReadableRepresentation.class.isAssignableFrom( responseContext.getEntityClass())) {
-            ReadableRepresentation r = (ReadableRepresentation) responseContext.getEntity();
-            String location = r.getLinkByRel( "self").getHref();
+        if( responseContext.getEntity() != null && Linkable.class.isAssignableFrom( responseContext.getEntityClass())) {
+            Linkable r = (Linkable) responseContext.getEntity();
+            String location = r.selfLink();
             if( location != null) {
                 responseContext.getHeaders().add("Location", location);
             }

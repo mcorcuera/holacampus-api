@@ -51,7 +51,7 @@ public class JaxRsHalBuilderSupport implements MessageBodyWriter, MessageBodyRea
     
     private static final MediaType JSON_TYPE = new MediaType( "application", "json");
 
-        private static final Logger logger = LogManager.getLogger( JaxRsHalBuilderSupport.class.getName());
+    private static final Logger logger = LogManager.getLogger( JaxRsHalBuilderSupport.class.getName());
 
     /**
      *
@@ -64,7 +64,6 @@ public class JaxRsHalBuilderSupport implements MessageBodyWriter, MessageBodyRea
     @Override
     public boolean isWriteable(Class aClass, Type type, Annotation[] annotations, MediaType mediaType) {
         
-        logger.info( "Creating HAL");
         return ReadableRepresentation.class.isAssignableFrom(aClass) 
                 && (mediaType.isCompatible(HAL_JSON_TYPE) || mediaType.isCompatible(HAL_XML_TYPE));
     }

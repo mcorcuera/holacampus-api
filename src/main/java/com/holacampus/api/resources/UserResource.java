@@ -25,11 +25,9 @@ import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.LogManager;
@@ -52,7 +50,7 @@ public class UserResource {
      */
     @GET
     @Produces( { RepresentationFactory.HAL_JSON})
-    public ReadableRepresentation getUser( @PathParam("id") long id)
+    public User getUser( @PathParam("id") long id)
     {
         logger.info( "[GET] /users/\n" + id);
         
@@ -74,6 +72,6 @@ public class UserResource {
         } finally {
             session.close();
         }   
-        return HALBuilderUtils.fromRepresentable(user);
+        return user;
     }
 }

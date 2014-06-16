@@ -21,6 +21,9 @@ import com.holacampus.api.hal.Linkable;
 import com.holacampus.api.utils.Utils;
 import com.theoryinpractise.halbuilder.api.Representable;
 import com.theoryinpractise.halbuilder.api.Representation;
+import com.theoryinpractise.halbuilder.jaxrs.HalProperty;
+import com.theoryinpractise.halbuilder.jaxrs.HalRootElement;
+import com.theoryinpractise.halbuilder.jaxrs.HalSelfLink;
 import java.sql.Date;
 import java.util.List;
 
@@ -28,6 +31,8 @@ import java.util.List;
  *  Bean object for User
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
+
+@HalRootElement
 public class User extends ActiveElement implements Representable, Linkable
 
 {
@@ -57,10 +62,15 @@ public class User extends ActiveElement implements Representable, Linkable
      */
     public static final String GENDER_FEMENINE  = "F";
     
-    private String              userType;
+    @HalProperty( name="name")
     private Name                name;
-    private Date                birthDate;    
+    @HalProperty( name="type")
+    private String              userType;
+    @HalProperty( name="birthDate")
+    private Date                birthDate;
+    @HalProperty( name="email")
     private String              email;
+    @HalProperty( name="gender")
     private String              gender;
     private CommentContainer    commentContainer;
     private PhotoContainer      photoContainer;
@@ -74,6 +84,7 @@ public class User extends ActiveElement implements Representable, Linkable
     private List<Event>         events;
     private List<Group>         ownedGroups;
     private List<Event>         ownedEvents;
+    @HalProperty( name="name", input=true)
     private String              password;
    
     /**
@@ -393,6 +404,7 @@ public class User extends ActiveElement implements Representable, Linkable
      *
      * @return
      */
+    @HalSelfLink
     @Override
     public String selfLink() {
         return Utils.createLink("/users/" + getId());

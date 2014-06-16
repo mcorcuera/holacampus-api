@@ -18,6 +18,7 @@
 package com.holacampus.api.beans;
 
 import com.holacampus.api.beans.Conversation;
+import com.theoryinpractise.halbuilder.jaxrs.HalProperty;
 import java.util.List;
 
 /**
@@ -36,6 +37,7 @@ public class ActiveElement {
      */
     public static final String TYPE_UNI     = "UNI";
     
+    @HalProperty( name="id")
     private Long                id;
     private String              type;
     private Photo               profilePhoto;
