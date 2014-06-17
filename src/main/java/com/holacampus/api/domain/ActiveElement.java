@@ -39,6 +39,7 @@ public class ActiveElement {
     
     @HalProperty( name="id")
     private Long                id;
+    @HalProperty( name="type")
     private String              type;
     private Photo               profilePhoto;
     private List<Conversation>  conversations;

@@ -72,7 +72,7 @@ public class CommentsResource {
     @Produces( { RepresentationFactory.HAL_JSON})
     public HalList<Comment> getComments( @Context SecurityContext sc, @QueryParam("page") Integer page, @QueryParam( "size") Integer size)
     {
-        logger.info("[GET] " + path + "/"  + elId + "/comments");
+        logger.info("[GET] " + path);
         
         HalList<Comment> comments = null;
 
@@ -84,11 +84,12 @@ public class CommentsResource {
 
         try {
             CommentMapper mapper        = session.getMapper( CommentMapper.class);
-            List<Comment> commentList   = mapper.getCommentsWithCreator( container.getId(), rb);
+            List<Comment> commentList   = mapper.getComments( container.getId(), rb);
             int total                   = mapper.getTotalComments( container.getId());
             session.commit();
             
             comments = new HalList<Comment>( commentList, total);
+            comments.setResourceRelativePath(path);
             comments.setPage(page);
             comments.setSize(size);
         }catch( Exception e) {
@@ -96,8 +97,7 @@ public class CommentsResource {
             throw new InternalServerErrorException( e.getMessage());
         }finally {
             session.close();
-        }
-        
+        } 
         return comments;
     }
     
@@ -107,7 +107,7 @@ public class CommentsResource {
     @Produces( { RepresentationFactory.HAL_JSON})
     public Comment postNewComment( @CreationValid @Valid Comment comment, @Context SecurityContext sc)
     {
-        logger.info("[POST] " + path + "/"  + elId + "/comments");
+        logger.info("[POST] " + path);
         
         comment.setCreator( new User( (UserPrincipal) sc.getUserPrincipal()));
         comment.setBelongingCommentContainer(container);
@@ -124,9 +124,8 @@ public class CommentsResource {
 
         try {
             CommentMapper mapper    = session.getMapper( CommentMapper.class);
-            UserMapper userMapper   = session.getMapper( UserMapper.class);
             int result              = mapper.createComment(comment);
-            comment.setCreator( userMapper.getUser( elId));
+            comment                 = mapper.getComment( comment.getId());
             session.commit();
             
             if( result == 0 || comment.getId() == null) {

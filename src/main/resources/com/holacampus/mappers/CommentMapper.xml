@@ -11,7 +11,7 @@
                      resultMap="com.holacampus.api.mappers.UserMapper.activeElementEmbeddedResult" />
     </resultMap>
     
-    <select id="getCommentsWithCreator" parameterType="map" resultMap="commentResult">
+    <select id="getComments" parameterType="map" resultMap="commentResult">
         select	CO.CommentID 		as comment_id,
 		CO.Content		as comment_content,
 		CO.IsRecomment		as comment_recomment,
@@ -42,6 +42,42 @@
         select COUNT( CO.CommentID) 
         from comment CO
             where CO.BelongingCommentContainerID = #{containerId}
+    </select>
+    
+    <select id="getComment" parameterType="map" resultMap="commentResult">
+        select	CO.CommentID 		as comment_id,
+		CO.Content		as comment_content,
+		CO.IsRecomment		as comment_recomment,
+		CO.CreationDate 	as comment_date,
+		
+		A.ActiveElementID	as ae_id,
+		A.Type			as ae_type,
+		
+		U.UserID		as user_id,
+		U.FirstName		as user_firstname,
+		U.LastName		as user_lastname,
+
+		UN.UniversityID         as uni_id,
+		UN.Name			as uni_name
+
+        from comment CO
+                left join active_element A
+                        on CO.ActiveElementID = A.ActiveElementID
+                left join user U
+                        on A.ActiveElementID = U.UserID
+                left join university UN
+                        on A.ActiveElementID = UN.UniversityID
+
+            where CO.CommentID = #{id}
+    </select>
+    
+     <select id="getCommentContainer" parameterType="long" resultMap="com.holacampus.api.mappers.CommentContainerMapper.cContainerResult">
+        select  C.CommentContainerID as cc_id,
+                C.Type as cc_type
+        from comment CO
+            left join comment_container C
+                on CO.OwnCommentContainerID = C.CommentContainerID
+            where CO.CommentID = #{id}
     </select>
     
     <insert id="createComment" parameterType="map" statementType="CALLABLE">

@@ -21,6 +21,7 @@ import com.holacampus.api.hal.Linkable;
 import com.holacampus.api.utils.Utils;
 import com.holacampus.api.validators.CreationNeeded;
 import com.theoryinpractise.halbuilder.jaxrs.HalEmbedded;
+import com.theoryinpractise.halbuilder.jaxrs.HalLink;
 import com.theoryinpractise.halbuilder.jaxrs.HalProperty;
 import com.theoryinpractise.halbuilder.jaxrs.HalRootElement;
 import com.theoryinpractise.halbuilder.jaxrs.HalSelfLink;
@@ -115,6 +116,14 @@ public class Comment implements Linkable{
     @HalSelfLink
     public String getSelfLink() {
         return Utils.createLink("/comments/" + getId(), null);
+    }
+    
+    @HalLink( "recomments")
+    public String getRecommentsLink()
+    {
+        if( !isRecomment)
+            return getSelfLink() + "/recomments";
+        return null;
     }
 
     @Override

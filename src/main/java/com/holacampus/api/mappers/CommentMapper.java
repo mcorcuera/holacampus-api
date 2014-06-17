@@ -18,6 +18,7 @@
 package com.holacampus.api.mappers;
 
 import com.holacampus.api.domain.Comment;
+import com.holacampus.api.domain.CommentContainer;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
@@ -29,12 +30,15 @@ import org.apache.ibatis.session.RowBounds;
 public interface CommentMapper {
     
     
-    public int createComment( @Param("comment") Comment comment) throws Exception; 
+    public int                  createComment( @Param("comment") Comment comment) throws Exception; 
     
-    public List<Comment> getCommentsWithCreator( @Param("containerId") Long id) throws Exception;
+    public List<Comment>        getComments( @Param("containerId") Long id) throws Exception;
     
-    public List<Comment> getCommentsWithCreator( @Param("containerId") Long id, RowBounds rb) throws Exception;
+    public List<Comment>        getComments( @Param("containerId") Long id, RowBounds rb) throws Exception;
     
-    public int getTotalComments( @Param("containerId") Long id) throws Exception;
+    public int                  getTotalComments( @Param("containerId") Long id) throws Exception;
     
+    public Comment              getComment( @Param("id") Long id) throws Exception;
+    
+    public CommentContainer     getCommentContainer( @Param("id") Long id) throws Exception;
 }

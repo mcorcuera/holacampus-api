@@ -7,7 +7,9 @@
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
                 <property name="url" value="jdbc:mysql://localhost:3306/holacampus"/>
     </properties>
-    
+    <settings>
+        <setting name="callSettersOnNulls" value="true"/>
+    </settings>
      <typeAliases>
         <typeAlias type="com.holacampus.api.domain.ActiveElement"    alias="ActiveElement" />
         <typeAlias type="com.holacampus.api.domain.User"             alias="User" />

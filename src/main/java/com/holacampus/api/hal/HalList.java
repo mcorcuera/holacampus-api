@@ -39,7 +39,7 @@ public class HalList<T>{
     private String resourceRelativePath;
     private int page;
     private int size;
-    private String query;
+    private String query = null;
     
     public HalList()
     {

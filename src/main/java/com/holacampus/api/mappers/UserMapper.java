@@ -19,6 +19,7 @@ package com.holacampus.api.mappers;
 
 import com.holacampus.api.domain.CommentContainer;
 import com.holacampus.api.domain.User;
+import java.sql.SQLException;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
@@ -45,5 +46,11 @@ public interface UserMapper {
     * INSERT
     */
     public int createUser( @Param("user")User user) throws Exception;
+    
+    /*
+    * DELETE
+    */
+    
+    public int deleteUser( @Param("id") Long id) throws Exception;
         
 }

@@ -73,7 +73,7 @@ public class User extends ActiveElement implements Representable, Linkable
     @HalProperty( name="name")
     private Name                name;
     
-    @HalProperty( name="type")
+    @HalProperty( name="userType")
     private String              userType;
     
     @CreationNeeded( message="{user.birthDate.missing}")

@@ -43,6 +43,8 @@ public class Utils {
     public static String createLink( String path, Map<String,String> queryParams)
     {
         StringBuilder s = new StringBuilder( BASE_URL);
+        if( !path.startsWith("/"))
+            s.append("/");
         s.append(path);
         if( path.endsWith("/"))
             s.setLength( s.length() - 1);

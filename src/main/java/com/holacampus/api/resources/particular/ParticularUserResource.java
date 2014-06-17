@@ -24,13 +24,20 @@ import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.mappers.UserMapper;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
+import com.holacampus.api.security.UserPrincipal;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
+import java.util.Objects;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -40,17 +47,19 @@ import org.apache.log4j.Logger;
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 
-@Path( "/users/{id}")
+@Path( "/users")
 public class ParticularUserResource {
     
     private static final Logger logger = LogManager.getLogger( ParticularUserResource.class.getName());
     
-    @Path("/comments")
-    public CommentsResource getCommentResource( @PathParam("id") long id) {
-        
+    @Context
+    private UriInfo uriInfo;
+    
+    @Path("/{id}/comments")
+    public CommentsResource getCommentResource( @PathParam("id") long id) 
+    {
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
         CommentContainer c;
-        
         try {            
             UserMapper userMapper   = session.getMapper( UserMapper.class);
             c = userMapper.getCommentContainer(id);
@@ -59,23 +68,22 @@ public class ParticularUserResource {
             if( c == null) {
                 throw new HTTPErrorException( Status.NOT_FOUND, "User " + id + " not found");
             }
-            
         } catch( Exception e) {
             logger.error( e.toString());
             throw new HTTPErrorException( Status.NOT_FOUND, "User " + id + " not found");
         } finally {
             session.close();
-        }   
-        
-        return new CommentsResource( id, c, "/users");
+        }  
+        return new CommentsResource( id, c, uriInfo.getPath());
     }
     
     @GET
+    @Path("/{id}")
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
     public User getUser( @PathParam("id") long id)
     {
-        logger.info( "[GET] /users/\n" + id);
+        logger.info( "[GET] " + uriInfo.getPath());
         
         User user;
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
@@ -96,5 +104,53 @@ public class ParticularUserResource {
             session.close();
         }   
         return user;
+    }
+    
+    
+    @GET
+    @Path("/me")
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @Produces( { RepresentationFactory.HAL_JSON})
+    public User getUserMe( @Context SecurityContext sc)
+    {
+        return getUser( ((UserPrincipal)sc.getUserPrincipal()).getId());
+    }
+    
+    @DELETE
+    @Path("/{id}")
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_BASIC)
+    public void deleteUser( @PathParam( "id") Long id, @Context SecurityContext sc)
+    {
+        /*
+        * Only the user authenticated can delete himself, so we check it here
+        */
+        if( Objects.equals(id, ((UserPrincipal) sc.getUserPrincipal()).getId())) {
+            SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+            try {
+                UserMapper mapper    = session.getMapper( UserMapper.class);
+                int result           = mapper.deleteUser(id);
+                
+                if( result == 0) {
+                    throw new HTTPErrorException( Status.INTERNAL_SERVER_ERROR);
+                }
+                session.commit();
+            }catch( Exception e) {
+                logger.info( e);
+                throw new InternalServerErrorException( e.getMessage());
+            }finally {
+                session.close();
+            }
+        }else {
+            throw new HTTPErrorException( Status.UNAUTHORIZED, "You are not authorized");
+        }
+    }
+    
+    
+    @DELETE
+    @Path("/me")
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_BASIC)
+    public void deleteUserMe( @Context SecurityContext sc)
+    {
+        deleteUser( ((UserPrincipal)sc.getUserPrincipal()).getId(), sc);
     }
 }

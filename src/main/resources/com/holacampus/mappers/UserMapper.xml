@@ -83,4 +83,9 @@
             #{ user.id,             mode=OUT, javaType=Long, jdbcType=INTEGER}
         )
     </insert>
+    
+    <delete id="deleteUser" parameterType="map">
+        delete from user
+            where UserID = #{id}
+    </delete>
 </mapper>

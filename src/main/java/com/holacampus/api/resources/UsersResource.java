@@ -26,6 +26,7 @@ import com.holacampus.api.mappers.UserMapper;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.PasswordHash;
+import com.holacampus.api.security.UserPrincipal;
 import com.holacampus.api.utils.HALBuilderUtils;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.holacampus.api.utils.Utils;
@@ -34,12 +35,14 @@ import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
+import java.util.Objects;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.LogManager;
@@ -54,6 +57,8 @@ public class UsersResource {
     
     private static final Logger logger = LogManager.getLogger( UsersResource.class.getName());
     
+    @Context
+    private UriInfo uriInfo;
     
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -61,7 +66,7 @@ public class UsersResource {
     public HalList<User> getUsers( @Context SecurityContext sc, 
             @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q)
     {
-        logger.info( "[GET] /users");
+        logger.info( "[GET]" + uriInfo.getPath());
         logger.info( "Accessed by" + sc.getUserPrincipal().getName());
         
         page = Utils.getValidPage(page);
