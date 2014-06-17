@@ -2,18 +2,8 @@
 
 <mapper namespace="com.holacampus.api.mappers.CommentContainerMapper">
     
-    <resultMap id="ccResult" type="CommentContainer">
+    <resultMap id="cContainerResult" type="CommentContainer">
         <id column="cc_id" property="id" />
-        <result column="cc_content" property="content" /> 
+        <result column="cc_type" property="type" />
     </resultMap>
-    
-    <select id="getAllUsers" parameterType="int" resultType="CommentContainer">
-        select CommentContainerID as id, Content as content from comment_container
-            where id = #{id}
-    </select>
-    
-    <insert id="createCommentContainer" parameterType="map" useGeneratedKeys="true" keyProperty="cc.id">
-        insert into comment_container (Content)
-        values( #{cc.content})
-    </insert>
 </mapper>

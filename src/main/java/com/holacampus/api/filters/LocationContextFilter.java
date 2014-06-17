@@ -42,7 +42,7 @@ public class LocationContextFilter implements ContainerResponseFilter{
         
         if( responseContext.getEntity() != null && Linkable.class.isAssignableFrom( responseContext.getEntityClass())) {
             Linkable r = (Linkable) responseContext.getEntity();
-            String location = r.selfLink();
+            String location = r.getSelfLink();
             if( location != null) {
                 responseContext.getHeaders().add("Location", location);
             }

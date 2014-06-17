@@ -17,7 +17,7 @@
 
 package com.holacampus.api.mappers;
 
-import com.holacampus.api.beans.AuthToken;
+import com.holacampus.api.domain.AuthToken;
 import org.apache.ibatis.annotations.Param;
 
 /**

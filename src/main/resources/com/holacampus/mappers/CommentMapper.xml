@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.holacampus.api.mappers.CommentMapper">
+    
+    <resultMap id="commentResult" type="Comment">
+        <id     column="comment_id"         property="id" />
+        <result column="comment_content"    property="content" />
+        <result column="comment_recomment"  property="isRecomment" />
+        <result column="comment_date"       property="creationDate" />
+        <association property="creator" column="ae_id" javaType="ActiveElement" 
+                     resultMap="com.holacampus.api.mappers.UserMapper.activeElementEmbeddedResult" />
+    </resultMap>
+    
+    <select id="getCommentsWithCreator" parameterType="map" resultMap="commentResult">
+        select	CO.CommentID 		as comment_id,
+		CO.Content		as comment_content,
+		CO.IsRecomment		as comment_recomment,
+		CO.CreationDate 	as comment_date,
+		
+		A.ActiveElementID	as ae_id,
+		A.Type			as ae_type,
+		
+		U.UserID		as user_id,
+		U.FirstName		as user_firstname,
+		U.LastName		as user_lastname,
+
+		UN.UniversityID         as uni_id,
+		UN.Name			as uni_name
+
+        from comment CO
+                left join active_element A
+                        on CO.ActiveElementID = A.ActiveElementID
+                left join user U
+                        on A.ActiveElementID = U.UserID
+                left join university UN
+                        on A.ActiveElementID = UN.UniversityID
+
+                where CO.BelongingCommentContainerID = #{containerId}
+    </select>
+    
+    <select id="getTotalComments" parameterType="map" resultType="int">
+        select COUNT( CO.CommentID) 
+        from comment CO
+            where CO.BelongingCommentContainerID = #{containerId}
+    </select>
+    
+    <insert id="createComment" parameterType="map" statementType="CALLABLE">
+        CALL newComment (
+            #{ comment.content,                         mode=IN,    javaType=String,                jdbcType=VARCHAR},
+            #{ comment.creator.id,                      mode=IN,    javaType=Long,                  jdbcType=INTEGER},
+            #{ comment.belongingCommentContainer.id,    mode=IN,    javaType=Long,                  jdbcType=INTEGER},
+            #{ comment.isRecomment,                     mode=IN,    javaType=Boolean,               jdbcType=BOOLEAN},
+            #{ comment.creationDate,                    mode=OUT,   javaType=java.util.Date,        jdbcType=DATE},
+            #{ comment.id,                              mode=OUT,   javaType=Long,                  jdbcType=INTEGER}
+        )
+    </insert>
+</mapper>

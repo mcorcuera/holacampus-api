@@ -17,8 +17,8 @@
 
 package com.holacampus.api.resources;
 
-import com.holacampus.api.beans.AuthToken;
-import com.holacampus.api.beans.User;
+import com.holacampus.api.domain.AuthToken;
+import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.mappers.AuthTokenMapper;
 import com.holacampus.api.security.AuthTokenGenerator;

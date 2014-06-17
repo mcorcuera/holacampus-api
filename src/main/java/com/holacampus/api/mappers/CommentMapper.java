@@ -14,29 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.holacampus.api.mappers;
 
-import com.holacampus.api.domain.CommentContainer;
+import com.holacampus.api.domain.Comment;
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
 /**
  *
- *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
+ * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
-public interface CommentContainerMapper {
+public interface CommentMapper {
     
-    /**
-     *
-     * @param id
-     * @return
-     */
-    public CommentContainer getCommentContainer( long id);
     
-    /**
-     *
-     * @param cc
-     * @return
-     */
-    public int createCommentContainer( @Param("cc") CommentContainer cc);
+    public int createComment( @Param("comment") Comment comment) throws Exception; 
+    
+    public List<Comment> getCommentsWithCreator( @Param("containerId") Long id) throws Exception;
+    
+    public List<Comment> getCommentsWithCreator( @Param("containerId") Long id, RowBounds rb) throws Exception;
+    
+    public int getTotalComments( @Param("containerId") Long id) throws Exception;
     
 }

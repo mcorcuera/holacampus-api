@@ -14,29 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.holacampus.api.mappers;
 
-import com.holacampus.api.domain.CommentContainer;
-import org.apache.ibatis.annotations.Param;
+package com.holacampus.api.domain;
+
+import java.util.List;
 
 /**
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
-public interface CommentContainerMapper {
+public class CommentContainer extends Container{
+   
+    private List<Comment> comments;
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
     
-    /**
-     *
-     * @param id
-     * @return
-     */
-    public CommentContainer getCommentContainer( long id);
     
-    /**
-     *
-     * @param cc
-     * @return
-     */
-    public int createCommentContainer( @Param("cc") CommentContainer cc);
     
 }

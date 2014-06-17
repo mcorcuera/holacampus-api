@@ -17,8 +17,8 @@
 
 package com.holacampus.api.security;
 
-import com.holacampus.api.beans.Credentials;
-import com.holacampus.api.beans.User;
+import com.holacampus.api.domain.Credentials;
+import com.holacampus.api.domain.User;
 import com.holacampus.api.filters.SecurityContextFilter;
 import com.holacampus.api.mappers.CredentialsMapper;
 import com.holacampus.api.utils.MyBatisConnectionFactory;

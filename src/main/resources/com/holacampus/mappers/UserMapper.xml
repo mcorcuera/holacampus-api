@@ -14,7 +14,21 @@
                 resultMap="com.holacampus.api.mappers.CommentContainerMapper.ccResult" />-->
     </resultMap>
     
-    <select id="getAllUsers" parameterType="int" resultMap="userResult">
+    <resultMap id="activeElementEmbeddedResult" type="ActiveElement">
+        <id column="ae_id"  property="id" />
+        <result column="ae_type" property="type" />
+        <discriminator javaType="String" column="ae_type">
+            <case value="USER" resultMap="userEmbeddedResult" />
+        </discriminator>
+    </resultMap>
+    
+    <resultMap id="userEmbeddedResult" type="User">
+        <id     column="user_id" property="id" />
+        <result column="user_firstname"  property="name.firstName" />
+        <result column="user_lastname"   property="name.lastName" />
+    </resultMap>
+    
+    <select id="getAllUsers" parameterType="map" resultMap="userResult">
         select  U.UserID        as user_id, 
                 U.FirstName     as user_firstname,
                 U.LastName      as user_lastname,
@@ -23,11 +37,22 @@
                 U.Gender        as user_gender,
                 U.Type          as user_type
         from user U
+            where Type='STUDENT'
+            <if test="q != null">
+                AND match(FirstName,LastName) against(#{q})
+            </if>
+    </select>
+    
+    <select id="getTotalUsers" parameterType="map" resultType="int">
+        select COUNT(U.UserID) from user U
+        where Type='STUDENT'
+        <if test="q != null">
+                AND match(FirstName,LastName) against(#{q})
+        </if>
     </select>
     
     <select id="getUser" parameterType="long" resultMap="userResult">
-        
-          select  U.UserID        as user_id, 
+        select  U.UserID        as user_id, 
                 U.FirstName     as user_firstname,
                 U.LastName      as user_lastname,
                 U.Email         as user_email,
@@ -36,7 +61,15 @@
                 U.Type          as user_type
         from user U
             where U.UserID = #{id}
-        
+    </select>
+    
+    <select id="getCommentContainer" parameterType="long" resultMap="com.holacampus.api.mappers.CommentContainerMapper.cContainerResult">
+        select  C.CommentContainerID as cc_id,
+                C.Type as cc_type
+        from user U
+            left join comment_container C
+                on U.CommentContainerID = C.CommentContainerID
+            where U.UserID = #{id}
     </select>
     
     <insert id="createUser" parameterType="map" statementType="CALLABLE">

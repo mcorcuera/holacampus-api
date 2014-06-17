@@ -26,6 +26,6 @@ public interface Linkable {
      *
      * @return
      */
-    public String selfLink();
+    public String getSelfLink();
     
 }

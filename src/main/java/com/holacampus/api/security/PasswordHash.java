@@ -28,7 +28,7 @@ package com.holacampus.api.security;
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.holacampus.api.beans.Credentials;
+import com.holacampus.api.domain.Credentials;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;

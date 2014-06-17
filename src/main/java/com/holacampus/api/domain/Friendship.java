@@ -14,29 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.holacampus.api.mappers;
+package com.holacampus.api.domain;
 
-import com.holacampus.api.domain.CommentContainer;
-import org.apache.ibatis.annotations.Param;
+import java.sql.Date;
 
 /**
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
-public interface CommentContainerMapper {
+public class Friendship {
     
-    /**
-     *
-     * @param id
-     * @return
-     */
-    public CommentContainer getCommentContainer( long id);
-    
-    /**
-     *
-     * @param cc
-     * @return
-     */
-    public int createCommentContainer( @Param("cc") CommentContainer cc);
-    
+    private User    sender;
+    private User    receiver;
+    private String  status;
+    private Date    petitionDate;
+    private Date    statusChangeDate;
+    private boolean askedByMe;
 }

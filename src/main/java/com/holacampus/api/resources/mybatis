@@ -1,0 +1,12 @@
+SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+
+try {
+    Object mapper    = session.getMapper( Object.class);
+    
+    session.commit();
+}catch( Exception e) {
+    logger.info( e);
+    throw new InternalServerErrorException( e.getMessage());
+}finally {
+    session.close();
+}

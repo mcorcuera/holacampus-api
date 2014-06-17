@@ -17,13 +17,10 @@
 
 package com.holacampus.api.resources;
 
-import com.holacampus.api.beans.Credentials;
-import com.holacampus.api.beans.User;
-import com.holacampus.api.exceptions.ConflictException;
+import com.holacampus.api.domain.Credentials;
+import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.hal.HalList;
-import com.holacampus.api.hal.builders.UserHALBuilder;
-import com.holacampus.api.hal.contracts.UserContract.UserCreateContract;
 import com.holacampus.api.mappers.CredentialsMapper;
 import com.holacampus.api.mappers.UserMapper;
 import com.holacampus.api.security.AuthenticationRequired;
@@ -32,20 +29,18 @@ import com.holacampus.api.security.PasswordHash;
 import com.holacampus.api.utils.HALBuilderUtils;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.holacampus.api.utils.Utils;
-import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
-import com.theoryinpractise.halbuilder.api.Representation;
+import com.holacampus.api.validators.CreationValid;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
+import javax.validation.Valid;
 import javax.ws.rs.*;
-import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
+import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -59,30 +54,36 @@ public class UsersResource {
     
     private static final Logger logger = LogManager.getLogger( UsersResource.class.getName());
     
-    /**
-     *
-     * @param sc
-     * @return
-     */    
     
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
-    public HalList<User> getUsers( @Context SecurityContext sc)
+    public HalList<User> getUsers( @Context SecurityContext sc, 
+            @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q)
     {
         logger.info( "[GET] /users");
         logger.info( "Accessed by" + sc.getUserPrincipal().getName());
+        
+        page = Utils.getValidPage(page);
+        size = Utils.getValidSize(size);
+        RowBounds rb = Utils.createRowBounds(page, size);
+        
         SqlSession session          = MyBatisConnectionFactory.getSession().openSession();
         RepresentationFactory rf    = HALBuilderUtils.getRepresentationFactory();
         HalList<User> users;
         
         try {            
             UserMapper userMapper   = session.getMapper( UserMapper.class);
-            List usersList          = userMapper.getAllUsers( );
+            List usersList          = userMapper.getAllUsers( q, rb);
+            int total               = userMapper.getTotalUsers(q);
             session.commit();
+            users = new HalList( usersList, total);
             
-            users = new HalList( usersList, usersList.size());
-            users.setSelfLink( Utils.createLink("/users"));
+            users.setResourceRelativePath("/users");
+            users.setPage(page);
+            users.setSize(size);
+            users.setQuery(q);
+            
         }catch( Exception e) {
             logger.error( e.toString());
             throw new InternalServerErrorException();
@@ -94,30 +95,14 @@ public class UsersResource {
         return users;
     }
     
-    /**
-     *
-     * @param input
-     * @return
-     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_NONE)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
     @Produces( { RepresentationFactory.HAL_JSON})
-    public User createUser( ReadableRepresentation input)
+    public User createUser( @CreationValid @Valid User user)
     {
         logger.info("[POST] /users");
-        
-        RepresentationFactory r = HALBuilderUtils.getRepresentationFactory();
-         
-        /*
-        * Check if required fields are present. If not throws a HTTP 409 (BadRequest) Error  
-        */
-        if( !input.isSatisfiedBy( new UserCreateContract())) {
-            throw new HTTPErrorException( Status.BAD_REQUEST, "Invalid content for creating user");
-        }
-        
-        User user = UserHALBuilder.buildUser(input);
-       
+                    
         user.setUserType( User.TYPE_STUDENT);
         
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
@@ -149,6 +134,7 @@ public class UsersResource {
         } finally {
             session.close();
         }
+        
         return user;
     }
 }

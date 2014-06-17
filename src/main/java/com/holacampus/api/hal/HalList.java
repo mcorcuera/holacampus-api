@@ -17,7 +17,9 @@
 
 package com.holacampus.api.hal;
 
+import com.holacampus.api.utils.Utils;
 import com.theoryinpractise.halbuilder.jaxrs.*;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -34,8 +36,11 @@ public class HalList<T>{
     @HalProperty( name="total")
     private int total;
     
-    private String selfLink;
-
+    private String resourceRelativePath;
+    private int page;
+    private int size;
+    private String query;
+    
     public HalList()
     {
     }
@@ -67,18 +72,85 @@ public class HalList<T>{
         this.total = total;
     }
 
-    public String getSelfLink() {
-        return selfLink;
+
+    public String getResourceRelativePath() {
+        return resourceRelativePath;
     }
 
-    public void setSelfLink(String selfLink) {
-        this.selfLink = selfLink;
+    public void setResourceRelativePath(String resourceName) {
+        this.resourceRelativePath = resourceName;
     }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+    
+    
     
     @HalSelfLink
     public String selfLink() {
-        return getSelfLink();
+        
+        HashMap<String,String> params = new HashMap<String,String>();
+        
+        if( page != Utils.DEFAULT_PAGE || size != Utils.DEFAULT_SIZE) {
+            params.put("page", Integer.toString(page));
+            params.put("size", Integer.toString(size));
+        }    
+        
+        if( query != null)
+            params.put("q", query);
+        
+        return Utils.createLink(resourceRelativePath, params);
     }
     
+    @HalLink("next")
+    public String nextLink() {
+        if( (page + 1)*size < total) {
+            HashMap<String,String> params = new HashMap<String,String>();
+            params.put("page", Integer.toString( page + 1));
+            params.put("size", Integer.toString( size));
+            
+            if( query != null)
+                params.put("q", query);
+        
+            return Utils.createLink(resourceRelativePath, params);
+        }
+        return null;
+    }
+    
+    @HalLink("previous")
+    public String previousLink() {
+        if( page != 0) {
+            HashMap<String,String> params = new HashMap<String,String>();
+            params.put("page", Integer.toString( page - 1));
+            params.put("size", Integer.toString( size));
+            
+            if( query != null)
+                params.put("q", query);
+        
+            return Utils.createLink(resourceRelativePath, params);
+        }
+        return null;
+    }
     
 }

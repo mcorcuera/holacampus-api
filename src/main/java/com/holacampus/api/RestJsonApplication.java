@@ -17,13 +17,17 @@
 
 package com.holacampus.api;
 
+import com.holacampus.api.hal.NameBuilder;
 import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.BasicAuthenticator;
 import com.holacampus.api.security.TokenAuthenticator;
+import com.theoryinpractise.halbuilder.jaxrs.HalContext;
 import java.net.URL;
 import javax.ws.rs.ApplicationPath;
 import org.apache.log4j.PropertyConfigurator;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
+import org.glassfish.jersey.server.validation.ValidationFeature;
 
 
 /**
@@ -43,6 +47,12 @@ public class RestJsonApplication extends ResourceConfig{
                 "com.theoryinpractise.halbuilder.jaxrs",
                 "com.holacampus.api.filters");
         
+        // Now you can expect validation errors to be sent to the client.
+        property(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
+        
+        register(ValidationConfigurationContextResolver.class);
+        
+        register( ValidationFeature.class);
         
         // Log4j Configuration from file
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -52,6 +62,8 @@ public class RestJsonApplication extends ResourceConfig{
         AuthenticationScheme.registerAuthenticator( new BasicAuthenticator());
         AuthenticationScheme.registerAuthenticator( new TokenAuthenticator());
         
+        HalContext.registerPropertyBuilder( new NameBuilder());
+    
     }
     
 }

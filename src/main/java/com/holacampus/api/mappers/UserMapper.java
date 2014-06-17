@@ -17,7 +17,8 @@
 
 package com.holacampus.api.mappers;
 
-import com.holacampus.api.beans.User;
+import com.holacampus.api.domain.CommentContainer;
+import com.holacampus.api.domain.User;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
@@ -28,34 +29,21 @@ import org.apache.ibatis.session.RowBounds;
  */
 public interface UserMapper {
     
-    /**
-     *
-     * @param rb
-     * @return
-     * @throws Exception
-     */
-    public List<User> getAllUsers( RowBounds rb) throws Exception;
-    
-    /**
-     *
-     * @return
-     * @throws Exception
-     */
-    public List<User> getAllUsers() throws Exception;
-    
-    /**
-     *
-     * @param user
-     * @return
-     * @throws Exception
-     */
-    public int createUser( @Param("user")User user) throws Exception;
-    
-    /**
-     *
-     * @param id
-     * @return
-     * @throws Exception
-     */
+    /*
+    * SELECT
+    */
+    public List<User> getAllUsers( @Param("q") String q, RowBounds rb) throws Exception;
+        
+    public List<User> getAllUsers(@Param("q")  String q) throws Exception;
+        
+    public int getTotalUsers( @Param("q") String q) throws Exception;
+  
     public User getUser( @Param("id") long id) throws Exception;
+    
+    public CommentContainer getCommentContainer( @Param("id") long id) throws Exception;
+    /*
+    * INSERT
+    */
+    public int createUser( @Param("user")User user) throws Exception;
+        
 }

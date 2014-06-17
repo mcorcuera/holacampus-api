@@ -17,7 +17,7 @@
 
 package com.holacampus.api.filters;
 
-import com.holacampus.api.beans.User;
+import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;

@@ -17,8 +17,8 @@
 
 package com.holacampus.api.hal.builders;
 
-import com.holacampus.api.beans.Name;
-import com.holacampus.api.beans.User;
+import com.holacampus.api.domain.Name;
+import com.holacampus.api.domain.User;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
 import java.util.Map;
 

@@ -14,29 +14,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.holacampus.api.mappers;
+package com.holacampus.api.domain;
 
-import com.holacampus.api.domain.CommentContainer;
-import org.apache.ibatis.annotations.Param;
+import java.util.List;
 
 /**
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
-public interface CommentContainerMapper {
+public class University extends ActiveElement{
+    
+    private String              name;
+    private User                manager;
+    private CommentContainer    commentContainer;
+    private PhotoContainer      photoContainer;
+    private List<Study>         studies;
+    private List<City>          cities;
+    private List<User>          students;
+    private List<Conversation>  conversations;
+    private List<Group>         groups;
+    private List<Event>         events;
+    private List<Group>         ownedGroups;
+    private List<Event>         ownedEvents;
     
     /**
      *
-     * @param id
-     * @return
      */
-    public CommentContainer getCommentContainer( long id);
-    
-    /**
-     *
-     * @param cc
-     * @return
-     */
-    public int createCommentContainer( @Param("cc") CommentContainer cc);
-    
+    public University()
+    {
+        super();
+        setType( TYPE_UNI);
+    }
 }

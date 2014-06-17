@@ -17,7 +17,7 @@
 
 package com.holacampus.api.security;
 
-import com.holacampus.api.beans.User;
+import com.holacampus.api.domain.User;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ws.rs.core.MultivaluedMap;
