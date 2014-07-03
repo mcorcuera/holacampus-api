@@ -15,48 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.holacampus.api.domain;
+package com.holacampus.api.mappers;
 
 /**
  *
- *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
+ * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
-public class Container {
-    
-    
-    public static enum ElementType{
-        USER, UNI, GROUP, COMMENT, PHOTO
-    }
-    
-    private Long        id;
-    private ElementType type;
-    private Long        ownerId;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public ElementType getType() {
-        return type;
-    }
-
-    public void setType(ElementType type) {
-        this.type = type;
-    }
-
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(Long ownnerId) {
-        this.ownerId = ownnerId;
-    }
-    
-    
-    
+public class PhotoMapper {
     
 }

@@ -17,46 +17,39 @@
 
 package com.holacampus.api.domain;
 
+import com.theoryinpractise.halbuilder.jaxrs.HalProperty;
+import com.theoryinpractise.halbuilder.jaxrs.HalRootElement;
+
 /**
  *
- *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
+ * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
-public class Container {
+@HalRootElement
+public class Permission {
     
+    public static final String LEVEL_USER           = "USER";
+    public static final String LEVEL_OWNER          = "OWNER";
+    public static final String LEVEL_PARENT_OWNER   = "PARENT_OWNER";
+    public static final String LEVEL_MEMBER         = "MEMBER";
     
-    public static enum ElementType{
-        USER, UNI, GROUP, COMMENT, PHOTO
-    }
-    
-    private Long        id;
-    private ElementType type;
-    private Long        ownerId;
+    @HalProperty( name="level")
+    private String level;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public ElementType getType() {
-        return type;
-    }
-
-    public void setType(ElementType type) {
-        this.type = type;
-    }
-
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(Long ownnerId) {
-        this.ownerId = ownnerId;
+    public Permission() {
+        this.level = Permission.LEVEL_USER;
     }
     
+    public Permission( String level) {
+        this.level = level;
+    }
     
+     public void setLevel(String level) {
+        this.level = level;
+    }
+     
+    public String getLevel() {
+        return level;
+    }
     
     
 }

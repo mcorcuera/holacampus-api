@@ -20,10 +20,12 @@ package com.holacampus.api.subresources;
 import com.holacampus.api.domain.Comment;
 import com.holacampus.api.domain.CommentContainer;
 import com.holacampus.api.domain.Container;
+import com.holacampus.api.domain.Container.ElementType;
+import com.holacampus.api.domain.Permission;
 import com.holacampus.api.domain.User;
 import com.holacampus.api.hal.HalList;
+import com.holacampus.api.mappers.CommentContainerMapper;
 import com.holacampus.api.mappers.CommentMapper;
-import com.holacampus.api.mappers.UserMapper;
 import com.holacampus.api.resources.particular.ParticularUserResource;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
@@ -33,6 +35,7 @@ import com.holacampus.api.utils.Utils;
 import com.holacampus.api.validators.CreationValid;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import java.util.List;
+import java.util.Objects;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -47,6 +50,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
 
 /**
  *
@@ -60,6 +64,7 @@ public class CommentsResource {
     private final String            path;
     private Long                    elId;
     
+    
     public CommentsResource( long id, CommentContainer c, String path)
     {
         this.elId       = id;
@@ -70,23 +75,44 @@ public class CommentsResource {
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
-    public HalList<Comment> getComments( @Context SecurityContext sc, @QueryParam("page") Integer page, @QueryParam( "size") Integer size)
+    public HalList<Comment> getComments( @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @Context SecurityContext sc)
     {
         logger.info("[GET] " + path);
-        
-        HalList<Comment> comments = null;
 
+        HalList<Comment> comments   = null;
+        Permission containerPermissions = new Permission();
+        
         page            = Utils.getValidPage(page);
         size            = Utils.getValidSize(size);
         RowBounds rb    = Utils.createRowBounds(page, size);
         
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
-
+        
         try {
-            CommentMapper mapper        = session.getMapper( CommentMapper.class);
-            List<Comment> commentList   = mapper.getComments( container.getId(), rb);
-            int total                   = mapper.getTotalComments( container.getId());
+            CommentMapper mapper                        = session.getMapper( CommentMapper.class);
+            CommentContainerMapper  containerMapper     = session.getMapper( CommentContainerMapper.class);
+            List<Comment> commentList                   = mapper.getComments( container.getId(), rb);
+            int total                                   = mapper.getTotalComments( container.getId());
+            
+            // Get container permission level
+           containerMapper.getPermissions( ((UserPrincipal)sc.getUserPrincipal()).getId(), container.getId(), containerPermissions);
+            
             session.commit();
+            
+            /* Add permission level */
+            for( Comment comment : commentList) {
+                /*
+                    If current user is the owner (creator) of the comment
+                */
+                Permission permissions = containerPermissions;
+                
+                //If current user is the creator of the resource, override permission
+                if( Objects.equals(comment.getCreator().getId(), ((UserPrincipal)sc.getUserPrincipal()).getId())) {
+                    permissions.setLevel( Permission.LEVEL_OWNER);
+                }
+                //Set resource permission
+                comment.setPermission( permissions);
+            }
             
             comments = new HalList<Comment>( commentList, total);
             comments.setResourceRelativePath(path);
@@ -132,6 +158,8 @@ public class CommentsResource {
                 logger.info( "Problem creating comment");
                 throw new Exception( "Error while creating the comment");
             }
+            // The current user is the creator of the comment
+            comment.setPermission( new Permission( Permission.LEVEL_OWNER));
         }catch( Exception e) {
             logger.info( e);
             throw new InternalServerErrorException( e.getMessage());

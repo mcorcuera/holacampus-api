@@ -5,5 +5,14 @@
     <resultMap id="cContainerResult" type="CommentContainer">
         <id column="cc_id" property="id" />
         <result column="cc_type" property="type" />
+        <result column="cc_owner_id" property="ownerId"/>
     </resultMap>
+    
+      <select id="getPermissions" parameterType="map" statementType="CALLABLE">
+        CALL getCommentContainerPermissions(
+            #{ userId,              mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ containerId,         mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ permission.level,    mode=OUT,    javaType=String,                jdbcType=VARCHAR}
+        )
+    </select>
 </mapper>

@@ -78,11 +78,18 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.2</version>
         </dependency>
-        
+        <!-- HALBuilder Extension for JAX-RS !!!LOCAL!!!! -->
         <dependency>
             <groupId>com.theoryinpractise</groupId>
             <artifactId>halbuilder-jaxrs</artifactId>
             <version> 0.1</version>
+        </dependency>
+        
+        <!-- CROSS FILTER dependency -->
+        <dependency>
+            <groupId>com.thetransactioncompany</groupId>
+            <artifactId>cors-filter</artifactId>
+            <version>1.9.3</version>
         </dependency>
     </dependencies>
 

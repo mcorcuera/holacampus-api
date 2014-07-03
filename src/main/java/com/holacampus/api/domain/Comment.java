@@ -51,6 +51,8 @@ public class Comment implements Linkable{
     @HalEmbedded( "creator")
     private ActiveElement       creator;
     
+    @HalEmbedded( "permission")
+    private Permission          permission;
     
     private CommentContainer    belongingCommentContainer;
     private CommentContainer    ownCommentContainer;
@@ -87,6 +89,14 @@ public class Comment implements Linkable{
         this.isRecomment = isRecomment;
     }
 
+    public Permission getPermission() {
+        return permission;
+    }
+
+    public void setPermission(Permission permission) {
+        this.permission = permission;
+    }
+    
     public CommentContainer getBelongingCommentContainer() {
         return belongingCommentContainer;
     }

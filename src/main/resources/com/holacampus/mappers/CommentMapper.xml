@@ -36,6 +36,7 @@
                         on A.ActiveElementID = UN.UniversityID
 
                 where CO.BelongingCommentContainerID = #{containerId}
+        order by CO.CreationDate desc
     </select>
     
     <select id="getTotalComments" parameterType="map" resultType="int">
@@ -74,10 +75,8 @@
      <select id="getCommentContainer" parameterType="long" resultMap="com.holacampus.api.mappers.CommentContainerMapper.cContainerResult">
         select  C.CommentContainerID as cc_id,
                 C.Type as cc_type
-        from comment CO
-            left join comment_container C
-                on CO.OwnCommentContainerID = C.CommentContainerID
-            where CO.CommentID = #{id}
+        from comment_container C
+            where C.CommentID = #{id}
     </select>
     
     <insert id="createComment" parameterType="map" statementType="CALLABLE">
@@ -90,4 +89,18 @@
             #{ comment.id,                              mode=OUT,   javaType=Long,                  jdbcType=INTEGER}
         )
     </insert>
+    
+    <select id="getPermissions" parameterType="map" statementType="CALLABLE">
+        CALL getCommentPermissions(
+            #{ userId,              mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ commentId,                 mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            false,
+            #{ permission.level,       mode=OUT,    javaType=String,                jdbcType=VARCHAR}
+        )
+    </select>
+    
+    <delete id="deleteComment" parameterType="map">
+        delete from comment
+        where CommentID = #{id}
+    </delete>
 </mapper>

@@ -30,11 +30,10 @@ public class Utils {
     /**
      *
      */
-    public static final String BASE_URL = "http://localhost:8080/api";
-    
-    public static final Integer DEFAULT_PAGE = 0;
-    public static final Integer DEFAULT_SIZE = 15;
-    public static final Integer MAX_SIZE = 40;
+    public static final String BASE_URL             = "http://localhost:8080/api";
+    public static final Integer DEFAULT_PAGE        = 0;
+    public static final Integer DEFAULT_SIZE        = 15;
+    public static final Integer MAX_SIZE            = 40;
     /**
      *
      * @param path

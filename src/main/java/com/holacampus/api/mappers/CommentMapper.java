@@ -19,6 +19,7 @@ package com.holacampus.api.mappers;
 
 import com.holacampus.api.domain.Comment;
 import com.holacampus.api.domain.CommentContainer;
+import com.holacampus.api.domain.Permission;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
@@ -41,4 +42,8 @@ public interface CommentMapper {
     public Comment              getComment( @Param("id") Long id) throws Exception;
     
     public CommentContainer     getCommentContainer( @Param("id") Long id) throws Exception;
+    
+    public void                  getPermissions(  @Param("userId") Long userId, @Param("commentId") Long commentId, @Param("permission") Permission permission) throws Exception;
+    
+    public int                  deleteComment( @Param("id") Long id) throws Exception;
 }

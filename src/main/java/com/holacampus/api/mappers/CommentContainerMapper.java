@@ -17,6 +17,7 @@
 package com.holacampus.api.mappers;
 
 import com.holacampus.api.domain.CommentContainer;
+import com.holacampus.api.domain.Permission;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -25,18 +26,7 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface CommentContainerMapper {
     
-    /**
-     *
-     * @param id
-     * @return
-     */
-    public CommentContainer getCommentContainer( long id);
-    
-    /**
-     *
-     * @param cc
-     * @return
-     */
-    public int createCommentContainer( @Param("cc") CommentContainer cc);
+    public void                  getPermissions(  @Param("userId") Long userId, @Param("containerId") Long containerId, @Param("permission") Permission permission) throws Exception;
+
     
 }

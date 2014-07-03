@@ -65,11 +65,10 @@
     
     <select id="getCommentContainer" parameterType="long" resultMap="com.holacampus.api.mappers.CommentContainerMapper.cContainerResult">
         select  C.CommentContainerID as cc_id,
-                C.Type as cc_type
-        from user U
-            left join comment_container C
-                on U.CommentContainerID = C.CommentContainerID
-            where U.UserID = #{id}
+                C.Type as cc_type,
+                C.UserID as cc_owner_id
+        from comment_container C
+            where UserID = #{id}
     </select>
     
     <insert id="createUser" parameterType="map" statementType="CALLABLE">
@@ -85,7 +84,7 @@
     </insert>
     
     <delete id="deleteUser" parameterType="map">
-        delete from user
-            where UserID = #{id}
+        delete from active_element
+            where ActiveElementID = #{id}
     </delete>
 </mapper>
