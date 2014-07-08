@@ -71,6 +71,14 @@
             where UserID = #{id}
     </select>
     
+    <select id="getPhotoContainer" parameterType="long" resultMap="com.holacampus.api.mappers.PhotoContainerMapper.pContainerResult">
+        select  P.PhotoContainerID as pc_id,
+                P.Type as pc_type,
+                P.UserID as pc_owner_id
+        from photo_container P
+            where UserID = #{id}
+    </select>
+    
     <insert id="createUser" parameterType="map" statementType="CALLABLE">
         CALL newUser( 
             #{ user.name.firstName, mode=IN, javaType=String, jdbcType=VARCHAR},

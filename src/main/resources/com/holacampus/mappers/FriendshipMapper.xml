@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.holacampus.api.mappers.FriendshipMapper">
+    <resultMap id="friendshipResult" type="Friendship">
+        <result column="f_status" property="status"/>
+        <result column="f_petition_date" property="petitionDate"/>
+        <result column="f_change_date" property="statusChangeDate"/>
+        <association property="sender" column="sender_id" javaType="User">
+            <id column="sender_id" property="id"/>
+            <result column="sender_first_name" property="name.firstName"/>
+            <result column="sender_last_name" property="name.lastName" />
+            <result column="sender_gender" property="gender"/>
+            <result column="sender_birth" property="birthDate"/>
+        </association>
+        <association property="receiver" column="receiver_id" javaType="User">
+            <id column="receiver_id" property="id"/>
+            <result column="receiver_first_name" property="name.firstName"/>
+            <result column="receiver_last_name" property="name.lastName" />
+            <result column="receiver_gender" property="gender"/>
+            <result column="receiver_birth" property="birthDate"/>
+        </association>
+    </resultMap>
+    
+    <insert id="createFriendship" parameterType="map">
+        insert into user_has_friend (SenderID, ReceiverID, Status, PetitionSentDate, StatusChangeDate)
+        values(
+            #{userId},
+            #{friendId},
+            'UNCONFIRMED',
+            NOW(),
+            NOW()
+        )
+    </insert>
+    
+    <select id="getFriend" parameterType="map" resultMap="friendshipResult">
+        select  F.Status            as f_status,
+                F.PetitionSentDate  as f_petition_date,
+                F.StatusChangeDate  as f_change_date,
+        
+                U1.UserID       as sender_id,
+                U1.FirstName    as sender_first_name,
+                U1.LastName     as sender_last_name,
+                U1.Gender       as sender_gender,
+                U1.BirthDate    as sender_birth,
+        
+                U2.UserID       as receiver_id,
+                U2.FirstName    as receiver_first_name,
+                U2.LastName     as receiver_last_name,
+                U2.Gender       as receiver_gender,
+                U2.BirthDate    as receiver_birth
+        from user_has_friend F
+            inner join user U1
+                on F.SenderID = U1.UserID
+            inner join user U2
+                on F.ReceiverID = U2.UserID
+            where (F.SenderID = #{userId} AND F.ReceiverID = #{friendId})
+                    OR (F.SenderID = #{friendId} AND F.ReceiverID = #{userId})
+        
+    </select>
+    
+    <select id="getFriends" parameterType="map" resultMap="friendshipResult">
+        select  F.Status            as f_status,
+                F.PetitionSentDate  as f_petition_date,
+                F.StatusChangeDate  as f_change_date,
+        
+                U1.UserID       as sender_id,
+                U1.FirstName    as sender_first_name,
+                U1.LastName     as sender_last_name,
+                U1.Gender       as sender_gender,
+                U1.BirthDate    as sender_birth,
+        
+                U2.UserID       as receiver_id,
+                U2.FirstName    as receiver_first_name,
+                U2.LastName     as receiver_last_name,
+                U2.Gender       as receiver_gender,
+                U2.BirthDate    as receiver_birth
+        from user_has_friend F
+            inner join user U1
+                on F.SenderID = U1.UserID
+            inner join user U2
+                on F.ReceiverID = U2.UserID
+            where 
+            <choose>
+                <when test="pending == true">
+                    F.ReceiverID = #{userId}
+                    AND F.Status = 'UNCONFIRMED'
+                </when>
+                <when test="unconfirmed == true">
+                    F.SenderID = #{userId}
+                    AND F.Status = 'UNCONFIRMED'
+                </when>
+                <otherwise>
+                    ( F.SenderID = #{userId} OR F.ReceiverID = #{userId}) 
+                    AND F.Status = 'CONFIRMED'
+                </otherwise>
+            </choose>
+        
+    </select>
+    
+    <select id="getTotalFriends" parameterType="map" resultType="int">
+        select  COUNT(F.SenderID)
+        from user_has_friend F
+            inner join user U1
+                on F.SenderID = U1.UserID
+            inner join user U2
+                on F.ReceiverID = U2.UserID
+            where 
+            <choose>
+                <when test="pending == true">
+                    F.ReceiverID = #{userId}
+                    AND F.Status = 'UNCONFIRMED'
+                </when>
+                <when test="unconfirmed == true">
+                    F.SenderID = #{userId}
+                    AND F.Status = 'UNCONFIRMED'
+                </when>
+                <otherwise>
+                    ( F.SenderID = #{userId} OR F.ReceiverID = #{userId}) 
+                    AND F.Status = 'CONFIRMED'
+                </otherwise>
+            </choose>
+    </select>
+    
+</mapper>

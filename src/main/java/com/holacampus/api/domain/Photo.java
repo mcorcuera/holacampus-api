@@ -16,23 +16,161 @@
  */
 package com.holacampus.api.domain;
 
-import com.holacampus.api.domain.ActiveElement;
-import com.holacampus.api.domain.CommentContainer;
-import java.sql.Date;
+import com.holacampus.api.hal.Linkable;
+import com.holacampus.api.utils.Utils;
+import com.holacampus.api.validators.CreationNeeded;
+import com.theoryinpractise.halbuilder.jaxrs.HalEmbedded;
+import com.theoryinpractise.halbuilder.jaxrs.HalLink;
+import com.theoryinpractise.halbuilder.jaxrs.HalProperty;
+import com.theoryinpractise.halbuilder.jaxrs.HalRootElement;
+import com.theoryinpractise.halbuilder.jaxrs.HalSelfLink;
+import java.util.Date;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 
 /**
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
-public class Photo {
+
+@HalRootElement
+public class Photo implements Linkable{
     
-    private long                id;
+    @HalProperty( name="id")
+    private Long                id;
+   
+    @HalProperty( name="creationDate")
     private Date                creationDate;
+   
+    @Valid
+    @Size( min=1, max=150, message="{photo.title.wrong.size}")
+    @HalProperty( name="title")
     private String              title;
+   
+    @HalProperty( name="url")
     private String              url;
+    
+    @HalProperty( name="thumbnailUrl")
     private String              thumbnailUrl;
+   
+    @CreationNeeded( message="{photo.data.missing}")
+    @HalProperty( name="data", input=true)
+    private String              data;
+    
+   
+    
+    @HalEmbedded( "creator")
     private ActiveElement       creator;
+    
+    @HalEmbedded( "permission")
+    private Permission          permission;
+    
     private CommentContainer    commentContainer;
     private PhotoContainer      photoContainer;
+    
+    private String selfLink;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public ActiveElement getCreator() {
+        return creator;
+    }
+
+    public void setCreator(ActiveElement creator) {
+        this.creator = creator;
+    }
+
+    public Permission getPermission() {
+        return permission;
+    }
+
+    public void setPermission(Permission permission) {
+        this.permission = permission;
+    }
+    
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    
+    public CommentContainer getCommentContainer() {
+        return commentContainer;
+    }
+
+    public void setCommentContainer(CommentContainer commentContainer) {
+        this.commentContainer = commentContainer;
+    }
+
+    public PhotoContainer getPhotoContainer() {
+        return photoContainer;
+    }
+
+    public void setPhotoContainer(PhotoContainer photoContainer) {
+        this.photoContainer = photoContainer;
+    }
+
+    @Override
+    public String toString() {
+        return "Photo{" + "id=" + id + ", creationDate=" + creationDate + ", title=" + title + ", url=" + url + ", thumbnailUrl=" + thumbnailUrl + ", data=" + data + '}';
+    }
+    
+    @HalSelfLink
+    public String getSelfLink() {
+        return Utils.createLink( selfLink, null);
+    }
+    
+    public void setSelfLink( String l) {
+        selfLink = l;
+    }
+    
+    @HalLink("comments") 
+    public String getCommentsLink() {
+        return getSelfLink() + "/comments";
+    }
+    
+    
+    
     
 }

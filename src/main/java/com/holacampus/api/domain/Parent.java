@@ -14,19 +14,43 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.holacampus.api.mappers;
 
-import com.holacampus.api.domain.CommentContainer;
-import com.holacampus.api.domain.Permission;
-import org.apache.ibatis.annotations.Param;
+package com.holacampus.api.domain;
 
 /**
  *
- *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
+ * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
-public interface CommentContainerMapper {
+public class Parent {
     
-    public void getPermissions(  @Param("userId") Long userId, @Param("containerId") Long containerId, @Param("permission") Permission permission) throws Exception;
+    private String type;
+    private String id;
 
+    public Parent(String type, String id) {
+        this.type = type;
+        this.id = id;
+    }
+    
+    public Parent(){
+        
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    
     
 }

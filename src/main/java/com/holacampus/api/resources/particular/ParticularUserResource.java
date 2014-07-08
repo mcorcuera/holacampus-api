@@ -17,14 +17,17 @@
 
 package com.holacampus.api.resources.particular;
 
-import com.holacampus.api.subresources.CommentsResource;
 import com.holacampus.api.domain.CommentContainer;
+import com.holacampus.api.domain.PhotoContainer;
 import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.mappers.UserMapper;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.UserPrincipal;
+import com.holacampus.api.subresources.CommentsResource;
+import com.holacampus.api.subresources.FriendsResource;
+import com.holacampus.api.subresources.PhotosResource;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import java.util.Objects;
@@ -76,6 +79,36 @@ public class ParticularUserResource {
         }  
         return new CommentsResource( id, c, uriInfo.getPath());
     }
+    
+    @Path( "/{id}/photos")
+    public PhotosResource getPhotosResource( @PathParam("id") long id)
+    {
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+        PhotoContainer c;
+        try {            
+            UserMapper userMapper   = session.getMapper( UserMapper.class);
+            c = userMapper.getPhotoContainer(id);
+            session.commit();            
+            
+            if( c == null) {
+                throw new HTTPErrorException( Status.NOT_FOUND, "User " + id + " not found");
+            }
+        } catch( Exception e) {
+            logger.error( e.toString());
+            throw new HTTPErrorException( Status.NOT_FOUND, "User " + id + " not found");
+        } finally {
+            session.close();
+        }  
+        
+        return new PhotosResource( id, c, uriInfo.getPath());
+    }
+    
+    @Path( "/{id}/friends")
+    public FriendsResource getFriendsResource( @PathParam("id") Long id)
+    {
+        return new FriendsResource( id);
+    }
+    
     
     @GET
     @Path("/{id}")

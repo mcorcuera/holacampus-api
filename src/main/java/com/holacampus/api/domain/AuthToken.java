@@ -24,6 +24,7 @@ import com.theoryinpractise.halbuilder.jaxrs.*;
 import java.util.Date;
 
 
+
 /**
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
@@ -34,6 +35,8 @@ public class AuthToken implements Representable, Linkable{
     
     @HalProperty( name="authToken")
     private String      authToken;
+    
+    @HalEmbedded( "user")
     private User        user;
     
     @HalProperty( name="creationDate")
@@ -73,7 +76,7 @@ public class AuthToken implements Representable, Linkable{
     @HalSelfLink
     @Override
     public String getSelfLink() {
-        return Utils.createLink("/users/" + getUser().getId() + "/auth-tokens/" + getAuthToken(), null);
+        return Utils.createLink("/auth-tokens/" + getAuthToken(), null);
     }
     
     

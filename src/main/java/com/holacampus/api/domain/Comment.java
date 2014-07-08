@@ -56,6 +56,8 @@ public class Comment implements Linkable{
     
     private CommentContainer    belongingCommentContainer;
     private CommentContainer    ownCommentContainer;
+    
+    private String              selfLink;
 
     public Long getId() {
         return id;
@@ -125,7 +127,11 @@ public class Comment implements Linkable{
     @Override
     @HalSelfLink
     public String getSelfLink() {
-        return Utils.createLink("/comments/" + getId(), null);
+        return Utils.createLink( selfLink, null);
+    }
+    
+    public void setSelfLink( String l) {
+        selfLink = l;
     }
     
     @HalLink( "recomments")

@@ -441,7 +441,12 @@ public class User extends ActiveElement implements Representable, Linkable
     
     @HalLink("comments")
     public String getCommentsLink() {
-        return Utils.createLink("/users/" + getId() + "/comments", null);
+        return getSelfLink() + "/comments";
+    }
+    
+    @HalLink("photos")
+    public String getPhotosLink() {
+        return getSelfLink() + "/photos";
     }
     
     

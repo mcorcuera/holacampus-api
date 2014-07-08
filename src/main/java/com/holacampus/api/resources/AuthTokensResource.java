@@ -78,7 +78,6 @@ public class AuthTokensResource {
             User user = new User();
             user.setId(id);
             authToken.setUser( user);
-            
             session.commit(); 
         } catch( Exception ex) {
             logger.error(ex);
@@ -116,13 +115,13 @@ public class AuthTokensResource {
         }
     }
     
-    @Path("/users/{id}/auth-tokens/{auth-token}")
+    @Path("/auth-tokens/{auth-token}")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
-    public Representation getAuthenticationToken( @PathParam("auth-token") String token, @PathParam("id") Long id, @Context SecurityContext sc)
+    public Representation getAuthenticationToken( @PathParam("auth-token") String token, @Context SecurityContext sc)
     {
-        logger.info( "[GET] /users/" + id + "/auth-tokens");        
+        logger.info( "[GET] /auth-tokens");        
         
         AuthToken authToken;
         
@@ -132,24 +131,20 @@ public class AuthTokensResource {
         * Check if the user has permissions over this resource
         */
         
-        if( !Objects.equals(id, ((UserPrincipal) sc.getUserPrincipal()).getId())) {
-            throw new HTTPErrorException( Response.Status.FORBIDDEN, "Not allowed to get auth-tokens");
-        }
-        
         try {
             AuthTokenMapper authMapper = session.getMapper( AuthTokenMapper.class);
             
             authToken = authMapper.getAuthToken( token);
             
+            if( !Objects.equals( authToken.getUser().getId(), ((UserPrincipal) sc.getUserPrincipal()).getId())) {
+                throw new HTTPErrorException( Response.Status.FORBIDDEN, "Not allowed to get auth-tokens");
+            }
+            
              if( authToken == null) {
                 throw new HTTPErrorException( Response.Status.NOT_FOUND, "Auth-token not found on database");
             }
             session.commit(); 
-            
-            User user = new User();
-            user.setId(id);
-            authToken.setUser( user);
-            
+                        
         } catch( NotFoundException | ForbiddenException ex) {
             throw ex;
         } catch( Exception ex) {
@@ -162,26 +157,26 @@ public class AuthTokensResource {
         return HALBuilderUtils.fromRepresentable(authToken);
     }
     
-    @Path("/users/{id}/auth-tokens/{auth-token}")
+    @Path("/auth-tokens/{auth-token}")
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
-    public void deleteAtuthenticationToken( @PathParam("auth-token") String token, @PathParam( "id") Long id, @Context SecurityContext sc)
+    public void deleteAtuthenticationToken( @PathParam("auth-token") String token, @Context SecurityContext sc)
     {
         logger.info( "[DELETE] /auth-tokens/" + token);
         AuthToken authToken;
         
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
         
-           /*
-        * Check if the user has permissions over this resource
-        */
-        
-        if( !Objects.equals(id, ((UserPrincipal) sc.getUserPrincipal()).getId())) {
-            throw new HTTPErrorException( Response.Status.FORBIDDEN, "Not allowed to delete auth-tokens");
-        }
-        
         try {
             AuthTokenMapper authMapper = session.getMapper( AuthTokenMapper.class);
+            authToken = authMapper.getAuthToken(token);
+            
+            /*
+             * Check if the user has permissions over this resource
+             */
+            if( !Objects.equals( authToken.getUser().getId(), ((UserPrincipal) sc.getUserPrincipal()).getId())) {
+                throw new HTTPErrorException( Response.Status.FORBIDDEN, "Not allowed to get auth-tokens");
+            }
             
             int removed = authMapper.deleteAuthToken(token);
             

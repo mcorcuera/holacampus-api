@@ -11,7 +11,8 @@
    
     <select id="getAuthToken" parameterType="String" resultMap="authTokenResult">
         select  AuthToken       as at_token,
-                CreationDate    as at_time
+                CreationDate    as at_time,
+                UserID          as user_id
         from auth_token
             where AuthToken = #{id}
     </select>

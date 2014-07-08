@@ -23,6 +23,7 @@ import com.holacampus.api.domain.Container;
 import com.holacampus.api.domain.Container.ElementType;
 import com.holacampus.api.domain.Permission;
 import com.holacampus.api.domain.User;
+import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.hal.HalList;
 import com.holacampus.api.mappers.CommentContainerMapper;
 import com.holacampus.api.mappers.CommentMapper;
@@ -38,14 +39,19 @@ import java.util.List;
 import java.util.Objects;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.LogManager;
@@ -58,7 +64,7 @@ import org.apache.log4j.Priority;
  */
 public class CommentsResource {
     
-    private static final Logger logger = LogManager.getLogger( ParticularUserResource.class.getName());
+    private static final Logger logger = LogManager.getLogger( CommentsResource.class.getName());
  
     private final CommentContainer  container;
     private final String            path;
@@ -75,7 +81,8 @@ public class CommentsResource {
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
-    public HalList<Comment> getComments( @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @Context SecurityContext sc)
+    public HalList<Comment> getComments( @QueryParam("page") Integer page, @QueryParam( "size") Integer size, 
+            @Context SecurityContext sc, @Context UriInfo uriInfo)
     {
         logger.info("[GET] " + path);
 
@@ -101,10 +108,8 @@ public class CommentsResource {
             
             /* Add permission level */
             for( Comment comment : commentList) {
-                /*
-                    If current user is the owner (creator) of the comment
-                */
-                Permission permissions = containerPermissions;
+               
+                Permission permissions = new Permission( containerPermissions.getLevel());;
                 
                 //If current user is the creator of the resource, override permission
                 if( Objects.equals(comment.getCreator().getId(), ((UserPrincipal)sc.getUserPrincipal()).getId())) {
@@ -112,6 +117,8 @@ public class CommentsResource {
                 }
                 //Set resource permission
                 comment.setPermission( permissions);
+                
+                comment.setSelfLink( uriInfo.getPath() + "/" + comment.getId());
             }
             
             comments = new HalList<Comment>( commentList, total);
@@ -131,7 +138,7 @@ public class CommentsResource {
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
     @Produces( { RepresentationFactory.HAL_JSON})
-    public Comment postNewComment( @CreationValid @Valid Comment comment, @Context SecurityContext sc)
+    public Comment postNewComment( @CreationValid @Valid Comment comment, @Context SecurityContext sc, @Context UriInfo uriInfo)
     {
         logger.info("[POST] " + path);
         
@@ -160,6 +167,7 @@ public class CommentsResource {
             }
             // The current user is the creator of the comment
             comment.setPermission( new Permission( Permission.LEVEL_OWNER));
+            comment.setSelfLink( uriInfo.getPath() + "/" + comment.getId());
         }catch( Exception e) {
             logger.info( e);
             throw new InternalServerErrorException( e.getMessage());
@@ -168,5 +176,121 @@ public class CommentsResource {
         }
         
         return comment;
+    }
+    
+    // Comment Detail resource
+    
+    @Path("/{id}/recomments")
+    public CommentsResource getCommentResource( @PathParam("id") long id, @Context UriInfo uriInfo) {
+        
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+        CommentContainer c;
+        
+        try {            
+            CommentMapper mapper   = session.getMapper( CommentMapper.class);
+            c = mapper.getCommentContainer(id);
+            session.commit();            
+            
+            logger.info( "Comment container get: " + c);
+            
+            if( c == null) {
+                throw new HTTPErrorException( Response.Status.NOT_FOUND, "Comment " + id + " not found");
+            }else if( c.getId() == null) {
+                throw new HTTPErrorException( Response.Status.METHOD_NOT_ALLOWED, "Comment " + id + " is a recomment");
+            }
+            
+        }catch( HTTPErrorException e) {
+            throw e;
+        } 
+        catch( Exception e) {
+            logger.error( e.toString());
+            throw new InternalServerErrorException(e);
+        } finally {
+            session.close();
+        }   
+        
+        return new CommentsResource( id, c, uriInfo.getPath());
+    }
+    
+    @Path("/{id}")
+    @GET
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @Produces( { RepresentationFactory.HAL_JSON})
+    public Comment getComment( @PathParam("id") Long id, @Context SecurityContext sc, @Context UriInfo uriInfo)
+    {
+        logger.info( "[GET] /comments/" + id);
+        Comment comment;
+        UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
+        Permission permission = new Permission();
+        
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+
+        try {
+            CommentMapper mapper    = session.getMapper( CommentMapper.class);
+            comment                 = mapper.getComment(id);
+            
+            if( comment == null)
+                throw new HTTPErrorException( Response.Status.NOT_FOUND, "comment " + id + " not found");
+           
+            mapper.getPermissions(up.getId(), comment.getId(), permission);
+            
+            comment.setPermission(permission);
+            
+            comment.setSelfLink( uriInfo.getPath());
+            
+            session.commit();
+            
+        }catch( HTTPErrorException e) {
+            throw e;
+        }catch( Exception e) {
+            logger.info( e);
+            throw new InternalServerErrorException( e.getMessage());
+        }finally {
+            session.close();
+        }
+        
+        return comment;
+    }
+    
+    @Path("/{id}")
+    @DELETE
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    public void deleteComment( @PathParam("id") Long id, @Context SecurityContext sc)
+    {
+        Comment comment;
+        UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
+        Permission permission = new Permission();
+        
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+        
+        try {
+            CommentMapper mapper    = session.getMapper( CommentMapper.class);
+            comment                 = mapper.getComment(id);
+            
+            if( comment == null)
+                throw new HTTPErrorException( Response.Status.NOT_FOUND, "comment " + id + " not found");
+            
+            mapper.getPermissions(up.getId(), comment.getId(), permission);
+            logger.info("Permisos borrar: " + permission.getLevel());
+            // If we don't own the comment, throw 403 HTTP erro
+            if( !permission.getLevel().equals(Permission.LEVEL_OWNER) && !permission.getLevel().equals(Permission.LEVEL_PARENT_OWNER))
+                throw new HTTPErrorException( Response.Status.FORBIDDEN, "you don't have permissions to delete the comment " + id);
+            
+            //If we own the comment, delete it
+            int result = mapper.deleteComment( comment.getId());
+            
+            if( result <= 0) {
+                 throw new HTTPErrorException( Response.Status.CONFLICT, "comment " + id + " could not be deleted");
+            }
+            session.commit();
+            
+        }catch( HTTPErrorException e) {
+            throw e;
+        }catch( Exception e) {
+            logger.info( e);
+            throw new InternalServerErrorException( e.getMessage());
+        }finally {
+            session.close();
+        }
     }
 }

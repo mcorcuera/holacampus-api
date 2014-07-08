@@ -78,6 +78,8 @@ public class HalList<T>{
     }
 
     public void setResourceRelativePath(String resourceName) {
+        if( resourceName.endsWith("/"))
+            resourceName = resourceName.substring(0, resourceName.length() -1);
         this.resourceRelativePath = resourceName;
     }
 

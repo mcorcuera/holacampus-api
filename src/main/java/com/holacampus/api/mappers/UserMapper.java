@@ -18,6 +18,7 @@
 package com.holacampus.api.mappers;
 
 import com.holacampus.api.domain.CommentContainer;
+import com.holacampus.api.domain.PhotoContainer;
 import com.holacampus.api.domain.User;
 import java.sql.SQLException;
 import java.util.List;
@@ -42,6 +43,8 @@ public interface UserMapper {
     public User getUser( @Param("id") long id) throws Exception;
     
     public CommentContainer getCommentContainer( @Param("id") long id) throws Exception;
+    
+    public PhotoContainer getPhotoContainer( @Param("id") long id) throws Exception;
     /*
     * INSERT
     */

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.holacampus.api.mappers.PhotoMapper">
+    
+    <resultMap id="photoResult" type="Photo">
+        <id     column="photo_id"           property="id" />
+        <result column="photo_title"        property="title" />
+        <result column="photo_url"          property="url" />
+        <result column="photo_t_url"        property="thumbnailUrl" />
+        <result column="photo_date"         property="creationDate" />
+        <association property="creator" column="ae_id" javaType="ActiveElement" 
+                     resultMap="com.holacampus.api.mappers.UserMapper.activeElementEmbeddedResult" />
+    </resultMap>
+    
+    <select id="getPhotos" parameterType="map" resultMap="photoResult">
+        select	P.PhotoID               as photo_id,
+                P.Title                 as photo_title,
+                P.Url                   as photo_url,
+                P.ThumbnailUrl          as photo_t_url,
+                P.CreationDate          as photo_date,
+        
+		A.ActiveElementID	as ae_id,
+		A.Type			as ae_type,
+		
+		U.UserID		as user_id,
+		U.FirstName		as user_firstname,
+		U.LastName		as user_lastname,
+
+		UN.UniversityID         as uni_id,
+		UN.Name			as uni_name
+
+        from photo P
+                left join active_element A
+                        on P.ActiveElementID = A.ActiveElementID
+                left join user U
+                        on A.ActiveElementID = U.UserID
+                left join university UN
+                        on A.ActiveElementID = UN.UniversityID
+
+                where P.PhotoContainerID = #{containerId}
+        order by P.CreationDate desc
+    </select>
+    
+    <select id="getPhoto" parameterType="map" resultMap="photoResult">
+        select	P.PhotoID               as photo_id,
+                P.Title                 as photo_title,
+                P.Url                   as photo_url,
+                P.ThumbnailUrl          as photo_t_url,
+                P.CreationDate          as photo_date,
+        
+		A.ActiveElementID	as ae_id,
+		A.Type			as ae_type,
+		
+		U.UserID		as user_id,
+		U.FirstName		as user_firstname,
+		U.LastName		as user_lastname,
+
+		UN.UniversityID         as uni_id,
+		UN.Name			as uni_name
+
+        from photo P
+                left join active_element A
+                        on P.ActiveElementID = A.ActiveElementID
+                left join user U
+                        on A.ActiveElementID = U.UserID
+                left join university UN
+                        on A.ActiveElementID = UN.UniversityID
+
+                where P.PhotoID = #{photoId}
+    </select>
+    
+    
+    <select id="getTotalPhotos" parameterType="map" resultType="int">
+        select COUNT( P.PhotoID) 
+        from photo P
+            where P.PhotoContainerID = #{containerId}
+    </select>
+    
+    <select id="getCommentContainer" parameterType="long" resultMap="com.holacampus.api.mappers.CommentContainerMapper.cContainerResult">
+        select  C.CommentContainerID as cc_id,
+                C.Type as cc_type
+        from comment_container C
+            where C.PhotoID = #{id}
+    </select>
+    
+    <select id="getPermissions" parameterType="map" statementType="CALLABLE">
+        CALL getPhotoPermissions(
+            #{ userId,              mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ photoId,                 mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ permission.level,       mode=OUT,    javaType=String,                jdbcType=VARCHAR}
+        )
+    </select>
+    
+    <delete id="deletePhoto" parameterType="map">
+        delete from photo
+        where PhotoID = #{id}
+    </delete>
+
+    
+    <insert id="createPhoto" parameterType="map" statementType="CALLABLE">
+        CALL newPhoto (
+            #{ photo.creator.id,                mode=IN,    javaType=Long,                  jdbcType=INTEGER},
+            #{ photo.photoContainer.id,         mode=IN,    javaType=Long,                  jdbcType=INTEGER},
+            #{ photo.title,                     mode=IN,    javaType=String,                jdbcType=VARCHAR},
+            #{ photo.url ,                      mode=IN,    javaType=String,                jdbcType=VARCHAR},
+            #{ photo.thumbnailUrl,              mode=IN,    javaType=String,                jdbcType=VARCHAR},
+            #{ photo.creationDate,              mode=OUT,   javaType=java.util.Date,        jdbcType=DATE},
+            #{ photo.id,                        mode=OUT,   javaType=Long,                  jdbcType=INTEGER}
+        )
+    </insert>
+    
+    <update id="updatePhoto" parameterType="map">
+        update photo
+        <set>
+            <if test="photo.title != null"> Title = #{ photo.title} </if>
+        </set>
+        where PhotoID = #{photo.id}
+    </update>
+    
+</mapper>

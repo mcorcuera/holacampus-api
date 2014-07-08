@@ -1,3 +1,8 @@
+package com.holacampus.api.mappers;
+
+import com.holacampus.api.domain.Permission;
+import org.apache.ibatis.annotations.Param;
+
 /*
  * Copyright (C) 2014 Mikel Corcuera <mik.corcuera@gmail.com>
  *
@@ -14,19 +19,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.holacampus.api.mappers;
-
-import com.holacampus.api.domain.CommentContainer;
-import com.holacampus.api.domain.Permission;
-import org.apache.ibatis.annotations.Param;
 
 /**
  *
- *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
+ * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
-public interface CommentContainerMapper {
+public interface PhotoContainerMapper {
     
     public void getPermissions(  @Param("userId") Long userId, @Param("containerId") Long containerId, @Param("permission") Permission permission) throws Exception;
 
-    
 }

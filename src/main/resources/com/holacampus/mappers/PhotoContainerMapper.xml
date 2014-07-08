@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.holacampus.api.mappers.PhotoContainerMapper">
+    
+    <resultMap id="pContainerResult" type="PhotoContainer">
+        <id column="pc_id" property="id" />
+        <result column="pc_type" property="type" />
+        <result column="pc_owner_id" property="ownerId"/>
+    </resultMap>
+    
+      <select id="getPermissions" parameterType="map" statementType="CALLABLE">
+        CALL getPhotoContainerPermissions(
+            #{ userId,              mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ containerId,         mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ permission.level,    mode=OUT,    javaType=String,                jdbcType=VARCHAR}
+        )
+    </select>
+    
+</mapper>

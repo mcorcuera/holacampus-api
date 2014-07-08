@@ -16,7 +16,8 @@
  */
 package com.holacampus.api.domain;
 
-import java.sql.Date;
+import java.util.Date;
+
 
 /**
  *
@@ -24,10 +25,54 @@ import java.sql.Date;
  */
 public class Friendship {
     
+    public static final String STATUS_CONFIRMED     = "CONFIRMED";
+    public static final String STATUS_UNCONFIRMED   = "UNCONFIRMED";
+    
     private User    sender;
     private User    receiver;
     private String  status;
     private Date    petitionDate;
     private Date    statusChangeDate;
-    private boolean askedByMe;
+
+    public User getSender() {
+        return sender;
+    }
+
+    public void setSender(User sender) {
+        this.sender = sender;
+    }
+
+    public User getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(User receiver) {
+        this.receiver = receiver;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getPetitionDate() {
+        return petitionDate;
+    }
+
+    public void setPetitionDate(Date petitionDate) {
+        this.petitionDate = petitionDate;
+    }
+
+    public Date getStatusChangeDate() {
+        return statusChangeDate;
+    }
+
+    public void setStatusChangeDate(Date statusChangeDate) {
+        this.statusChangeDate = statusChangeDate;
+    }
+    
+    
 }
