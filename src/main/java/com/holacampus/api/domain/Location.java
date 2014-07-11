@@ -16,12 +16,43 @@
  */
 package com.holacampus.api.domain;
 
+import javax.validation.constraints.NotNull;
+
 /**
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 public class Location {
     
+    @NotNull(  message="{location.latitude.missing}")
     private float    latitude;
+    @NotNull(  message="{location.longitude.missing}")
     private float    longitude;
+
+    
+    public Location() {
+    }
+
+    public Location(float latitude, float longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public float getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(float latitude) {
+        this.latitude = latitude;
+    }
+
+    public float getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(float longitude) {
+        this.longitude = longitude;
+    }
+    
+    
 }

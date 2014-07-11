@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.holacampus.api.mappers.ActiveElementMapper">
+    
+    <resultMap id="activeElementResult" type="ActiveElement">
+        <id column="ae_id"  property="id" />
+        <result column="ae_type" property="type" />
+        <result column="ae_email" property="email" />
+    </resultMap>
+    
+    <resultMap id="activeElementEmbeddedResult" type="ActiveElement">
+        <id column="ae_id"  property="id" />
+        <result column="ae_type" property="type" />
+        <discriminator javaType="String" column="ae_type">
+            <case value="USER" resultMap="userEmbeddedResult" />
+        </discriminator>
+    </resultMap>
+</mapper>

@@ -24,8 +24,8 @@
     <insert id="createFriendship" parameterType="map">
         insert into user_has_friend (SenderID, ReceiverID, Status, PetitionSentDate, StatusChangeDate)
         values(
-            #{userId},
-            #{friendId},
+            #{senderId},
+            #{receiverId},
             'UNCONFIRMED',
             NOW(),
             NOW()
@@ -120,5 +120,20 @@
                 </otherwise>
             </choose>
     </select>
+    
+    <delete id="deleteFriend" parameterType="map">
+        delete from user_has_friend
+            where (SenderID = #{currentUserId} AND ReceiverID = #{friendId})
+                OR (SenderID = #{friendId}) AND ReceiverID = #{currentUserId}
+    </delete>
+    
+       
+    <update id="acceptFriend" parameterType="map">
+        update user_has_friend
+        set Status = 'CONFIRMED'
+            where (SenderID = #{currentUserId} AND ReceiverID = #{friendId})
+                     OR (SenderID = #{friendId}) AND ReceiverID = #{currentUserId}
+    </update>
+    
     
 </mapper>

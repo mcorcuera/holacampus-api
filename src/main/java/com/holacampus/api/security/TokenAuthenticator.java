@@ -43,15 +43,16 @@ public class TokenAuthenticator implements Authenticator{
     private static final String AUTHENTICATION_HEADER = "X-Auth-Token";
     
     @Override
-    public int authenticate(MultivaluedMap<String, String> headers, User user) 
+    public UserPrincipal authenticate(MultivaluedMap<String, String> headers) throws AuthenticationFailException, AuthenticationBadSintaxException
     {
+        UserPrincipal up;
         String token = null;
         
          /*
          * If authentication header is not present, return 401 error
         */
         if( ( token = headers.getFirst(AUTHENTICATION_HEADER)) == null) {
-            return Authenticator.AUTH_FAIL;
+            throw new AuthenticationFailException();
         }
         
         AuthToken auth;
@@ -69,10 +70,9 @@ public class TokenAuthenticator implements Authenticator{
             auth = authMapper.getAuthTokenAndCredentials( token);
 
             if( auth != null) {
-               user.setId( auth.getUser().getId());
-               user.setEmail( auth.getUser().getEmail());
+                up = new UserPrincipal( auth.getElement().getEmail(), auth.getElement().getId(), auth.getElement().getType());
             }else {
-                return Authenticator.AUTH_FAIL;
+                throw new AuthenticationFailException();
             }
 
         } catch( Exception ex) {
@@ -83,7 +83,7 @@ public class TokenAuthenticator implements Authenticator{
         }
         
         
-        return Authenticator.OK;
+        return up;
     }
 
     @Override

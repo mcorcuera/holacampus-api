@@ -36,8 +36,8 @@ public class AuthToken implements Representable, Linkable{
     @HalProperty( name="authToken")
     private String      authToken;
     
-    @HalEmbedded( "user")
-    private User        user;
+    @HalEmbedded( "element")
+    private ActiveElement        element;
     
     @HalProperty( name="creationDate")
     private Date        creationDate;
@@ -50,13 +50,14 @@ public class AuthToken implements Representable, Linkable{
         this.authToken = authToken;
     }
 
-    public User getUser() {
-        return user;
+    public ActiveElement getElement() {
+        return element;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setElement(ActiveElement element) {
+        this.element = element;
     }
+
 
     public Date getCreationDate() {
         return creationDate;

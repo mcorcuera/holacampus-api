@@ -15,22 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.holacampus.api.security;
-
-import com.holacampus.api.domain.User;
-import javax.ws.rs.core.MultivaluedMap;
+package com.holacampus.api.domain;
 
 /**
  *
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
-public interface Authenticator {
-      
-    public static final int OK          = 0;
-    public static final int AUTH_FAIL   = 401;
-    public static final int BAD_SINTAX  = 409;
+public class ProfilePhotoContainer extends Container{
     
-    public UserPrincipal authenticate( MultivaluedMap<String,String> headers) throws AuthenticationFailException, AuthenticationBadSintaxException;
+    private Photo photo;
+
+    public Photo getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(Photo photo) {
+        this.photo = photo;
+    }
     
-    public String getScheme();
 }

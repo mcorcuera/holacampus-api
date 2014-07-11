@@ -22,6 +22,7 @@ import com.holacampus.api.domain.Friendship;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.hal.HalList;
 import com.holacampus.api.mappers.FriendshipMapper;
+import com.holacampus.api.mappers.UserMapper;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.UserPrincipal;
@@ -30,6 +31,7 @@ import com.holacampus.api.utils.Utils;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -75,7 +77,7 @@ public class FriendsResource {
         
         UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
         
-        return getFriends( uriInfo.getPath(), false, false, null, page, size);
+        return getFriends( uriInfo.getPath(), up.getId(), false, false, null, page, size);
     }
     
     @Path("/pending")
@@ -93,7 +95,7 @@ public class FriendsResource {
             throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
         }
         
-        return getFriends( uriInfo.getPath(), false, true, null, page, size);
+        return getFriends( uriInfo.getPath(), up.getId(), false, true, null, page, size);
     }
     
     @Path("/unconfirmed")
@@ -111,10 +113,10 @@ public class FriendsResource {
             throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
         }
         
-        return getFriends( uriInfo.getPath(), true, false, null, page, size);
+        return getFriends( uriInfo.getPath(), up.getId(), true, false, null, page, size);
     }
     
-    private HalList<Friend> getFriends( String path, boolean unconfirmed, 
+    private HalList<Friend> getFriends( String path, Long currentUser, boolean unconfirmed, 
             boolean pending, String query, Integer page, Integer size)
     {
         HalList<Friend> friends = new HalList<Friend>();
@@ -135,6 +137,13 @@ public class FriendsResource {
                 for( Friendship fs : friendships) {
                     Friend friend = new Friend( fs, elId);
                     friend.setSelfLink( "users/" + elId + "/friends/" + friend.getUser().getId());
+                    
+                    // If the user is getting his friends, put information of who asked who
+                    if( elId == currentUser) {
+                        if( fs.getSender().getId() == currentUser)
+                            friend.setAskedByMe(true);
+                        else friend.setAskedByMe(false);
+                    }
                     friendList.add(friend);
                 }
             }
@@ -163,11 +172,58 @@ public class FriendsResource {
     
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
-    @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
     @Produces( { RepresentationFactory.HAL_JSON})
-    public Friendship createFriendRequest( @Context SecurityContext sc, @Context UriInfo uriInfo)
+    public Friend createFriendRequest( @Context SecurityContext sc, @Context UriInfo uriInfo)
     {
-        return null;
+        Friend friend = null;
+        UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
+        
+        if( up.getId().equals( elId)) {
+            throw new HTTPErrorException(Status.CONFLICT, "You can't be friends with yourself");
+        }
+        
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+        
+        try {
+            FriendshipMapper mapper = session.getMapper( FriendshipMapper.class);
+
+            Friendship friendship = mapper.getFriend( up.getId(), elId);
+            
+            if( friendship != null) {
+                throw new HTTPErrorException(Status.CONFLICT, "You are already friend with " + elId);
+            }
+            
+            int result = mapper.createFriendship( up.getId(), elId);
+            
+            if( result == 0) {
+                throw new HTTPErrorException( Status.INTERNAL_SERVER_ERROR, "An error ocurred");
+            }
+            
+            friendship = mapper.getFriend( up.getId(), elId);
+            
+            friend = new Friend( friendship, elId);
+            
+            if( elId == up.getId()) {
+                if( friendship.getSender().getId() == up.getId())
+                    friend.setAskedByMe(true);
+                else friend.setAskedByMe(false);
+            }
+            
+            friend.setSelfLink( "users/" + up.getId() + "/friends/" + elId);
+            
+            session.commit();
+            
+        }catch( HTTPErrorException e) {
+            throw e;
+        }
+        catch( Exception e) {
+            logger.info( e);
+            throw new HTTPErrorException( Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        }finally {
+            session.close();
+        }
+        
+        return friend;
     }
     
     @Path("/{id}")
@@ -178,6 +234,8 @@ public class FriendsResource {
     {
         logger.info( "[GET] " + uriInfo.getPath());
         Friend friend = null;
+        UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
+        
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
 
         try {
@@ -188,6 +246,12 @@ public class FriendsResource {
                 throw new HTTPErrorException( Status.NOT_FOUND, "friend " + id + " not found");
             
             friend = new Friend( f, elId);
+            
+            if( elId == up.getId()) {
+                if( f.getSender().getId() == up.getId())
+                    friend.setAskedByMe(true);
+                else friend.setAskedByMe(false);
+            }
             
             friend.setSelfLink( uriInfo.getPath());
             
@@ -209,18 +273,80 @@ public class FriendsResource {
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
     @Produces( { RepresentationFactory.HAL_JSON})
-    public Friendship updateFriend( @PathParam("id") Long id, @Context SecurityContext sc, @Context UriInfo uriInfo )
+    public Friend updateFriend( @Valid Friend friend, @PathParam("id") Long id, @Context SecurityContext sc, @Context UriInfo uriInfo )
     {
-        return null;
+        logger.info( "[PUT] " + uriInfo.getPath());
+        UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
+        
+        // Check if we have permissions. We can only update our friends
+        if( !up.getId().equals( elId)) {
+            throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed to delete this friend");
+        }
+        
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+
+        try {
+            FriendshipMapper mapper    = session.getMapper( FriendshipMapper.class);
+            
+            if( friend.isConfirmed())
+                mapper.acceptFriend( up.getId(), id);
+            else
+                throw new HTTPErrorException( Status.NOT_MODIFIED, "Friend not modified");
+            
+            Friendship friendship = mapper.getFriend( up.getId(), id);
+            
+            friend = new Friend( friendship, elId);
+            
+            if( elId == up.getId()) {
+                if( friendship.getSender().getId() == up.getId())
+                    friend.setAskedByMe(true);
+                else friend.setAskedByMe(false);
+            }
+            
+            friend.setSelfLink( uriInfo.getPath());
+            
+            session.commit();
+         }catch( HTTPErrorException e) {
+            throw e;
+        }
+        catch( Exception e) {
+            logger.info( e);
+            throw new HTTPErrorException( Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        }finally {
+            session.close();
+        }
+        
+        return friend;
     }
     
     @Path("/{id}")
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
-    @Produces( { RepresentationFactory.HAL_JSON})
-    public Friendship deleteFriend( @PathParam("id") Long id, @Context SecurityContext sc, @Context UriInfo uriInfo )
+    public void deleteFriend( @PathParam("id") Long id, @Context SecurityContext sc, @Context UriInfo uriInfo )
     {
-        return null;
+        UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
+        
+        // Check if we have permissions. We can only delete our friends
+        if( !up.getId().equals( elId)) {
+            throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed to delete this friend");
+        }
+        
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+
+        try {
+            FriendshipMapper mapper    = session.getMapper( FriendshipMapper.class);
+            mapper.deleteFriend( up.getId(), id);
+            session.commit();
+         }catch( HTTPErrorException e) {
+            throw e;
+        }
+        catch( Exception e) {
+            logger.info( e);
+            throw new HTTPErrorException( Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        }finally {
+            session.close();
+        }
+        
     }
    
     

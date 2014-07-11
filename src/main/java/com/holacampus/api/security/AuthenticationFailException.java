@@ -17,20 +17,11 @@
 
 package com.holacampus.api.security;
 
-import com.holacampus.api.domain.User;
-import javax.ws.rs.core.MultivaluedMap;
-
 /**
  *
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
-public interface Authenticator {
-      
-    public static final int OK          = 0;
-    public static final int AUTH_FAIL   = 401;
-    public static final int BAD_SINTAX  = 409;
+public class AuthenticationFailException extends Exception{
     
-    public UserPrincipal authenticate( MultivaluedMap<String,String> headers) throws AuthenticationFailException, AuthenticationBadSintaxException;
     
-    public String getScheme();
 }

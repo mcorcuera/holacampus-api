@@ -5,33 +5,37 @@
     <resultMap id="authTokenResult" type="AuthToken">
         <id column="at_token"  property="authToken" />
         <result column="at_time"  property="creationDate" />
-        <association property="user" column="user_id" javaType="User"
-                resultMap="com.holacampus.api.mappers.UserMapper.userResult" />
+        <association property="element" column="ae_id" javaType="ActiveElement"
+                resultMap="com.holacampus.api.mappers.ActiveElementMapper.activeElementResult" />
     </resultMap>
    
     <select id="getAuthToken" parameterType="String" resultMap="authTokenResult">
-        select  AuthToken       as at_token,
-                CreationDate    as at_time,
-                UserID          as user_id
-        from auth_token
+        select  A.AuthToken       as at_token,
+                A.CreationDate    as at_time,
+                A.ActiveElementID as ae_id,
+                AE.Type           as ae_type
+        from auth_token A
+            left join active_element AE
+                on A.ActiveElementID = AE.ActiveElementID
             where AuthToken = #{id}
     </select>
     
     <select id="getAuthTokenAndCredentials" parameterType="String" resultMap="authTokenResult">
         
-        select  A.AuthToken as at_token,
-                A.CreationDate as at_time,
-                U.UserID as user_id,
-                U.Email  as user_email
+        select  A.AuthToken         as at_token,
+                A.CreationDate      as at_time,
+                AE.ActiveElementID  as ae_id,
+                AE.Email            as ae_email,
+                AE.Type             as ae_type
         from auth_token A
-            left join user U
-                on A.UserID = U.UserID
+            left join active_element AE
+                on A.ActiveElementID = AE.ActiveElementID
             where A.AuthToken = #{id}
         
     </select>
     
-     <insert id="storeAuthTokenForUserId" parameterType="map" >
-        insert into auth_token (UserID, AuthToken, CreationDate)
+     <insert id="storeAuthToken" parameterType="map" >
+        insert into auth_token (ActiveElementID, AuthToken, CreationDate)
         values( #{id},
                 #{auth.authToken},
                 NOW()
@@ -43,9 +47,9 @@
             where AuthToken = #{token}
     </delete>
     
-    <delete id="deleteAllUserTokens" parameterType="long">
+    <delete id="deleteAllElementTokens" parameterType="long">
         delete from auth_token
-            where UserID = #{id}
+            where ActiveElementID = #{id}
     </delete>
     
     

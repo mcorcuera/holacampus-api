@@ -17,6 +17,7 @@
 
 package com.holacampus.api;
 
+import com.holacampus.api.hal.LocationBuilder;
 import com.holacampus.api.hal.NameBuilder;
 import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.BasicAuthenticator;
@@ -63,6 +64,7 @@ public class RestJsonApplication extends ResourceConfig{
         AuthenticationScheme.registerAuthenticator( new TokenAuthenticator());
         
         HalContext.registerPropertyBuilder( new NameBuilder());
+        HalContext.registerPropertyBuilder( new LocationBuilder());
     
     }
     

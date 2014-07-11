@@ -24,18 +24,18 @@ import com.holacampus.api.security.PasswordHash;
  */
 public class Credentials {
     
-    private User    user;
-    private byte[]  salt             ;
-    private byte[]  hashedPassword   ;
-    private int     iterations;
+    private ActiveElement       element;
+    private byte[]              salt;
+    private byte[]              hashedPassword   ;
+    private int                 iterations;
     
 
-    public User getUser() {
-        return user;
+    public ActiveElement getElement() {
+        return element;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setElement(ActiveElement element) {
+        this.element = element;
     }
 
     public byte[] getSalt() {
@@ -64,7 +64,7 @@ public class Credentials {
 
     @Override
     public String toString() {
-        return "Credentials{" + "user=" + user + ", salt=" + PasswordHash.toHex(salt) + ", hashedPassword=" + PasswordHash.toHex(hashedPassword) + ", iterations=" + iterations + '}';
+        return "Credentials{" + "element=" + element + ", salt=" + PasswordHash.toHex(salt) + ", hashedPassword=" + PasswordHash.toHex(hashedPassword) + ", iterations=" + iterations + '}';
     }
 
     

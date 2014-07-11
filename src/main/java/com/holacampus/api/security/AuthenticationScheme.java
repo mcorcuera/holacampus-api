@@ -47,7 +47,7 @@ public class AuthenticationScheme {
         return authenticators.get( scheme);
     }
     
-    public static int authenticate( String scheme,  MultivaluedMap<String,String> headers, User user) throws UnknownAuthenticationSchemeException
+    public static UserPrincipal authenticate( String scheme,  MultivaluedMap<String,String> headers) throws UnknownAuthenticationSchemeException, AuthenticationFailException, AuthenticationBadSintaxException
     {
         Authenticator authenticator = getAuthenticator( scheme);
         
@@ -55,7 +55,7 @@ public class AuthenticationScheme {
             throw new UnknownAuthenticationSchemeException( "Unknown " + scheme + "scheme");
         }
         
-        return authenticator.authenticate(headers, user);
+        return authenticator.authenticate(headers);
     }
     
     public static void setDefaultScheme( String scheme)

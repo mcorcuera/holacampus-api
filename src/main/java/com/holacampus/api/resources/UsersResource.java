@@ -18,6 +18,7 @@
 package com.holacampus.api.resources;
 
 import com.holacampus.api.domain.Credentials;
+import com.holacampus.api.domain.Permission;
 import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.hal.HalList;
@@ -32,6 +33,8 @@ import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.holacampus.api.utils.Utils;
 import com.holacampus.api.validators.CreationValid;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
@@ -52,6 +55,7 @@ import org.apache.log4j.Logger;
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
+
 @Path("/users")
 public class UsersResource {
     
@@ -64,14 +68,18 @@ public class UsersResource {
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
     public HalList<User> getUsers( @Context SecurityContext sc, 
-            @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q)
+            @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
     {
-        logger.info( "[GET]" + uriInfo.getPath());
-        logger.info( "Accessed by" + sc.getUserPrincipal().getName());
+        logger.info( "[GET] " + uriInfo.getPath());
         
         page = Utils.getValidPage(page);
         size = Utils.getValidSize(size);
+        if( q != null)
+            q   = URLDecoder.decode(q, "UTF-8");
+        
         RowBounds rb = Utils.createRowBounds(page, size);
+        
+        UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
         
         SqlSession session          = MyBatisConnectionFactory.getSession().openSession();
         RepresentationFactory rf    = HALBuilderUtils.getRepresentationFactory();
@@ -79,9 +87,16 @@ public class UsersResource {
         
         try {            
             UserMapper userMapper   = session.getMapper( UserMapper.class);
-            List usersList          = userMapper.getAllUsers( q, rb);
+            List<User> usersList    = userMapper.getAllUsers( q, rb);
             int total               = userMapper.getTotalUsers(q);
             session.commit();
+            
+            for( User user : usersList) {
+                Permission permissions = new Permission();
+                userMapper.getPermissions( up.getId(), user.getId(), permissions);
+                user.setPermission(permissions);
+            }
+            
             users = new HalList( usersList, total);
             
             users.setResourceRelativePath("/users");
@@ -109,7 +124,6 @@ public class UsersResource {
         logger.info("[POST] /users");
                     
         user.setUserType( User.TYPE_STUDENT);
-        
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
         
         try {
@@ -127,12 +141,17 @@ public class UsersResource {
             String hashedPassword = PasswordHash.createHash( user.getPassword(), credentials);
             logger.info( hashedPassword);
             
-            credMapper.storeCredentialsForUser(user, credentials);
+            credMapper.storeCredentials(user, credentials);
+            
+            user = userMapper.getUser( user.getId());
+            user.setPermission( new Permission( Permission.LEVEL_OWNER));
             
             session.commit(); 
             
         } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
             logger.error(ex);
+        }catch( HTTPErrorException e) {
+            throw e;
         } catch( Exception ex) {
             logger.error(ex);
             throw new HTTPErrorException( Status.CONFLICT, "Email already exists on database");

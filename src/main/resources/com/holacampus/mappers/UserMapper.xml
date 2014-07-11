@@ -6,38 +6,42 @@
         <id     column="user_id"    property="id" />
         <result column="user_firstname"  property="name.firstName" />
         <result column="user_lastname"   property="name.lastName" />
-        <result column="user_email" property="email" />
         <result column="user_birth" property="birthDate" />
         <result column="user_gender" property="gender" />
         <result column="user_type"  property="userType" />
-       <!-- <association property="commentContainer" column="comment_container_id" javaType="CommentContainer"
-                resultMap="com.holacampus.api.mappers.CommentContainerMapper.ccResult" />-->
+        <association property="profilePhoto" column="photo_id" javaType="Photo"
+            resultMap="com.holacampus.api.mappers.PhotoMapper.photoEmbeddedResult"/>
     </resultMap>
     
-    <resultMap id="activeElementEmbeddedResult" type="ActiveElement">
-        <id column="ae_id"  property="id" />
-        <result column="ae_type" property="type" />
-        <discriminator javaType="String" column="ae_type">
-            <case value="USER" resultMap="userEmbeddedResult" />
-        </discriminator>
-    </resultMap>
     
     <resultMap id="userEmbeddedResult" type="User">
         <id     column="user_id" property="id" />
         <result column="user_firstname"  property="name.firstName" />
-        <result column="user_lastname"   property="name.lastName" />
+        <result column="user_lastname"   property="name.lastName" /> 
+        
+        <association property="profilePhoto" column="photo_id" javaType="Photo"
+            resultMap="com.holacampus.api.mappers.PhotoMapper.photoEmbeddedResult"/>
     </resultMap>
     
     <select id="getAllUsers" parameterType="map" resultMap="userResult">
         select  U.UserID        as user_id, 
                 U.FirstName     as user_firstname,
                 U.LastName      as user_lastname,
-                U.Email         as user_email,
                 U.BirthDate     as user_birth,
                 U.Gender        as user_gender,
-                U.Type          as user_type
+                U.Type          as user_type,
+        
+                P.PhotoID               as photo_e_id,
+                P.Title                 as photo_e_title,
+                P.Url                   as photo_e_url,
+                P.ThumbnailUrl          as photo_e_t_url,
+                P.CreationDate          as photo_e_date
         from user U
-            where Type='STUDENT'
+            left join profile_photo PP
+                on U.UserID = PP.UserID
+            left join photo P
+                on PP.PhotoID = P.PhotoID
+            where U.Type='STUDENT'
             <if test="q != null">
                 AND match(FirstName,LastName) against(#{q})
             </if>
@@ -55,11 +59,20 @@
         select  U.UserID        as user_id, 
                 U.FirstName     as user_firstname,
                 U.LastName      as user_lastname,
-                U.Email         as user_email,
                 U.BirthDate     as user_birth,
                 U.Gender        as user_gender,
-                U.Type          as user_type
+                U.Type          as user_type,
+        
+                P.PhotoID               as photo_e_id,
+                P.Title                 as photo_e_title,
+                P.Url                   as photo_e_url,
+                P.ThumbnailUrl          as photo_e_t_url,
+                P.CreationDate          as photo_e_date
         from user U
+            left join profile_photo PP
+                on U.UserID = PP.UserID
+            left join photo P
+                on PP.PhotoID = P.PhotoID
             where U.UserID = #{id}
     </select>
     
@@ -77,6 +90,23 @@
                 P.UserID as pc_owner_id
         from photo_container P
             where UserID = #{id}
+    </select>
+    
+    <select id="getProfilePhotoContainer" parameterType="long" resultMap="com.holacampus.api.mappers.ProfilePhotoContainerMapper.ppContainerResult">
+        select  P.ProfilePhotoID    as ppc_id,
+                P.Type              as ppc_type,
+                P.UserID            as ppc_owner_id,
+                P.PhotoID           as ppc_photo_id
+        from profile_photo P
+            where UserID = #{id}
+    </select>
+    
+    <select id="getPermissions" parameterType="map" statementType="CALLABLE">
+        CALL getUserPermissions(
+            #{ currentUserId,          mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ userId,                 mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ permission.level,       mode=OUT,    javaType=String,                jdbcType=VARCHAR}
+        )
     </select>
     
     <insert id="createUser" parameterType="map" statementType="CALLABLE">

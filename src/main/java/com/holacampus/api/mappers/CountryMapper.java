@@ -17,23 +17,28 @@
 
 package com.holacampus.api.mappers;
 
-import com.holacampus.api.domain.AuthToken;
+import com.holacampus.api.domain.Country;
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
 /**
  *
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
-public interface AuthTokenMapper {
+public interface CountryMapper {
     
+    public List<Country> getCountries( @Param("q") String q, RowBounds rb) throws Exception;
     
-    public int storeAuthToken( @Param("auth") AuthToken auth, @Param( "id") Long id) throws Exception;
+    public List<Country> getCountries( @Param("q") String q) throws Exception;
     
-    public AuthToken getAuthToken( String id) throws Exception;
+    public int getTotalCountries( @Param("q") String q) throws Exception;
     
-    public AuthToken getAuthTokenAndCredentials( String id) throws Exception;
+    public int createCountry( @Param("country") Country country) throws Exception;
     
-    public int deleteAuthToken( String id) throws Exception;
+    public Country getCountry( @Param( "id") Long id) throws Exception;
     
-    public int deleteAllElementTokens( Long id) throws Exception;
+    public int updateCountry( @Param("country") Country country) throws Exception;
+    
+    public int deleteCountry( @Param( "id") Long id) throws Exception;
 }

@@ -8,7 +8,7 @@
         <result column="comment_recomment"  property="isRecomment" />
         <result column="comment_date"       property="creationDate" />
         <association property="creator" column="ae_id" javaType="ActiveElement" 
-                     resultMap="com.holacampus.api.mappers.UserMapper.activeElementEmbeddedResult" />
+                     resultMap="com.holacampus.api.mappers.ActiveElementMapper.activeElementEmbeddedResult" />
     </resultMap>
     
     <select id="getComments" parameterType="map" resultMap="commentResult">
@@ -25,13 +25,23 @@
 		U.LastName		as user_lastname,
 
 		UN.UniversityID         as uni_id,
-		UN.Name			as uni_name
+		UN.Name			as uni_name,
+                
+                P2.PhotoID               as photo_e_id,
+                P2.Title                 as photo_e_title,
+                P2.Url                   as photo_e_url,
+                P2.ThumbnailUrl          as photo_e_t_url,
+                P2.CreationDate          as photo_e_date
 
         from comment CO
                 left join active_element A
                         on CO.ActiveElementID = A.ActiveElementID
                 left join user U
-                        on A.ActiveElementID = U.UserID
+                        on A.ActiveElementID = U.UserID 
+                left join profile_photo PP
+                        on U.UserID = PP.UserID
+                left join photo P2
+                        on PP.PhotoID = P2.PhotoID
                 left join university UN
                         on A.ActiveElementID = UN.UniversityID
 
@@ -59,13 +69,23 @@
 		U.LastName		as user_lastname,
 
 		UN.UniversityID         as uni_id,
-		UN.Name			as uni_name
+		UN.Name			as uni_name,
+                
+                P2.PhotoID               as photo_e_id,
+                P2.Title                 as photo_e_title,
+                P2.Url                   as photo_e_url,
+                P2.ThumbnailUrl          as photo_e_t_url,
+                P2.CreationDate          as photo_e_date
 
         from comment CO
                 left join active_element A
                         on CO.ActiveElementID = A.ActiveElementID
                 left join user U
                         on A.ActiveElementID = U.UserID
+                left join profile_photo PP
+                        on U.UserID = PP.UserID
+                left join photo P2
+                        on PP.PhotoID = P2.PhotoID
                 left join university UN
                         on A.ActiveElementID = UN.UniversityID
 

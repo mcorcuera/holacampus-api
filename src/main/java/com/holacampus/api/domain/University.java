@@ -16,26 +16,25 @@
  */
 package com.holacampus.api.domain;
 
-import java.util.List;
+import com.holacampus.api.hal.Linkable;
+import com.holacampus.api.utils.Utils;
+import com.holacampus.api.validators.CreationNeeded;
+import com.theoryinpractise.halbuilder.jaxrs.*;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 
 /**
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
-public class University extends ActiveElement{
+@HalRootElement
+public class University extends ActiveElement implements Linkable{
     
+    @CreationNeeded( message="{university.name.missing")
+    @Valid
+    @Size( min=1, max=150, message="{university.name.wrong.size}")
+    @HalProperty( name="name")
     private String              name;
-    private User                manager;
-    private CommentContainer    commentContainer;
-    private PhotoContainer      photoContainer;
-    private List<Study>         studies;
-    private List<City>          cities;
-    private List<User>          students;
-    private List<Conversation>  conversations;
-    private List<Group>         groups;
-    private List<Event>         events;
-    private List<Group>         ownedGroups;
-    private List<Event>         ownedEvents;
     
     /**
      *
@@ -45,4 +44,19 @@ public class University extends ActiveElement{
         super();
         setType( TYPE_UNI);
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getSelfLink() {
+        return Utils.createLink("/universities/" + getId(), null);
+    }
+    
+    
 }

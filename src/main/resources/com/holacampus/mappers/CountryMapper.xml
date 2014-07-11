@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.holacampus.api.mappers.CountryMapper">
+    
+    <resultMap id="countryResult" type="Country">
+        <id column="country_id" property="id" />
+        <result column="country_name" property="name" />
+        <result column="country_latitude" property="location.latitude"/>
+        <result column="country_longitude" property="location.longitude"/>
+    </resultMap>
+    
+    <select id="getCountries" parameterType="map" resultMap="countryResult">
+        select  C.CountryID as country_id,
+                C.Name as country_name,
+                C.Latitude as country_latitude,
+                C.Longitude as country_longitude
+        
+        from country C
+        <if test="q != null">
+                where C.Name LIKE #{q}
+        </if>
+    </select>
+    
+    <select id="getTotalCountries" parameterType="map" resultType="int">
+         select  count( C.CountryID)
+        from country C
+        <if test="q != null">
+                where C.Name LIKE #{q} ||'%'
+        </if>
+    </select>
+    
+    <select id="getCountry" parameterType="map" resultMap="countryResult">
+          select  C.CountryID as country_id,
+                C.Name as country_name,
+                C.Latitude as country_latitude,
+                C.Longitude as country_longitude
+        
+        from country C
+            where C.CountryID = #{id}
+    </select>
+    
+    
+    <insert id="createCountry" parameterType="map" useGeneratedKeys="true" keyProperty="country.id">
+        insert into country (
+            Name,
+            Latitude,
+            Longitude
+        ) values (
+            #{ country.name},
+            #{ country.location.latitude},
+            #{ country.location.longitude}
+        )
+    </insert>
+    
+    <update id="updateCountry" parameterType="map">
+        update country
+        <set>
+            <if test="country.name != null"> Name = #{ country.name},</if>
+            <if test="country.location != null and country.location.latitude != null and contry.location.longitude != null"> 
+                    Latitude    = #{ country.location.latitude},
+                    Longitude   = #{ country.location.longitude}
+            </if>
+        </set>
+        where CountryID = #{country.id}
+    </update>
+    
+    <delete id="deleteCountry" parameterType="map">
+        delete from country
+            where CountryID = #{id}
+    </delete>
+    
+</mapper>

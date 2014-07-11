@@ -18,7 +18,9 @@
 package com.holacampus.api.mappers;
 
 import com.holacampus.api.domain.CommentContainer;
+import com.holacampus.api.domain.Permission;
 import com.holacampus.api.domain.PhotoContainer;
+import com.holacampus.api.domain.ProfilePhotoContainer;
 import com.holacampus.api.domain.User;
 import java.sql.SQLException;
 import java.util.List;
@@ -34,26 +36,31 @@ public interface UserMapper {
     /*
     * SELECT
     */
-    public List<User> getAllUsers( @Param("q") String q, RowBounds rb) throws Exception;
+    public List<User>               getAllUsers( @Param("q") String q, RowBounds rb) throws Exception;
         
-    public List<User> getAllUsers(@Param("q")  String q) throws Exception;
+    public List<User>               getAllUsers(@Param("q")  String q) throws Exception;
         
-    public int getTotalUsers( @Param("q") String q) throws Exception;
+    public int                      getTotalUsers( @Param("q") String q) throws Exception;
   
-    public User getUser( @Param("id") long id) throws Exception;
+    public User                     getUser( @Param("id") long id) throws Exception;
     
-    public CommentContainer getCommentContainer( @Param("id") long id) throws Exception;
+    public CommentContainer         getCommentContainer( @Param("id") long id) throws Exception;
     
-    public PhotoContainer getPhotoContainer( @Param("id") long id) throws Exception;
+    public PhotoContainer           getPhotoContainer( @Param("id") long id) throws Exception;
+    
+    public ProfilePhotoContainer    getProfilePhotoContainer( @Param("id") long id) throws Exception;
+    
+    public void                     getPermissions(  @Param("currentUserId") Long currentUserId, @Param("userId") Long userId, @Param("permission") Permission permission) throws Exception;
+    
     /*
     * INSERT
     */
-    public int createUser( @Param("user")User user) throws Exception;
+    public int                      createUser( @Param("user")User user) throws Exception;
     
     /*
     * DELETE
     */
     
-    public int deleteUser( @Param("id") Long id) throws Exception;
+    public int                      deleteUser( @Param("id") Long id) throws Exception;
         
 }

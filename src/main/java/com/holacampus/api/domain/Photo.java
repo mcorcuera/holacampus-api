@@ -65,6 +65,8 @@ public class Photo implements Linkable{
     @HalEmbedded( "permission")
     private Permission          permission;
     
+    private boolean             profilePhoto;
+    
     private CommentContainer    commentContainer;
     private PhotoContainer      photoContainer;
     
@@ -134,6 +136,13 @@ public class Photo implements Linkable{
         this.data = data;
     }
 
+    public boolean isProfilePhoto() {
+        return profilePhoto;
+    }
+
+    public void setProfilePhoto(boolean profilePhoto) {
+        this.profilePhoto = profilePhoto;
+    }
     
     public CommentContainer getCommentContainer() {
         return commentContainer;
@@ -167,6 +176,8 @@ public class Photo implements Linkable{
     
     @HalLink("comments") 
     public String getCommentsLink() {
+        if( profilePhoto || selfLink == null)
+            return null;
         return getSelfLink() + "/comments";
     }
     

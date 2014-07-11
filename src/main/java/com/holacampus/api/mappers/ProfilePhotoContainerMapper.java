@@ -15,22 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.holacampus.api.security;
+package com.holacampus.api.mappers;
 
-import com.holacampus.api.domain.User;
-import javax.ws.rs.core.MultivaluedMap;
+import org.apache.ibatis.annotations.Param;
 
 /**
  *
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
-public interface Authenticator {
-      
-    public static final int OK          = 0;
-    public static final int AUTH_FAIL   = 401;
-    public static final int BAD_SINTAX  = 409;
+public interface ProfilePhotoContainerMapper {
     
-    public UserPrincipal authenticate( MultivaluedMap<String,String> headers) throws AuthenticationFailException, AuthenticationBadSintaxException;
+    public int setProfilePhoto( @Param("photoId") Long photoId, @Param("profilePhotoId") Long profilePhotoId) throws Exception;
+    public int deleteProfilePhoto(@Param("profilePhotoId") Long profilePhotoId) throws Exception;
     
-    public String getScheme();
 }

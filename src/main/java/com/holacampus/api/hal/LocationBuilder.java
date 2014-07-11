@@ -17,6 +17,7 @@
 
 package com.holacampus.api.hal;
 
+import com.holacampus.api.domain.Location;
 import com.holacampus.api.domain.Name;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
 import com.theoryinpractise.halbuilder.api.RepresentationException;
@@ -27,30 +28,30 @@ import com.theoryinpractise.halbuilder.jaxrs.builders.PropertyBuilder;
  *
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
-public class NameBuilder implements PropertyBuilder<Name>{
+public class LocationBuilder implements PropertyBuilder<Location>{
 
     @Override
-    public Name build(Object s) throws BuilderException{
-        Name n = null;
+    public Location build(Object s) throws BuilderException{
+        Location l = null;
         if( ReadableRepresentation.class.isAssignableFrom( s.getClass())) {
             ReadableRepresentation r = (ReadableRepresentation) s;
             try {
-                n = new Name( (String) r.getValue("firstName"), (String) r.getValue("lastName"));
-            }catch( RepresentationException e) {
-                throw new BuilderException();
+                l = new Location( Float.parseFloat( (String) r.getValue("latitude")), Float.parseFloat((String) r.getValue("longitude")));
+            }catch( RepresentationException | NumberFormatException e) {
+                throw new BuilderException( e);
             }  
         }
-        return n;
+        return l;
     }
 
     @Override
     public boolean canBuild(Class type) {
-        return Name.class.isAssignableFrom(type);
+        return Location.class.isAssignableFrom(type);
     }
 
     @Override
     public Class getBuildType() {
-        return Name.class;
+        return Location.class;
     }
     
 }

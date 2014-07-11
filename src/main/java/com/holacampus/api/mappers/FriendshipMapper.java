@@ -34,11 +34,11 @@ public interface FriendshipMapper {
     
     public int              getTotalFriends( @Param("userId") Long userId, @Param("q") String q, @Param("unconfirmed") boolean confirmed, @Param("pending") boolean pending) throws Exception;
 
-    public Friendship       createFriendship( @Param("userId") Long userId, @Param("friendId") Long friendId) throws Exception;
+    public int              createFriendship( @Param("senderId") Long senderId, @Param("receiverId") Long receiverId) throws Exception;
     
     public Friendship       getFriend( @Param("userId") Long userId, @Param("friendId") Long friendId) throws Exception;
     
-    public Friendship       updateFriend( @Param("userId") Long userId, @Param("friend") Friendship friend) throws Exception;
+    public int              acceptFriend( @Param("currentUserId") Long userId, @Param("friendId") Long friendId) throws Exception;
     
-    public Friendship       deleteFriend( @Param("userId") Long userId, @Param("friendId") Long friendId) throws Exception;
+    public int              deleteFriend( @Param("currentUserId") Long userId, @Param("friendId") Long friendId) throws Exception;
 }

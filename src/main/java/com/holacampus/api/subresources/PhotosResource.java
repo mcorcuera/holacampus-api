@@ -244,6 +244,7 @@ public class PhotosResource {
             
             photo.setSelfLink( uriInfo.getPath());
             
+            photo.getCreator().getProfilePhoto().setProfilePhoto(true);
             session.commit();
             
         }catch( HTTPErrorException e) {

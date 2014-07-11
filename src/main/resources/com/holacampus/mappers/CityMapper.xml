@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.holacampus.api.mappers.CityMapper">
+    
+    <resultMap id="cityResult" type="City">
+        <id column="city_id" property="id" />
+        <result column="city_name" property="name" />
+        <result column="city_latitude" property="location.latitude"/>
+        <result column="city_longitude" property="location.longitude"/>
+         <association property="country" column="country_id" javaType="Country" 
+                     resultMap="com.holacampus.api.mappers.CountryMapper.countryResult" />
+    </resultMap>
+    
+    <select id="getCities" parameterType="map" resultMap="cityResult">
+        select  CI.CityID       as city_id,
+                CI.Name         as city_name,
+                CI.Latitude     as city_latitude,
+                CI.Longitude    as city_longitude,
+        
+                CO.CountryID    as country_id,
+                CO.Name         as country_name,
+                CO.Latitude     as country_latitude,
+                CO.Longitude    as country_longitude
+        
+        from city CI
+            left join country CO
+                on CI.CountryID = CO.CountryID
+        where CI.CountryID = #{country.id}
+        <if test="q != null">
+                AND CI.Name LIKE #{q}
+        </if>
+    </select>
+    
+    <select id="getTotalCities" parameterType="map" resultType="int">
+        select  COUNT(CI.CityID)
+        from city CI
+            left join country CO
+                on CI.CountryID = CO.CountryID
+        where CI.CountryID = #{country.id}
+        <if test="q != null">
+                AND CI.Name LIKE #{q}
+        </if>
+    </select>
+    
+    <select id="getCity" parameterType="map" resultMap="cityResult">
+         select  CI.CityID       as city_id,
+                CI.Name         as city_name,
+                CI.Latitude     as city_latitude,
+                CI.Longitude    as city_longitude,
+        
+                CO.CountryID    as country_id,
+                CO.Name         as country_name,
+                CO.Latitude     as country_latitude,
+                CO.Longitude    as country_longitude
+        
+        from city CI
+            left join country CO
+                on CI.CountryID = CO.CountryID
+        where CI.CountryID = #{country.id} AND CI.CityID = #{id}
+               
+    </select>
+    
+    
+    <insert id="createCity" parameterType="map" useGeneratedKeys="true" keyProperty="city.id">
+        insert into city (
+            CountryID,
+            Name,
+            Latitude,
+            Longitude
+        ) values (
+            #{ country.id},
+            #{ city.name},
+            #{ city.location.latitude},
+            #{ city.location.longitude}
+        )
+    </insert>
+    
+    <update id="updateCity" parameterType="map">
+        update city
+        <set>
+            <if test="city.name != null"> Name = #{ city.name},</if>
+            <if test="city.location != null and city.location.latitude != null and city.location.longitude != null"> 
+                    Latitude    = #{ city.location.latitude},
+                    Longitude   = #{ city.location.longitude}
+            </if>
+        </set>
+        where CountryID = #{country.id} AND CityID = #{ city.id}
+    </update>
+    
+    <delete id="deleteCity" parameterType="map">
+        delete from city
+            where CountryID = #{ country.id} AND CityID = #{id}
+    </delete>
+    
+</mapper>

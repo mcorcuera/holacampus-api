@@ -42,30 +42,26 @@ public final class BasicAuthenticator implements Authenticator{
     private static final String SCHEME = "[Bb]asic";
     
     @Override
-    public final int authenticate(MultivaluedMap<String, String> headers, User user) 
+    public final UserPrincipal authenticate(MultivaluedMap<String, String> headers) throws AuthenticationFailException, AuthenticationBadSintaxException
     {
         String authHeader = null;
-        
+        UserPrincipal up;
         /*
          * If authentication header is not present, return 401 error
         */
         if( ( authHeader = headers.getFirst(AUTHENTICATION_HEADER)) == null) {
-            return Authenticator.AUTH_FAIL;
+            throw new AuthenticationFailException();
         }
         
         /*
          * Get user credentials from Authentication header
         */
-        int result = getUserCredentials( authHeader, user);
-        
-        if( result != Authenticator.OK) {
-            return result;
-        }
+        ProvidedCredentials providedCredentials = getUserCredentials( authHeader);
         
         /*
          * Retrieve credentials from database
         */
-        logger.info("[AUTH] Credentials: " + user.getEmail() + ":" + user.getPassword()); 
+        logger.info("[AUTH] Credentials: " + providedCredentials.email + ":" + providedCredentials.password); 
 
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
                     
@@ -75,12 +71,12 @@ public final class BasicAuthenticator implements Authenticator{
             /*
             * Get Credentials from database and compare
             */
-            Credentials credentials = credMapper.getCredentialsForUserEmail(user.getEmail());
+            Credentials credentials = credMapper.getCredentialsForEmail( providedCredentials.email);
 
-            if( credentials != null && PasswordHash.validatePassword(user.getPassword(), credentials)) {
-               user.setId( credentials.getUser().getId());
+            if( credentials != null && PasswordHash.validatePassword( providedCredentials.password, credentials)) {
+               up = new UserPrincipal( providedCredentials.email, credentials.getElement().getId(), null);
             }else {
-                return Authenticator.AUTH_FAIL;
+                throw new AuthenticationFailException();
             }
 
         } catch( Exception ex) {
@@ -90,18 +86,19 @@ public final class BasicAuthenticator implements Authenticator{
             session.close();
         }
         
-        return Authenticator.OK;
+        return up;
     }
     
-    private int getUserCredentials( String authHeader, User user)
+    private ProvidedCredentials getUserCredentials( String authHeader) throws AuthenticationFailException, AuthenticationBadSintaxException
     {
-        String encodedUserPassword = null;
+        String encodedUserPassword  = null;
+        ProvidedCredentials credentials     = new ProvidedCredentials();
         
         try{
             encodedUserPassword = authHeader.split( SCHEME + " ")[ 1];
         }catch( ArrayIndexOutOfBoundsException e) {
             logger.error( e.toString());
-            return Authenticator.BAD_SINTAX;
+            throw new AuthenticationBadSintaxException();
         }
         
         String userPassword = null;
@@ -110,25 +107,30 @@ public final class BasicAuthenticator implements Authenticator{
             userPassword = new String( Base64.decode( encodedUserPassword.getBytes()));
         }catch ( Exception e) {
             logger.error( e.toString());
-            return Authenticator.BAD_SINTAX;
+            throw new AuthenticationBadSintaxException();
         }
         
         if( userPassword.split(":").length > 1) {
             String email    = userPassword.split(":")[ 0];
             String pass     = userPassword.split(":")[ 1];
                         
-            user.setEmail( email);
-            user.setPassword( pass);
+            credentials.email =  email;
+            credentials.password = pass;
         }else {
-            return Authenticator.BAD_SINTAX;
+            throw new AuthenticationBadSintaxException();
         }
         
-        return Authenticator.OK;
+        return credentials;
     }
 
     @Override
     public final String getScheme() {
         return AuthenticationScheme.AUTHENTICATION_SCHEME_BASIC;
+    }
+    
+    class ProvidedCredentials {
+        public String email;
+        public String password;
     }
     
 }

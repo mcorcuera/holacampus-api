@@ -38,6 +38,8 @@ public interface PhotoMapper {
      
      public int                 getTotalPhotos( @Param("containerId") Long id) throws Exception;
      
+     public long                getPhotoContainerId( Long id) throws Exception;
+     
      public CommentContainer    getCommentContainer( @Param("id") Long id) throws Exception;
      
      public Photo               getPhoto( @Param("photoId") Long photoId) throws Exception;

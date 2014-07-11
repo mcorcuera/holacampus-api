@@ -17,6 +17,7 @@
 
 package com.holacampus.api.mappers;
 
+import com.holacampus.api.domain.ActiveElement;
 import com.holacampus.api.domain.Credentials;
 import com.holacampus.api.domain.User;
 import org.apache.ibatis.annotations.Param;
@@ -28,9 +29,9 @@ import org.apache.ibatis.annotations.Param;
 public interface CredentialsMapper {
     
     
-    public int storeCredentialsForUser( @Param("user") User user, @Param( "credentials") Credentials credentials) throws Exception;
+    public int storeCredentials( @Param("element") ActiveElement element, @Param( "credentials") Credentials credentials) throws Exception;
     
-    public Credentials getCredentialsForUserEmail( @Param("email") String email) throws Exception;
+    public Credentials getCredentialsForEmail( @Param("email") String email) throws Exception;
     
-    public Credentials getCredentialsForUserId( @Param("id") Long id) throws Exception;
+    public Credentials getCredentialsForId( @Param("id") Long id) throws Exception;
 }

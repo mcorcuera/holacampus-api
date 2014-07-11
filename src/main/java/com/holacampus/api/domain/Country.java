@@ -16,13 +16,69 @@
  */
 package com.holacampus.api.domain;
 
+import com.holacampus.api.hal.Linkable;
+import com.holacampus.api.utils.Utils;
+import com.holacampus.api.validators.CreationNeeded;
+import com.theoryinpractise.halbuilder.jaxrs.*;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
+
 /**
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
-public class Country {
+
+@HalRootElement
+public class Country implements Linkable {
     
-    private long        id;
+    @HalProperty( name="id")
+    private Long        id;
+    
+    @CreationNeeded( message="{country.name.missing}")
+    @Valid
+    @Size( min=1, max=45, message="{country.name.wrong.size}")
+    @HalProperty( name="name")
     private String      name;
+    
+    @CreationNeeded
+    @Valid
+    @HalProperty( name="location")
     private Location    location;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    @HalSelfLink
+    public String getSelfLink() {
+        return Utils.createLink("/countries/" + id, null);
+    }
+    
+    @HalLink( "cities")
+    public String getCitiesLink() {
+        return getSelfLink() + "/cities";
+    }
+    
+    
 }

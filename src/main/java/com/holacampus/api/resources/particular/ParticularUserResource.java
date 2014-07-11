@@ -18,7 +18,10 @@
 package com.holacampus.api.resources.particular;
 
 import com.holacampus.api.domain.CommentContainer;
+import com.holacampus.api.domain.Permission;
+import com.holacampus.api.domain.Photo;
 import com.holacampus.api.domain.PhotoContainer;
+import com.holacampus.api.domain.ProfilePhotoContainer;
 import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.mappers.UserMapper;
@@ -28,6 +31,7 @@ import com.holacampus.api.security.UserPrincipal;
 import com.holacampus.api.subresources.CommentsResource;
 import com.holacampus.api.subresources.FriendsResource;
 import com.holacampus.api.subresources.PhotosResource;
+import com.holacampus.api.subresources.ProfilePhotoResource;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import java.util.Objects;
@@ -57,6 +61,8 @@ public class ParticularUserResource {
     
     @Context
     private UriInfo uriInfo;
+    @Context
+    private SecurityContext sc;
     
     @Path("/{id}/comments")
     public CommentsResource getCommentResource( @PathParam("id") long id) 
@@ -103,9 +109,53 @@ public class ParticularUserResource {
         return new PhotosResource( id, c, uriInfo.getPath());
     }
     
+     @Path( "/{id}/profile-photo")
+    public ProfilePhotoResource getProfilePhotoResource( @PathParam("id") long id)
+    {
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+        PhotoContainer pc;
+        ProfilePhotoContainer ppc;
+        try {            
+            UserMapper userMapper   = session.getMapper( UserMapper.class);
+            pc                      = userMapper.getPhotoContainer(id);
+            ppc                     = userMapper.getProfilePhotoContainer(id);
+            
+            if( pc == null) {
+                throw new HTTPErrorException( Status.NOT_FOUND, "User " + id + " not found");
+            }
+            
+            session.commit();            
+
+        } catch( Exception e) {
+            logger.error( e.toString());
+            throw new HTTPErrorException( Status.NOT_FOUND, "User " + id + " not found");
+        } finally {
+            session.close();
+        }  
+        
+        return new ProfilePhotoResource( pc, ppc, id, uriInfo.getPath());
+    }
+    
     @Path( "/{id}/friends")
     public FriendsResource getFriendsResource( @PathParam("id") Long id)
     {
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+
+        try {
+            UserMapper mapper    = session.getMapper( UserMapper.class);
+            User user = mapper.getUser(id);
+            if( user == null)
+                throw new HTTPErrorException( Status.NOT_FOUND, "User not found");
+            session.commit();
+        }catch( HTTPErrorException e) {
+            throw e;
+        }catch( Exception e) {
+            logger.info( e);
+            throw new InternalServerErrorException( e.getMessage());
+        }finally {
+            session.close();
+        }
+
         return new FriendsResource( id);
     }
     
@@ -119,17 +169,28 @@ public class ParticularUserResource {
         logger.info( "[GET] " + uriInfo.getPath());
         
         User user;
+        UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
+        
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
         
         try {            
             UserMapper userMapper   = session.getMapper( UserMapper.class);
-            user = userMapper.getUser(id);
-            session.commit();            
+            user = userMapper.getUser(id);      
             
             if( user == null) {
                 throw new HTTPErrorException( Status.NOT_FOUND, "User not found");
             }
             
+            if( user.getProfilePhoto() != null) {
+                user.getProfilePhoto().setProfilePhoto( true);
+                user.getProfilePhoto().setSelfLink( uriInfo.getPath() + "/profile-photo");
+            }
+            
+            Permission permission = new Permission();
+            
+            userMapper.getPermissions( up.getId(), id, permission);
+            user.setPermission(permission);
+            session.commit();      
         } catch( Exception e) {
             logger.error( e.toString());
             throw new HTTPErrorException( Status.NOT_FOUND, "User not found");
@@ -138,17 +199,7 @@ public class ParticularUserResource {
         }   
         return user;
     }
-    
-    
-    @GET
-    @Path("/me")
-    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
-    @Produces( { RepresentationFactory.HAL_JSON})
-    public User getUserMe( @Context SecurityContext sc)
-    {
-        return getUser( ((UserPrincipal)sc.getUserPrincipal()).getId());
-    }
-    
+     
     @DELETE
     @Path("/{id}")
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_BASIC)
@@ -176,14 +227,5 @@ public class ParticularUserResource {
         }else {
             throw new HTTPErrorException( Status.UNAUTHORIZED, "You are not authorized");
         }
-    }
-    
-    
-    @DELETE
-    @Path("/me")
-    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_BASIC)
-    public void deleteUserMe( @Context SecurityContext sc)
-    {
-        deleteUser( ((UserPrincipal)sc.getUserPrincipal()).getId(), sc);
     }
 }

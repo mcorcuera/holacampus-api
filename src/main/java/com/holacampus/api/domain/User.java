@@ -21,17 +21,14 @@ import com.holacampus.api.hal.Linkable;
 import com.holacampus.api.security.UserPrincipal;
 import com.holacampus.api.utils.Utils;
 import com.holacampus.api.validators.CreationNeeded;
-import com.theoryinpractise.halbuilder.api.Representable;
-import com.theoryinpractise.halbuilder.api.Representation;
+import com.theoryinpractise.halbuilder.jaxrs.HalEmbedded;
 import com.theoryinpractise.halbuilder.jaxrs.HalLink;
 import com.theoryinpractise.halbuilder.jaxrs.HalProperty;
 import com.theoryinpractise.halbuilder.jaxrs.HalRootElement;
 import com.theoryinpractise.halbuilder.jaxrs.HalSelfLink;
 import java.sql.Date;
-import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
-import org.hibernate.validator.constraints.Email;
 
 /**
  *  Bean object for User
@@ -39,33 +36,18 @@ import org.hibernate.validator.constraints.Email;
  */
 
 @HalRootElement
-public class User extends ActiveElement implements Representable, Linkable
+public class User extends ActiveElement implements Linkable
 
 {
     
-    /**
-     * 
-     */
     public static final String TYPE_STUDENT     = "STUDENT";
 
-    /**
-     *
-     */
     public static final String TYPE_UNI_MNG     = "UNI_MNG";
 
-    /**
-     *
-     */
     public static final String TYPE_MNG         = "MNG";
     
-    /**
-     *
-     */
     public static final String GENDER_MASCULINE = "M";
 
-    /**
-     *
-     */
     public static final String GENDER_FEMENINE  = "F";
     
     @CreationNeeded( message="{user.name.missing}")
@@ -73,41 +55,28 @@ public class User extends ActiveElement implements Representable, Linkable
     @HalProperty( name="name")
     private Name                name;
     
-    @HalProperty( name="userType")
+    @CreationNeeded( message="{user.type.missing}")
+    @HalProperty( name="role")
     private String              userType;
     
     @CreationNeeded( message="{user.birthDate.missing}")
     @HalProperty( name="birthDate")
     private Date                birthDate;
     
-    @CreationNeeded( message="{user.email.missing}")
-    @Email( message="{user.email.wrong}")
-    @Pattern(regexp=".+@.+\\..+", message="user.email.wrong")
-    @HalProperty( name="email")
-    private String              email;
+   
     
     @CreationNeeded( message="{user.gender.missing}")
     @Pattern( regexp="[MF]", message="user.gender.wrong")
     @HalProperty( name="gender")
     private String              gender;
+   
     
-    @CreationNeeded( message="{user.password.missing}")
-    @Pattern( regexp="^([a-zA-Z0-9@#$%\\.,\\-\\_\\?\\!]{5,20})$", message="user.password.wrong")
-    @HalProperty( name="password", input=true)
-    private String              password;
+    @HalEmbedded( "permission")
+    private Permission          permission;
+    
     
     private CommentContainer    commentContainer;
     private PhotoContainer      photoContainer;
-    private List<Friendship>    friends;
-    private Settings            settings;
-    private Credentials         credentials;
-    private List<Stage>         stages;
-    private List<University>    universities;
-    private List<Conversation>  conversations;
-    private List<Group>         groups;
-    private List<Event>         events;
-    private List<Group>         ownedGroups;
-    private List<Event>         ownedEvents;
    
     /**
      *
@@ -121,9 +90,7 @@ public class User extends ActiveElement implements Representable, Linkable
     
     public User( UserPrincipal u)
     {
-        this();
-        setId( u.getId());
-        email = u.getName();
+        super( u); 
     }
     
     /**
@@ -174,21 +141,7 @@ public class User extends ActiveElement implements Representable, Linkable
         this.birthDate = birthDate;
     }
 
-    /**
-     *
-     * @return
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     *
-     * @param email
-     */
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    
 
     /**
      *
@@ -206,6 +159,15 @@ public class User extends ActiveElement implements Representable, Linkable
         this.gender = gender;
     }
 
+    public Permission getPermission() {
+        return permission;
+    }
+
+    public void setPermission(Permission permission) {
+        this.permission = permission;
+    }
+
+    
     /**
      *
      * @return
@@ -238,196 +200,13 @@ public class User extends ActiveElement implements Representable, Linkable
         this.photoContainer = photoContainer;
     }
 
-    /**
-     *
-     * @return
-     */
-    public List<Friendship> getFriends() {
-        return friends;
-    }
 
-    /**
-     *
-     * @param friends
-     */
-    public void setFriends(List<Friendship> friends) {
-        this.friends = friends;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Settings getSettings() {
-        return settings;
-    }
-
-    /**
-     *
-     * @param settings
-     */
-    public void setSettings(Settings settings) {
-        this.settings = settings;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Credentials getCredentials() {
-        return credentials;
-    }
-
-    /**
-     *
-     * @param credentials
-     */
-    public void setCredentials(Credentials credentials) {
-        this.credentials = credentials;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public List<Stage> getStages() {
-        return stages;
-    }
-
-    /**
-     *
-     * @param stages
-     */
-    public void setStages(List<Stage> stages) {
-        this.stages = stages;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public List<University> getUniversities() {
-        return universities;
-    }
-
-    /**
-     *
-     * @param universities
-     */
-    public void setUniversities(List<University> universities) {
-        this.universities = universities;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public List<Conversation> getConversations() {
-        return conversations;
-    }
-
-    /**
-     *
-     * @param conversations
-     */
-    public void setConversations(List<Conversation> conversations) {
-        this.conversations = conversations;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public List<Group> getGroups() {
-        return groups;
-    }
-
-    /**
-     *
-     * @param groups
-     */
-    public void setGroups(List<Group> groups) {
-        this.groups = groups;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public List<Event> getEvents() {
-        return events;
-    }
-
-    /**
-     *
-     * @param events
-     */
-    public void setEvents(List<Event> events) {
-        this.events = events;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public List<Group> getOwnedGroups() {
-        return ownedGroups;
-    }
-
-    /**
-     *
-     * @param ownedGroups
-     */
-    public void setOwnedGroups(List<Group> ownedGroups) {
-        this.ownedGroups = ownedGroups;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public List<Event> getOwnedEvents() {
-        return ownedEvents;
-    }
-
-    /**
-     *
-     * @param ownedEvents
-     */
-    public void setOwnedEvents(List<Event> ownedEvents) {
-        this.ownedEvents = ownedEvents;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    
-    
-
-    @Override
+    @Override 
     public String toString() {
-        return "User{" + "userType=" + userType + ", name=" + name + ", birthDate=" + birthDate + ", email=" + email + ", gender=" + gender + '}';
+        return "User{" + "userType=" + userType + ", name=" + name + ", birthDate=" + birthDate + ", gender=" + gender + '}';
     }
 
     
-    /**
-     *
-     * @param resource
-     */
-    @Override
-    public void representResource(Representation resource) {
-       resource.withLink("self", getSelfLink())
-               .withProperty("id", getId())
-               .withProperty( "email", getEmail())
-               .withProperty("type", getUserType())
-               .withProperty("birthDate", getBirthDate())
-               .withProperty("gender", getGender())
-               .withProperty("name", getName());
-    }
 
     /**
      *
@@ -437,18 +216,34 @@ public class User extends ActiveElement implements Representable, Linkable
     @Override
     public String getSelfLink() {
         return Utils.createLink("/users/" + getId(), null);
+        
     }
     
     @HalLink("comments")
     public String getCommentsLink() {
-        return getSelfLink() + "/comments";
+        if(  User.TYPE_STUDENT.equals( userType))
+            return getSelfLink() + "/comments";
+        return null;
     }
     
     @HalLink("photos")
     public String getPhotosLink() {
-        return getSelfLink() + "/photos";
+        if(  User.TYPE_STUDENT.equals( userType))
+            return getSelfLink() + "/photos";
+        return null;
     }
     
+    @HalLink( "friends")
+    public String getFriendsLink()  {
+        if(  User.TYPE_STUDENT.equals( userType))
+            return getSelfLink() + "/friends";
+        return null;
+    }    
     
-    
+    @HalLink("profile-photo")
+    public String getProfilePhotoLink() {
+        if( User.TYPE_STUDENT.equals( userType))
+            return getSelfLink() + "/profile-photo";
+        return null;
+    }
 }

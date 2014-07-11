@@ -19,6 +19,8 @@ package com.holacampus.api.filters;
 
 import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
+import com.holacampus.api.security.AuthenticationBadSintaxException;
+import com.holacampus.api.security.AuthenticationFailException;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.Authenticator;
@@ -27,6 +29,7 @@ import com.holacampus.api.security.UnknownAuthenticationSchemeException;
 import com.holacampus.api.security.UserPrincipal;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.logging.Level;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -76,20 +79,16 @@ public class SecurityContextFilter implements ContainerRequestFilter{
             try {
                 User user = new User();
                 
-                int result = AuthenticationScheme.authenticate(authenticationScheme, crc.getHeaders(), user);
-               
-                if( result == Authenticator.OK) {
-                    principal = new UserPrincipal( user.getEmail(), user.getId(), User.TYPE_STUDENT);
-                    sc = new MySecurityContext( principal, authenticationScheme, false);
-                }else if( result == Authenticator.BAD_SINTAX) {
-                    throw new HTTPErrorException( Response.Status.BAD_REQUEST, "Bad sintax in authentication headers");
-                }else if ( result == Authenticator.AUTH_FAIL) {
-                    throw new HTTPErrorException( Response.Status.UNAUTHORIZED, "Unauthorized user");
-                }
+                principal = AuthenticationScheme.authenticate(authenticationScheme, crc.getHeaders());
+                sc = new MySecurityContext( principal, authenticationScheme, false);
                  
             } catch (UnknownAuthenticationSchemeException ex) {
                 logger.error(ex);
                 throw new InternalServerErrorException();
+            } catch (AuthenticationFailException ex) {
+                 throw new HTTPErrorException( Response.Status.UNAUTHORIZED, "Unauthorized user");
+            } catch (AuthenticationBadSintaxException ex) {
+                throw new HTTPErrorException( Response.Status.BAD_REQUEST, "Bad sintax in authentication headers");
             }
         }
         crc.setSecurityContext( sc);

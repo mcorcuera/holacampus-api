@@ -72,12 +72,10 @@ public class AuthTokensResource {
         
         try {
             AuthTokenMapper authMapper = session.getMapper( AuthTokenMapper.class);
-            authMapper.storeAuthTokenForUserId(authToken, id);
+            authMapper.storeAuthToken(authToken, id);
             
             authToken = authMapper.getAuthToken( authToken.getAuthToken());
-            User user = new User();
-            user.setId(id);
-            authToken.setUser( user);
+            
             session.commit(); 
         } catch( Exception ex) {
             logger.error(ex);
@@ -89,13 +87,15 @@ public class AuthTokensResource {
         return authToken;
     }
     
-    @Path("/users/{id}/auth-tokens")
+    @Path("/auth-tokens")
     @DELETE
     @AuthenticationRequired(AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
-    public void deleteAllUserTokens( @Context SecurityContext sc, @PathParam( "id") Long id)
+    public void deleteAllUserTokens( @Context SecurityContext sc)
     {
-        logger.info( "[DELETE] /users/" + id + "/auth-tokens");
+        logger.info( "[DELETE] /auth-tokens");
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+        
+        Long id = ((UserPrincipal) sc.getUserPrincipal()).getId();
         
            /*
         * Check if the user has permissions over this resource
@@ -106,7 +106,7 @@ public class AuthTokensResource {
         }        
         try {
             AuthTokenMapper authMapper = session.getMapper( AuthTokenMapper.class);
-            authMapper.deleteAllUserTokens( id);
+            authMapper.deleteAllElementTokens(id);
             session.commit(); 
         } catch( Exception ex) {
             logger.error(ex);
@@ -136,7 +136,7 @@ public class AuthTokensResource {
             
             authToken = authMapper.getAuthToken( token);
             
-            if( !Objects.equals( authToken.getUser().getId(), ((UserPrincipal) sc.getUserPrincipal()).getId())) {
+            if( !Objects.equals( authToken.getElement().getId(), ((UserPrincipal) sc.getUserPrincipal()).getId())) {
                 throw new HTTPErrorException( Response.Status.FORBIDDEN, "Not allowed to get auth-tokens");
             }
             
@@ -174,7 +174,7 @@ public class AuthTokensResource {
             /*
              * Check if the user has permissions over this resource
              */
-            if( !Objects.equals( authToken.getUser().getId(), ((UserPrincipal) sc.getUserPrincipal()).getId())) {
+            if( !Objects.equals( authToken.getElement().getId(), ((UserPrincipal) sc.getUserPrincipal()).getId())) {
                 throw new HTTPErrorException( Response.Status.FORBIDDEN, "Not allowed to get auth-tokens");
             }
             

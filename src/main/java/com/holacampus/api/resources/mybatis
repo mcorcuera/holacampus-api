@@ -4,9 +4,11 @@ try {
     Object mapper    = session.getMapper( Object.class);
     
     session.commit();
+ }catch( HTTPErrorException e) {
+    throw e;
 }catch( Exception e) {
     logger.info( e);
-    throw new InternalServerErrorException( e.getMessage());
+    throw new HTTPErrorException( Status.INTERNAL_SERVER_ERROR, e.getMessage());
 }finally {
     session.close();
 }

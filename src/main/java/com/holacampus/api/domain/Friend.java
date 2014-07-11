@@ -34,7 +34,7 @@ public class Friend implements Linkable{
     private User    user;
     
     @HalProperty( name="confirmed")
-    private boolean confirmed;
+    private Boolean confirmed;
     
     @HalProperty( name="statusChangeDate")
     private Date    statusChangeDate;
@@ -48,11 +48,11 @@ public class Friend implements Linkable{
         
     }
     
-    public Friend( Friendship fs, Long userId) 
+    public Friend( Friendship fs, Long ofUser) 
     {
-        if( fs.getSender().getId().equals(userId)) {
+        if( fs.getSender().getId().equals(ofUser)) {
             user = fs.getReceiver();
-        }else if( fs.getReceiver().getId().equals(userId)) {
+        }else if( fs.getReceiver().getId().equals(ofUser)) {
             user = fs.getSender();
         }
         
@@ -60,6 +60,8 @@ public class Friend implements Linkable{
             confirmed = true;
         else
             confirmed = false;
+        
+        askedByMe = null;
         
         statusChangeDate = fs.getStatusChangeDate();
     }
