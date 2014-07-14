@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.holacampus.api.mappers.UniversityMapper">
+       
+    <resultMap id="universityResult" type="University">
+        <id     column="uni_id"    property="id" />
+        <result column="uni_name"  property="name" />
+        <association property="profilePhoto" column="photo_id" javaType="Photo"
+            resultMap="com.holacampus.api.mappers.PhotoMapper.photoEmbeddedResult"/>
+    </resultMap>
+    
+     <resultMap id="universityEmbeddedResult" type="University">
+        <id     column="uni_id" property="id" />
+        <result column="uni_name"  property="name" />
+        <association property="profilePhoto" column="photo_id" javaType="Photo"
+            resultMap="com.holacampus.api.mappers.PhotoMapper.photoEmbeddedResult"/>
+    </resultMap>
+    <select id="getAllUniversities" parameterType="map" resultMap="universityResult">
+        select  U.UniversityID      as uni_id,
+                U.Name              as uni_name,
+                
+                P.PhotoID           as photo_e_id,
+                P.Title             as photo_e_title,
+                P.Url               as photo_e_url,
+                P.ThumbnailUrl      as photo_e_t_url,
+                P.CreationDate      as photo_e_date
+        from university U
+            left join profile_photo PP
+                on U.UniversityID = PP.UniversityID
+            left join photo P
+                on PP.PhotoID = P.PhotoID
+            <if test="q != null">
+                where U.Name like #{q}
+            </if>
+    </select>
+    
+    
+    <select id="getTotalUniversities" parameterType="map" resultType="int">
+        select COUNT(U.UniversityID) from university U
+        <if test="q != null">
+                where U.Name like #{q}
+        </if>
+    </select>
+    
+    <select id="getUniversity" parameterType="map" resultMap="universityResult">
+        select  U.UniversityID      as uni_id,
+                U.Name              as uni_name,
+                
+                P.PhotoID           as photo_e_id,
+                P.Title             as photo_e_title,
+                P.Url               as photo_e_url,
+                P.ThumbnailUrl      as photo_e_t_url,
+                P.CreationDate      as photo_e_date
+        from university U
+            left join profile_photo PP
+                on U.UniversityID = PP.UniversityID
+            left join photo P
+                on PP.PhotoID = P.PhotoID
+        where U.UniversityID = #{id}
+    </select>
+    
+    <insert id="createUniversity" parameterType="map" statementType="CALLABLE" >
+          CALL newUniversity( 
+            #{ university.name,     mode=IN, javaType=String, jdbcType=VARCHAR},
+            #{ university.email,    mode=IN, javaType=String, jdbcType=VARCHAR},
+            #{ university.id,       mode=OUT, javaType=Long, jdbcType=INTEGER}
+        )
+    </insert>
+    
+    <select id="getCommentContainer" parameterType="map"  resultMap="com.holacampus.api.mappers.CommentContainerMapper.cContainerResult">
+        select  C.CommentContainerID    as cc_id,
+                C.Type                  as cc_type,
+                C.UniversityID          as cc_owner_id
+        from comment_container C
+            where UniversityID = #{id}
+    </select>
+    
+    <select id="getPhotoContainer" parameterType="map" resultMap="com.holacampus.api.mappers.PhotoContainerMapper.pContainerResult">
+        select  P.PhotoContainerID  as pc_id,
+                P.Type              as pc_type,
+                P.UniversityID      as pc_owner_id
+        from photo_container P
+            where UniversityID = #{id}
+    </select>
+    
+    <select id="getProfilePhotoContainer" parameterType="map" resultMap="com.holacampus.api.mappers.ProfilePhotoContainerMapper.ppContainerResult">
+        select  P.ProfilePhotoID    as ppc_id,
+                P.Type              as ppc_type,
+                P.UniversityID      as ppc_owner_id,
+                P.PhotoID           as ppc_photo_id
+        from profile_photo P
+            where UniversityID = #{id}
+    </select>
+    
+    
+    <select id="getPermissions" parameterType="map" statementType="CALLABLE">
+        CALL getUniversityPermissions(
+            #{ currentUserId,          mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ universityId,           mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ permission.level,       mode=OUT,    javaType=String,                jdbcType=VARCHAR}
+        )
+    </select>
+    
+    <select id="getCities" parameterType="map" resultMap="com.holacampus.api.mappers.CityMapper.cityResult">
+         select  CI.CityID       as city_id,
+                CI.Name         as city_name,
+                CI.Latitude     as city_latitude,
+                CI.Longitude    as city_longitude,
+        
+                CO.CountryID    as country_id,
+                CO.Name         as country_name,
+                CO.Latitude     as country_latitude,
+                CO.Longitude    as country_longitude
+        
+        from university_has_city UC
+            inner join city CI
+                on UC.CityID = CI.CityID and UC.CountryID = CI.CountryID
+            left join country CO
+                on CI.CountryID = CO.CountryID
+        where UC.UniversityID = #{universityId}
+    </select>
+    
+    <select id="getTotalCities" parameterType="map" resultType="int">
+        select  COUNT( UC.UniversityID)
+        from university_has_city UC
+            where UC.UniversityID = #{universityId}
+    </select>
+    
+    <insert id="insertCity" parameterType="map">
+        insert into university_has_city (
+            UniversityID,
+            CityID,
+            CountryID
+        )VALUES (
+            #{universityId},
+            #{city.id},
+            #{city.country.id}
+        )
+    </insert>
+    
+    <delete id="deleteCity" parameterType="map">
+        delete from university_has_city
+        where
+            UniversityID    = #{universityId} AND
+            CityID          = #{cityId} AND
+            CountryID       = #{countryId}
+    </delete>
+    
+</mapper>

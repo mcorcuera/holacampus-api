@@ -48,12 +48,12 @@
                         on P.ActiveElementID = A.ActiveElementID
                 left join user U
                         on A.ActiveElementID = U.UserID 
-                left join profile_photo PP
-                        on U.UserID = PP.UserID
-                left join photo P2
-                        on PP.PhotoID = P2.PhotoID
                 left join university UN
                         on A.ActiveElementID = UN.UniversityID
+                left join profile_photo PP
+                        on U.UserID = PP.UserID or UN.UniversityID = PP.UniversityID
+                left join photo P2
+                        on PP.PhotoID = P2.PhotoID
 
                 where P.PhotoContainerID = #{containerId}
         order by P.CreationDate desc
@@ -87,12 +87,12 @@
                         on P.ActiveElementID = A.ActiveElementID
                 left join user U
                         on A.ActiveElementID = U.UserID
-                left join profile_photo PP
-                        on U.UserID = PP.UserID
-                left join photo P2
-                        on PP.PhotoID = P2.PhotoID
                 left join university UN
                         on A.ActiveElementID = UN.UniversityID
+                left join profile_photo PP
+                        on U.UserID = PP.UserID or UN.UniversityID = PP.UniversityID
+                left join photo P2
+                        on PP.PhotoID = P2.PhotoID
 
                 where P.PhotoID = #{photoId}
     </select>

@@ -75,6 +75,8 @@ public class TokenAuthenticator implements Authenticator{
                 throw new AuthenticationFailException();
             }
 
+        } catch( AuthenticationFailException e) {
+            throw e;
         } catch( Exception ex) {
             logger.error(ex);
             throw new InternalServerErrorException();

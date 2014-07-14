@@ -18,7 +18,6 @@
         <id     column="user_id" property="id" />
         <result column="user_firstname"  property="name.firstName" />
         <result column="user_lastname"   property="name.lastName" /> 
-        
         <association property="profilePhoto" column="photo_id" javaType="Photo"
             resultMap="com.holacampus.api.mappers.PhotoMapper.photoEmbeddedResult"/>
     </resultMap>

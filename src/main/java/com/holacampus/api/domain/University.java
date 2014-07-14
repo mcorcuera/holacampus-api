@@ -36,6 +36,10 @@ public class University extends ActiveElement implements Linkable{
     @HalProperty( name="name")
     private String              name;
     
+    
+    @HalEmbedded( "permission")
+    private Permission          permission;
+    
     /**
      *
      */
@@ -53,10 +57,34 @@ public class University extends ActiveElement implements Linkable{
         this.name = name;
     }
 
+    public Permission getPermission() {
+        return permission;
+    }
+
+    public void setPermission(Permission permission) {
+        this.permission = permission;
+    }
+    
+    
+
     @Override
+    @HalSelfLink
     public String getSelfLink() {
         return Utils.createLink("/universities/" + getId(), null);
     }
     
+    @HalLink("comments")
+    public String getCommentsLink() {
+        return getSelfLink() + "/comments";
+    }
     
+    @HalLink("photos")
+    public String getPhotosLink() {
+        return getSelfLink() + "/photos";
+    }
+    
+    @HalLink("profile-photo")
+    public String getProfilePhotoLink() {
+        return getSelfLink() + "/profile-photo";
+    }
 }

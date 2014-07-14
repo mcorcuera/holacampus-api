@@ -38,12 +38,12 @@
                         on CO.ActiveElementID = A.ActiveElementID
                 left join user U
                         on A.ActiveElementID = U.UserID 
-                left join profile_photo PP
-                        on U.UserID = PP.UserID
-                left join photo P2
-                        on PP.PhotoID = P2.PhotoID
                 left join university UN
                         on A.ActiveElementID = UN.UniversityID
+                left join profile_photo PP
+                        on U.UserID = PP.UserID or UN.UniversityID = PP.UniversityID
+                left join photo P2
+                        on PP.PhotoID = P2.PhotoID
 
                 where CO.BelongingCommentContainerID = #{containerId}
         order by CO.CreationDate desc
@@ -82,12 +82,12 @@
                         on CO.ActiveElementID = A.ActiveElementID
                 left join user U
                         on A.ActiveElementID = U.UserID
-                left join profile_photo PP
-                        on U.UserID = PP.UserID
-                left join photo P2
-                        on PP.PhotoID = P2.PhotoID
                 left join university UN
                         on A.ActiveElementID = UN.UniversityID
+                left join profile_photo PP
+                        on U.UserID = PP.UserID or UN.UniversityID = PP.UniversityID
+                left join photo P2
+                        on PP.PhotoID = P2.PhotoID
 
             where CO.CommentID = #{id}
     </select>

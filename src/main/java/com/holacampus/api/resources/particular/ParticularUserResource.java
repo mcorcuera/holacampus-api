@@ -19,7 +19,6 @@ package com.holacampus.api.resources.particular;
 
 import com.holacampus.api.domain.CommentContainer;
 import com.holacampus.api.domain.Permission;
-import com.holacampus.api.domain.Photo;
 import com.holacampus.api.domain.PhotoContainer;
 import com.holacampus.api.domain.ProfilePhotoContainer;
 import com.holacampus.api.domain.User;
@@ -27,6 +26,8 @@ import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.mappers.UserMapper;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
+import com.holacampus.api.security.PermissionScheme;
+import com.holacampus.api.security.PermissionScheme.Action;
 import com.holacampus.api.security.UserPrincipal;
 import com.holacampus.api.subresources.CommentsResource;
 import com.holacampus.api.subresources.FriendsResource;
@@ -59,6 +60,28 @@ public class ParticularUserResource {
     
     private static final Logger logger = LogManager.getLogger( ParticularUserResource.class.getName());
     
+    private static final PermissionScheme commentsScheme        = new PermissionScheme();
+    private static final PermissionScheme photosScheme          = new PermissionScheme();
+    private static final PermissionScheme photosCommentScheme   = new PermissionScheme();
+    static {
+        commentsScheme  .addPermissionScheme( Action.GET_MULTIPLE, Permission.LEVEL_MEMBER)
+                        .addPermissionScheme(Action.POST_MULTIPLE, Permission.LEVEL_MEMBER)
+                        .addPermissionScheme(Action.GET_UNIQUE, Permission.LEVEL_MEMBER)
+                        .addPermissionScheme(Action.DELETE_UNIQUE, Permission.LEVEL_PARENT_OWNER);
+        
+        photosScheme    .addPermissionScheme( Action.GET_MULTIPLE, Permission.LEVEL_MEMBER)
+                        .addPermissionScheme(Action.POST_MULTIPLE, Permission.LEVEL_PARENT_OWNER)
+                        .addPermissionScheme(Action.GET_UNIQUE, Permission.LEVEL_MEMBER)
+                        .addPermissionScheme(Action.PUT_UNIQUE, Permission.LEVEL_OWNER)
+                        .addPermissionScheme(Action.DELETE_UNIQUE, Permission.LEVEL_PARENT_OWNER);
+        
+        photosCommentScheme     .addPermissionScheme( Action.GET_MULTIPLE, Permission.LEVEL_MEMBER)
+                                .addPermissionScheme(Action.POST_MULTIPLE, Permission.LEVEL_MEMBER)
+                                .addPermissionScheme(Action.GET_UNIQUE, Permission.LEVEL_MEMBER)
+                                .addPermissionScheme(Action.DELETE_UNIQUE, Permission.LEVEL_PARENT_OWNER);
+    }
+    
+    
     @Context
     private UriInfo uriInfo;
     @Context
@@ -82,8 +105,9 @@ public class ParticularUserResource {
             throw new HTTPErrorException( Status.NOT_FOUND, "User " + id + " not found");
         } finally {
             session.close();
-        }  
-        return new CommentsResource( id, c, uriInfo.getPath());
+        }
+        
+        return new CommentsResource( id, c, uriInfo.getPath(), ParticularUserResource.commentsScheme);
     }
     
     @Path( "/{id}/photos")
@@ -106,7 +130,7 @@ public class ParticularUserResource {
             session.close();
         }  
         
-        return new PhotosResource( id, c, uriInfo.getPath());
+        return new PhotosResource( id, c, uriInfo.getPath(), photosScheme, photosCommentScheme);
     }
     
      @Path( "/{id}/profile-photo")

@@ -20,16 +20,16 @@ package com.holacampus.api.subresources;
 import com.holacampus.api.domain.Comment;
 import com.holacampus.api.domain.CommentContainer;
 import com.holacampus.api.domain.Container;
-import com.holacampus.api.domain.Container.ElementType;
 import com.holacampus.api.domain.Permission;
 import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.hal.HalList;
 import com.holacampus.api.mappers.CommentContainerMapper;
 import com.holacampus.api.mappers.CommentMapper;
-import com.holacampus.api.resources.particular.ParticularUserResource;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
+import com.holacampus.api.security.PermissionScheme;
+import com.holacampus.api.security.PermissionScheme.Action;
 import com.holacampus.api.security.UserPrincipal;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.holacampus.api.utils.Utils;
@@ -50,13 +50,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 
 /**
  *
@@ -69,13 +69,14 @@ public class CommentsResource {
     private final CommentContainer  container;
     private final String            path;
     private Long                    elId;
+    private final PermissionScheme  permissionScheme;
     
-    
-    public CommentsResource( long id, CommentContainer c, String path)
+    public CommentsResource( long id, CommentContainer c, String path, PermissionScheme scheme)
     {
-        this.elId       = id;
-        this.container  = c;
-        this.path       = path;
+        this.elId               = id;
+        this.container          = c;
+        this.path               = path;
+        this.permissionScheme   = scheme;
     }
     
     @GET
@@ -103,8 +104,12 @@ public class CommentsResource {
             
             // Get container permission level
            containerMapper.getPermissions( ((UserPrincipal)sc.getUserPrincipal()).getId(), container.getId(), containerPermissions);
-            
-            session.commit();
+           
+           if( !permissionScheme.isAllowed(Action.GET_MULTIPLE, containerPermissions.getLevel())) {
+               throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
+           }
+           
+           session.commit();
             
             /* Add permission level */
             for( Comment comment : commentList) {
@@ -125,6 +130,8 @@ public class CommentsResource {
             comments.setResourceRelativePath(path);
             comments.setPage(page);
             comments.setSize(size);
+        }catch( HTTPErrorException e) {
+            throw e;
         }catch( Exception e) {
             logger.info( e);
             throw new InternalServerErrorException( e.getMessage());
@@ -153,10 +160,21 @@ public class CommentsResource {
         else
             comment.setIsRecomment(false);
         
+        Permission containerPermissions = new Permission();
+        
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
 
         try {
-            CommentMapper mapper    = session.getMapper( CommentMapper.class);
+            CommentMapper mapper                        = session.getMapper( CommentMapper.class);
+            CommentContainerMapper  containerMapper     = session.getMapper( CommentContainerMapper.class);
+            
+            // Get container permission level
+            containerMapper.getPermissions( ((UserPrincipal)sc.getUserPrincipal()).getId(), container.getId(), containerPermissions);
+           
+            if( !permissionScheme.isAllowed(Action.POST_MULTIPLE, containerPermissions.getLevel())) {
+                throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
+            }
+            
             int result              = mapper.createComment(comment);
             comment                 = mapper.getComment( comment.getId());
             session.commit();
@@ -168,6 +186,8 @@ public class CommentsResource {
             // The current user is the creator of the comment
             comment.setPermission( new Permission( Permission.LEVEL_OWNER));
             comment.setSelfLink( uriInfo.getPath() + "/" + comment.getId());
+        }catch( HTTPErrorException e) {
+            throw e;
         }catch( Exception e) {
             logger.info( e);
             throw new InternalServerErrorException( e.getMessage());
@@ -209,7 +229,15 @@ public class CommentsResource {
             session.close();
         }   
         
-        return new CommentsResource( id, c, uriInfo.getPath());
+        PermissionScheme recommentsScheme  = new PermissionScheme();
+    
+        recommentsScheme  .addPermissionScheme( Action.GET_MULTIPLE, permissionScheme.getPermissionLevel(Action.GET_MULTIPLE))
+                        .addPermissionScheme(Action.POST_MULTIPLE,  permissionScheme.getPermissionLevel(Action.POST_MULTIPLE))
+                        .addPermissionScheme(Action.GET_UNIQUE,     permissionScheme.getPermissionLevel(Action.GET_UNIQUE))
+                        .addPermissionScheme(Action.DELETE_UNIQUE, Permission.LEVEL_PARENT_OWNER);
+    
+    
+        return new CommentsResource( id, c, uriInfo.getPath(), recommentsScheme);
     }
     
     @Path("/{id}")
@@ -233,6 +261,10 @@ public class CommentsResource {
                 throw new HTTPErrorException( Response.Status.NOT_FOUND, "comment " + id + " not found");
            
             mapper.getPermissions(up.getId(), comment.getId(), permission);
+            
+            if( !permissionScheme.isAllowed(Action.GET_UNIQUE, permission.getLevel())) {
+                throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
+            }
             
             comment.setPermission(permission);
             
@@ -271,11 +303,11 @@ public class CommentsResource {
                 throw new HTTPErrorException( Response.Status.NOT_FOUND, "comment " + id + " not found");
             
             mapper.getPermissions(up.getId(), comment.getId(), permission);
-            logger.info("Permisos borrar: " + permission.getLevel());
-            // If we don't own the comment, throw 403 HTTP erro
-            if( !permission.getLevel().equals(Permission.LEVEL_OWNER) && !permission.getLevel().equals(Permission.LEVEL_PARENT_OWNER))
-                throw new HTTPErrorException( Response.Status.FORBIDDEN, "you don't have permissions to delete the comment " + id);
             
+            // If we don't have permissions, throw 403 HTTP error
+            if( !permissionScheme.isAllowed(Action.DELETE_UNIQUE, permission.getLevel())) {
+                throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
+            }
             //If we own the comment, delete it
             int result = mapper.deleteComment( comment.getId());
             

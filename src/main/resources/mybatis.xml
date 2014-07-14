@@ -13,6 +13,7 @@
      <typeAliases>
         <typeAlias type="com.holacampus.api.domain.ActiveElement"           alias="ActiveElement" />
         <typeAlias type="com.holacampus.api.domain.User"                    alias="User" />
+        <typeAlias type="com.holacampus.api.domain.University"              alias="University" />
         <typeAlias type="com.holacampus.api.domain.Credentials"             alias="Credentials" />
         <typeAlias type="com.holacampus.api.domain.AuthToken"               alias="AuthToken" />
         <typeAlias type="com.holacampus.api.domain.CommentContainer"        alias="CommentContainer" />
@@ -23,6 +24,7 @@
         <typeAlias type="com.holacampus.api.domain.Friendship"              alias="Friendship" />
         <typeAlias type="com.holacampus.api.domain.Country"                 alias="Country" />
         <typeAlias type="com.holacampus.api.domain.City"                    alias="City" />
+        <typeAlias type="com.holacampus.api.domain.Study"                   alias="Study" />
     </typeAliases>
     
     <environments default="development">        
@@ -39,6 +41,7 @@
     <mappers>
         <mapper resource="com/holacampus/mappers/ActiveElementMapper.xml"/>
         <mapper resource="com/holacampus/mappers/UserMapper.xml"/>
+        <mapper resource="com/holacampus/mappers/UniversityMapper.xml"/>
         <mapper resource="com/holacampus/mappers/CredentialsMapper.xml"/>
         <mapper resource="com/holacampus/mappers/AuthTokenMapper.xml"/>
         <mapper resource="com/holacampus/mappers/CommentContainerMapper.xml"/>
@@ -49,6 +52,7 @@
         <mapper resource="com/holacampus/mappers/FriendshipMapper.xml"/>
         <mapper resource="com/holacampus/mappers/CountryMapper.xml"/>
         <mapper resource="com/holacampus/mappers/CityMapper.xml"/>
+        <mapper resource="com/holacampus/mappers/StudyMapper.xml"/>
     </mappers>
    
 </configuration>

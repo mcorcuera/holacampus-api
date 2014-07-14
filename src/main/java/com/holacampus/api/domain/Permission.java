@@ -27,10 +27,12 @@ import com.theoryinpractise.halbuilder.jaxrs.HalRootElement;
 @HalRootElement
 public class Permission {
     
-    public static final String LEVEL_USER           = "USER";
-    public static final String LEVEL_OWNER          = "OWNER";
-    public static final String LEVEL_PARENT_OWNER   = "PARENT_OWNER";
-    public static final String LEVEL_MEMBER         = "MEMBER";
+    public static final String LEVEL_OWNER              = "OWNER";
+    public static final String LEVEL_PARENT_OWNER       = "PARENT_OWNER";
+    public static final String LEVEL_MEMBER             = "MEMBER";
+    public static final String LEVEL_MEMBER_REQUESTED   = "MEMBER_REQUESTED";
+    public static final String LEVEL_MEMBER_PENDING     = "MEMBER_PENDING";
+    public static final String LEVEL_USER               = "USER";
     
     @HalProperty( name="level")
     private String level;

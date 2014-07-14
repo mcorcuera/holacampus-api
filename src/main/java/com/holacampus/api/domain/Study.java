@@ -16,14 +16,66 @@
  */
 package com.holacampus.api.domain;
 
+import com.holacampus.api.hal.Linkable;
+import com.theoryinpractise.halbuilder.jaxrs.*;
+
 /**
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
-public class Study {
+
+@HalRootElement
+public class Study implements Linkable{
     
-    private long            id;
-    private University      university;
+    @HalProperty( name="id")
+    private Long            id;
+    @HalProperty( name="name")
     private String          name;
+    @HalProperty( name="description")
     private String          description;
+    
+    @HalEmbedded( "university")
+    private University      university;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public University getUniversity() {
+        return university;
+    }
+
+    public void setUniversity(University university) {
+        this.university = university;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    @HalSelfLink
+    public String getSelfLink() {
+        if( university != null)
+            return university.getSelfLink() + "/studies/" + id;
+        return null;
+    }
+    
+    
 }

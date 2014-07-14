@@ -55,7 +55,6 @@ public class User extends ActiveElement implements Linkable
     @HalProperty( name="name")
     private Name                name;
     
-    @CreationNeeded( message="{user.type.missing}")
     @HalProperty( name="role")
     private String              userType;
     

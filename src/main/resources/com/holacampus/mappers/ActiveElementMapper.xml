@@ -12,7 +12,8 @@
         <id column="ae_id"  property="id" />
         <result column="ae_type" property="type" />
         <discriminator javaType="String" column="ae_type">
-            <case value="USER" resultMap="userEmbeddedResult" />
+            <case value="USER" resultMap="com.holacampus.api.mappers.UserMapper.userEmbeddedResult" />
+            <case value="UNI" resultMap="com.holacampus.api.mappers.UniversityMapper.universityEmbeddedResult"/>
         </discriminator>
     </resultMap>
 </mapper>

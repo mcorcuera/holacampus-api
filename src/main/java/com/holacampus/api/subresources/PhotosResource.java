@@ -17,7 +17,6 @@
 
 package com.holacampus.api.subresources;
 
-import com.holacampus.api.domain.Comment;
 import com.holacampus.api.domain.CommentContainer;
 import com.holacampus.api.domain.Permission;
 import com.holacampus.api.domain.Photo;
@@ -25,24 +24,24 @@ import com.holacampus.api.domain.PhotoContainer;
 import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.hal.HalList;
-import com.holacampus.api.mappers.CommentMapper;
 import com.holacampus.api.mappers.PhotoContainerMapper;
 import com.holacampus.api.mappers.PhotoMapper;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
+import com.holacampus.api.security.PermissionScheme;
+import com.holacampus.api.security.PermissionScheme.Action;
 import com.holacampus.api.security.UserPrincipal;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.holacampus.api.utils.PhotoUploader;
+import com.holacampus.api.utils.PhotoUploader.PhotoUrls;
 import com.holacampus.api.utils.Utils;
 import com.holacampus.api.validators.CreationValid;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import java.util.List;
-import java.util.Objects;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import static javax.ws.rs.HttpMethod.PUT;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -70,15 +69,19 @@ public class PhotosResource {
     
     private static final Logger logger = LogManager.getLogger( PhotosResource.class.getName());
 
-    private PhotoContainer  container;
-    private long            elId;
-    private String          path;
+    private PhotoContainer          container;
+    private long                    elId;
+    private String                  path;
+    private final PermissionScheme  permissionScheme;
+    private final PermissionScheme  commentsScheme;
     
-    public PhotosResource( long id, PhotoContainer pc, String path)
+    public PhotosResource( long id, PhotoContainer pc, String path, PermissionScheme scheme, PermissionScheme commentScheme)
     {
-        this.container = pc;
-        this.elId = id;
-        this.path = path;
+        this.container          = pc;
+        this.elId               = id;
+        this.path               = path;
+        this.permissionScheme   = scheme;
+        this.commentsScheme     = commentScheme;
     }  
     
     @GET
@@ -107,7 +110,10 @@ public class PhotosResource {
             
             // Get container permission level
             containerMapper.getPermissions( up.getId(), container.getId(), containerPermission);
-            
+             
+            if( !permissionScheme.isAllowed(PermissionScheme.Action.GET_MULTIPLE, containerPermission.getLevel())) {
+                throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
+            }
             session.commit();
             
             /* Add permission level */
@@ -121,9 +127,6 @@ public class PhotosResource {
                 }
                 photo.setPermission(permissions);
                 
-                
-                logger.info( "Permissions: container=" + containerPermission.getLevel() + ", photo: " + photo.getPermission().getLevel());
-                
                 photo.setSelfLink( path + "/" + photo.getId());
             }
             
@@ -132,7 +135,9 @@ public class PhotosResource {
             photos.setPage(page);
             photos.setSize(size);
             
-        } catch (Exception e) {
+        }catch( HTTPErrorException e){
+            throw e;
+        }catch (Exception e) {
             throw new HTTPErrorException( Status.INTERNAL_SERVER_ERROR, "Internal server error: " + e);
         }finally {
             session.close();
@@ -147,25 +152,34 @@ public class PhotosResource {
     @Produces( { RepresentationFactory.HAL_JSON})
     public Photo postPhoto( @CreationValid @Valid Photo photo, @Context SecurityContext sc) {
         
-        logger.info( photo);
-        String url = null;
-        UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
-        
-        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+        logger.info( "[POST] " + path);
+        UserPrincipal up                = (UserPrincipal) sc.getUserPrincipal();
+        Permission containerPermission  = new Permission();
+        SqlSession session              = MyBatisConnectionFactory.getSession().openSession();
 
         try {
+            PhotoMapper mapper                      = session.getMapper( PhotoMapper.class);
+            PhotoContainerMapper containerMapper    = session.getMapper( PhotoContainerMapper.class);
+            
+             // Get container permission level
+            containerMapper.getPermissions( up.getId(), container.getId(), containerPermission);
+             
+            if( !permissionScheme.isAllowed(PermissionScheme.Action.POST_MULTIPLE, containerPermission.getLevel())) {
+                throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
+            }
+            
             // Store the image in the corresponding folder
-            url = PhotoUploader.uploadPhoto( photo.getData());
-            if( url == null) {
+            PhotoUrls urls = PhotoUploader.uploadPhoto( photo.getData());
+            
+            if( urls == null) {
                 throw new HTTPErrorException( Status.BAD_REQUEST, "unknown photo format");
             }           
-            photo.setUrl(url);
+            photo.setUrl(urls.url);
             // TODO Generate thumbnail Image
-            photo.setThumbnailUrl(url);
+            photo.setThumbnailUrl(urls.thumbnailUrl);
             photo.setCreator( new User(up));
             photo.setPhotoContainer( container);
             //Start DB transaction
-            PhotoMapper mapper = session.getMapper( PhotoMapper.class);
             int result          = mapper.createPhoto(photo);
             
             if( result == 0)
@@ -215,7 +229,7 @@ public class PhotosResource {
             session.close();
         }   
         
-        return new CommentsResource( id, c, uriInfo.getPath());
+        return new CommentsResource( id, c, uriInfo.getPath(), commentsScheme);
     }
     
     @Path("/{id}")
@@ -239,6 +253,10 @@ public class PhotosResource {
                 throw new HTTPErrorException( Response.Status.NOT_FOUND, "comment " + id + " not found");
            
             mapper.getPermissions(up.getId(), photo.getId(), permission);
+            
+            if( !permissionScheme.isAllowed(PermissionScheme.Action.GET_UNIQUE, permission.getLevel())) {
+                throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
+            }
             
             photo.setPermission(permission);
             
@@ -277,9 +295,9 @@ public class PhotosResource {
                         
             mapper.getPermissions(up.getId(), photo.getId(), permission);
             
-            // If the user doesn't  own the photo or the parent, throw 403 HTTP error
-            if( !permission.getLevel().equals(Permission.LEVEL_OWNER))
-               throw new HTTPErrorException( Response.Status.FORBIDDEN, "you don't have permissions to update the photo " + id);
+            if( !permissionScheme.isAllowed(PermissionScheme.Action.PUT_UNIQUE, permission.getLevel())) {
+                throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
+            }
             
             int result = mapper.updatePhoto(photo);
             
@@ -327,10 +345,10 @@ public class PhotosResource {
             
             mapper.getPermissions(up.getId(), photo.getId(), permission);
             
-            // If the user doesn't  own the photo or the parent, throw 403 HTTP erro
-            if( !permission.getLevel().equals(Permission.LEVEL_OWNER) && !permission.getLevel().equals(Permission.LEVEL_PARENT_OWNER))
-               throw new HTTPErrorException( Response.Status.FORBIDDEN, "you don't have permissions to delete the comment " + id);
-            
+            // If the user doesn't  own the photo or the parent, throw 403 HTTP error
+            if( !permissionScheme.isAllowed(PermissionScheme.Action.DELETE_UNIQUE, permission.getLevel())) {
+                throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
+            }
             //If we own the comment, delete it
             int result = mapper.deletePhoto(photo.getId());
             
