@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+ 
 package com.holacampus.api.resources;
 
 import com.holacampus.api.domain.Credentials;
@@ -67,6 +67,7 @@ public class UsersResource {
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
+    @Encoded  
     public HalList<User> getUsers( @Context SecurityContext sc, 
             @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
     {

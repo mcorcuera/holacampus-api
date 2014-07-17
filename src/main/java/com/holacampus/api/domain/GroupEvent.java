@@ -16,164 +16,152 @@
  */
 package com.holacampus.api.domain;
 
-import java.sql.Date;
+import com.holacampus.api.hal.Linkable;
+import com.holacampus.api.utils.Utils;
+import com.holacampus.api.validators.CreationNeeded;
+import com.theoryinpractise.halbuilder.jaxrs.*;
+import java.sql.Timestamp;
+import java.util.Date;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
+
 
 /**
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
-public class GroupEvent {
-    
-    /**
-     *
-     */
+@HalRootElement
+public class GroupEvent implements Linkable{
+   
     public static final String TYPE_EVENT = "EVENT";
 
-    /**
-     *
-     */
     public static final String TYPE_GROUP = "GROUP";
     
-    private long                id;
+    @HalProperty( name="id")
+    private Long                id;
+    @CreationNeeded( message="{group.name.missing}")
+    @Valid
+    @Size( min=1, max=90, message="{group.name.wrong.size}")
+    @HalProperty( name="name")
     private String              name;
+    @HalProperty( name="creationDate")
     private Date                creationDate;
+    @CreationNeeded( message="{group.name.missing}")
+    @Valid
+    @HalProperty( name="description")
     private String              description;
-    private City                city;
-    private CommentContainer    commentContainer;
-    private PhotoContainer      photoContainer;
+    @HalProperty( name="location")
     private Location            location;
+    @HalProperty( name="locationName")
     private String              locationName;
-    private String              type;
-    private Date                eventDate;
+    @HalProperty( name="eventDate")
+    private Timestamp            eventDate;
+    
+    @HalEmbedded( "creator")
     private ActiveElement       creator;
+    @HalEmbedded( "city")
+    private City                city;
+    @HalEmbedded( "group-photo")
+    private Photo               groupPhoto;
+    
+    private String              type;
 
-    /**
-     *
-     * @return
-     */
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    /**
-     *
-     * @param id
-     */
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    /**
-     *
-     * @return
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     *
-     * @param name
-     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     *
-     * @return
-     */
     public Date getCreationDate() {
         return creationDate;
     }
 
-    /**
-     *
-     * @param creationDate
-     */
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
     }
 
-    /**
-     *
-     * @return
-     */
     public String getDescription() {
         return description;
     }
 
-    /**
-     *
-     * @param description
-     */
     public void setDescription(String description) {
         this.description = description;
     }
 
-    /**
-     *
-     * @return
-     */
-    public City getCity() {
-        return city;
-    }
-
-    /**
-     *
-     * @param city
-     */
-    public void setCity(City city) {
-        this.city = city;
-    }
-
-    /**
-     *
-     * @return
-     */
     public Location getLocation() {
         return location;
     }
 
-    /**
-     *
-     * @param location
-     */
     public void setLocation(Location location) {
         this.location = location;
     }
 
-    /**
-     *
-     * @return
-     */
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
+    }
+
+    public ActiveElement getCreator() {
+        return creator;
+    }
+
+    public void setCreator(ActiveElement creator) {
+        this.creator = creator;
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
+    }
+
     public String getType() {
         return type;
     }
 
-    /**
-     *
-     * @param type
-     */
     public void setType(String type) {
         this.type = type;
     }
 
-    /**
-     *
-     * @return
-     */
-    public Date getEventDate() {
+    public Timestamp getEventDate() {
         return eventDate;
     }
 
-    /**
-     *
-     * @param eventDate
-     */
-    public void setEventDate(Date eventDate) {
+    public void setEventDate( Timestamp eventDate) {
         this.eventDate = eventDate;
     }
+
+    public Photo getGroupPhoto() {
+        return groupPhoto;
+    }
+
+    public void setGroupPhoto(Photo groupPhoto) {
+        this.groupPhoto = groupPhoto;
+    }
+
+    @Override
+    @HalSelfLink
+    public String getSelfLink() {
+        String typeUrl = GroupEvent.TYPE_GROUP.equals( type) ? "/groups/" : "/events/";
+        return Utils.createLink( typeUrl + id, null);
+    }
+    
+    
     
     
 }

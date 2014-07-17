@@ -19,6 +19,8 @@ package com.holacampus.api.subresources;
 
 import com.holacampus.api.domain.Friend;
 import com.holacampus.api.domain.Friendship;
+import com.holacampus.api.domain.Permission;
+import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.hal.HalList;
 import com.holacampus.api.mappers.FriendshipMapper;
@@ -129,6 +131,7 @@ public class FriendsResource {
 
         try {
             FriendshipMapper friendMapper   = session.getMapper(FriendshipMapper.class);
+            UserMapper userMapper           = session.getMapper( UserMapper.class);
             List<Friendship> friendships    = friendMapper.getFriends(elId, null, unconfirmed, pending, rb);
             int total                       = friendMapper.getTotalFriends(elId, null, unconfirmed, pending);
             List<Friend> friendList = null;
@@ -136,6 +139,12 @@ public class FriendsResource {
                 friendList = new ArrayList<Friend>();
                 for( Friendship fs : friendships) {
                     Friend friend = new Friend( fs, elId);
+                   
+                    User user = userMapper.getUser( friend.getUser().getId());
+                    Permission permission = new Permission();
+                    userMapper.getPermissions( currentUser, user.getId(), permission);
+                    user.setPermission(permission);
+                    friend.setUser(user);
                     friend.setSelfLink( "users/" + elId + "/friends/" + friend.getUser().getId());
                     
                     // If the user is getting his friends, put information of who asked who
@@ -186,6 +195,7 @@ public class FriendsResource {
         
         try {
             FriendshipMapper mapper = session.getMapper( FriendshipMapper.class);
+            UserMapper userMapper           = session.getMapper( UserMapper.class);
 
             Friendship friendship = mapper.getFriend( up.getId(), elId);
             
@@ -202,6 +212,13 @@ public class FriendsResource {
             friendship = mapper.getFriend( up.getId(), elId);
             
             friend = new Friend( friendship, elId);
+            
+            
+            User user = userMapper.getUser( friend.getUser().getId());
+            Permission permission = new Permission();
+            userMapper.getPermissions( up.getId(), user.getId(), permission);
+            user.setPermission(permission);
+            friend.setUser(user);
             
             if( elId == up.getId()) {
                 if( friendship.getSender().getId() == up.getId())
@@ -240,6 +257,7 @@ public class FriendsResource {
 
         try {
             FriendshipMapper friendMapper   = session.getMapper(FriendshipMapper.class);
+            UserMapper userMapper           = session.getMapper( UserMapper.class);
             Friendship f                    = friendMapper.getFriend(elId, id);
             
             if( f == null)
@@ -252,6 +270,11 @@ public class FriendsResource {
                     friend.setAskedByMe(true);
                 else friend.setAskedByMe(false);
             }
+            User user = userMapper.getUser( friend.getUser().getId());
+            Permission permission = new Permission();
+            userMapper.getPermissions( up.getId(), user.getId(), permission);
+            user.setPermission(permission);
+            friend.setUser(user);
             
             friend.setSelfLink( uriInfo.getPath());
             
@@ -286,8 +309,8 @@ public class FriendsResource {
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
 
         try {
-            FriendshipMapper mapper    = session.getMapper( FriendshipMapper.class);
-            
+            FriendshipMapper mapper     = session.getMapper( FriendshipMapper.class);
+            UserMapper userMapper       = session.getMapper( UserMapper.class);
             if( friend.isConfirmed())
                 mapper.acceptFriend( up.getId(), id);
             else
@@ -302,6 +325,12 @@ public class FriendsResource {
                     friend.setAskedByMe(true);
                 else friend.setAskedByMe(false);
             }
+            
+            User user = userMapper.getUser( friend.getUser().getId());
+            Permission permission = new Permission();
+            userMapper.getPermissions( up.getId(), user.getId(), permission);
+            user.setPermission(permission);
+            friend.setUser(user);
             
             friend.setSelfLink( uriInfo.getPath());
             

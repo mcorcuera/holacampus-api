@@ -33,6 +33,7 @@ import java.net.URLDecoder;
 import java.util.List;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.Encoded;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -65,6 +66,7 @@ public class CountriesResource {
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
+    @Encoded
     public HalList<Country> getCountries( @QueryParam("page") Integer page, 
             @QueryParam( "size") Integer size, @QueryParam( "q") String q)  throws UnsupportedEncodingException
     {
@@ -74,10 +76,13 @@ public class CountriesResource {
         
         page = Utils.getValidPage(page);
         size = Utils.getValidSize(size);
+        logger.info( "Coño Uncoded q= " + q);
         if( q != null) {
             q   = URLDecoder.decode(q, "UTF-8");
-            q = q.concat("%");
         }
+        logger.info( "Decoded q= " + q);
+        
+        
         RowBounds rb = Utils.createRowBounds(page, size);
         
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();

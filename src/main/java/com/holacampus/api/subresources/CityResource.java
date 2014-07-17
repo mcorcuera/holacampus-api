@@ -35,6 +35,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.Encoded;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -71,7 +72,8 @@ public class CityResource {
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
-    public HalList<City> getCountries( @QueryParam("page") Integer page, 
+    @Encoded
+    public HalList<City> getCities( @QueryParam("page") Integer page, 
             @QueryParam( "size") Integer size, @QueryParam( "q") String q, 
             @Context UriInfo uriInfo)  throws UnsupportedEncodingException
     {
@@ -83,7 +85,6 @@ public class CityResource {
         size = Utils.getValidSize(size);
         if( q != null) {
             q   = URLDecoder.decode(q, "UTF-8");
-            q = q.concat("%");
         }
         RowBounds rb = Utils.createRowBounds(page, size);
         
@@ -117,9 +118,9 @@ public class CityResource {
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_NONE)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
     @Produces( { RepresentationFactory.HAL_JSON})
-    public City createCountry( @CreationValid @Valid City city, @Context UriInfo uriInfo) {
+    public City createCity( @CreationValid @Valid City city, @Context UriInfo uriInfo) {
         
-        logger.info( "[GET] " + uriInfo.getPath());
+        logger.info( "[POST] " + uriInfo.getPath());
         
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
 
@@ -128,7 +129,7 @@ public class CityResource {
             int result              = mapper.createCity(country, city);
             
             if( result == 0) {
-                throw new HTTPErrorException( Status.CONFLICT, "could not create country");
+                throw new HTTPErrorException( Status.CONFLICT, "could not create city");
             }
             
             city = mapper.getCity(country, city.getId());
@@ -181,7 +182,7 @@ public class CityResource {
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
-    public City updateCountry( @Valid City city, @PathParam( "id") Long id, @Context UriInfo uriInfo) {
+    public City updateCity( @Valid City city, @PathParam( "id") Long id, @Context UriInfo uriInfo) {
         
         logger.info( "[PUT] " + uriInfo.getPath());
         city.setId(id);
@@ -200,7 +201,7 @@ public class CityResource {
             throw e;
         }catch( Exception e) {
             logger.info( e);
-            throw new HTTPErrorException( Status.CONFLICT, "name city duplicated");
+            throw new HTTPErrorException( Status.CONFLICT, "city name duplicated");
         }finally {
             session.close();
         }
@@ -210,7 +211,7 @@ public class CityResource {
     @Path( "{id}")
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
-    public void deleteCountry( @PathParam( "id") Long id, @Context UriInfo uriInfo) {
+    public void deleteCity( @PathParam( "id") Long id, @Context UriInfo uriInfo) {
         
         logger.info( "[DELETE] " + uriInfo.getPath());
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
@@ -226,7 +227,7 @@ public class CityResource {
             int result              = mapper.deleteCity(country, city.getId());
             
             if( result == 0) {
-                throw new HTTPErrorException( Status.INTERNAL_SERVER_ERROR, "Error deleting country");
+                throw new HTTPErrorException( Status.INTERNAL_SERVER_ERROR, "Error deleting city");
             }
             
             session.commit();

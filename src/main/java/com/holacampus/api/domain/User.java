@@ -245,4 +245,11 @@ public class User extends ActiveElement implements Linkable
             return getSelfLink() + "/profile-photo";
         return null;
     }
+    
+    @HalLink( "stages")
+    public String getStagesLink() {
+        if( User.TYPE_STUDENT.equals( userType))
+            return getSelfLink() + "/stages";
+        return null;
+    }
 }

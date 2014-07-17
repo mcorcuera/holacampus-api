@@ -12,6 +12,15 @@
                      resultMap="com.holacampus.api.mappers.ActiveElementMapper.activeElementEmbeddedResult" />
     </resultMap>
     
+    <resultMap id="photoOnlyResult" type="Photo">
+        <id     column="photo_id"           property="id" />
+        <result column="photo_title"        property="title" />
+        <result column="photo_url"          property="url" />
+        <result column="photo_t_url"        property="thumbnailUrl" />
+        <result column="photo_date"         property="creationDate" />
+    </resultMap>
+    
+    
      <resultMap id="photoEmbeddedResult" type="Photo">
         <id     column="photo_e_id"           property="id" />
         <result column="photo_e_title"        property="title" />

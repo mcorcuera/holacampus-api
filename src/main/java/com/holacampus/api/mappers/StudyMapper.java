@@ -19,6 +19,7 @@ package com.holacampus.api.mappers;
 
 import com.holacampus.api.domain.Study;
 import com.holacampus.api.domain.University;
+import com.holacampus.api.domain.User;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
@@ -34,6 +35,12 @@ public interface StudyMapper {
     public List<Study>   getStudies( @Param("university") University university, @Param("q") String q) throws Exception;
     
     public int          getTotalStudies( @Param("university") University university, @Param("q") String q) throws Exception;
+    
+    public List<User>   getStudents( @Param("university") University university, @Param( "studyId") Long studyId, @Param("q") String q, RowBounds rb) throws Exception;
+    
+    public List<User>   getStudents( @Param("university") University university, @Param( "studyId") Long studyId, @Param("q") String q) throws Exception;
+    
+    public int          getTotalStudents( @Param("university") University university, @Param( "studyId") Long studyId, @Param("q") String q) throws Exception;
     
     public int          createStudy( @Param("university") University university, @Param("study") Study study) throws Exception;
     

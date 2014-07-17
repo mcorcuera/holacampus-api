@@ -42,6 +42,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.Encoded;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
@@ -74,14 +75,15 @@ public class UniversitiesResource {
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
+    @Encoded
     public HalList<University> getUniversities( @Context SecurityContext sc, 
             @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
     {
         page = Utils.getValidPage(page);
         size = Utils.getValidSize(size);
-        if( q != null)
+        if( q != null) {
             q   = URLDecoder.decode(q, "UTF-8");
-        
+        }
         RowBounds rb = Utils.createRowBounds(page, size);
         
         UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();

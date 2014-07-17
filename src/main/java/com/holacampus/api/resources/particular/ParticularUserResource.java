@@ -33,6 +33,7 @@ import com.holacampus.api.subresources.CommentsResource;
 import com.holacampus.api.subresources.FriendsResource;
 import com.holacampus.api.subresources.PhotosResource;
 import com.holacampus.api.subresources.ProfilePhotoResource;
+import com.holacampus.api.subresources.StagesResource;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import java.util.Objects;
@@ -63,6 +64,7 @@ public class ParticularUserResource {
     private static final PermissionScheme commentsScheme        = new PermissionScheme();
     private static final PermissionScheme photosScheme          = new PermissionScheme();
     private static final PermissionScheme photosCommentScheme   = new PermissionScheme();
+    
     static {
         commentsScheme  .addPermissionScheme( Action.GET_MULTIPLE, Permission.LEVEL_MEMBER)
                         .addPermissionScheme(Action.POST_MULTIPLE, Permission.LEVEL_MEMBER)
@@ -181,6 +183,29 @@ public class ParticularUserResource {
         }
 
         return new FriendsResource( id);
+    }
+    
+    @Path( "/{id}/stages")
+    public StagesResource getStagesResource( @PathParam("id") Long id)
+    {
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+        User user = null;
+        try {
+            UserMapper mapper    = session.getMapper( UserMapper.class);
+            user = mapper.getUser(id);
+            if( user == null)
+                throw new HTTPErrorException( Status.NOT_FOUND, "User not found");
+            session.commit();
+        }catch( HTTPErrorException e) {
+            throw e;
+        }catch( Exception e) {
+            logger.info( e);
+            throw new InternalServerErrorException( e.getMessage());
+        }finally {
+            session.close();
+        }
+
+        return new StagesResource( user);
     }
     
     

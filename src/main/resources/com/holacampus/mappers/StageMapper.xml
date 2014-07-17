@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.holacampus.api.mappers.StageMapper">
+    
+    <resultMap id="stageResult" type="Stage">
+        <id column="stage_id" property="id" />
+        <result column="stage_description" property="description" />
+        <result column="stage_from" property="fromYear"/>
+        <result column="stage_to" property="toYear"/>
+        <result column="stage_added" property="added"/>
+        <association property="study" column="study_id" javaType="Study" 
+                     resultMap="com.holacampus.api.mappers.StudyMapper.studyResult" />
+    </resultMap>
+    
+    <select id="getStages" parameterType="map" resultMap="stageResult">
+        select  ST.StageID          as stage_id,
+                ST.Description      as stage_description,
+                ST.Added            as stage_added,
+                ST.FromYear         as stage_from,
+                ST.ToYear           as stage_to,
+        
+                S.StudyID           as study_id,
+                S.Name              as study_name,
+                S.Description       as study_description,
+        
+                U.UniversityID      as uni_id,
+                U.Name              as uni_name,
+                
+                P.PhotoID           as photo_e_id,
+                P.Title             as photo_e_title,
+                P.Url               as photo_e_url,
+                P.ThumbnailUrl      as photo_e_t_url,
+                P.CreationDate      as photo_e_date
+        
+        from stage ST 
+            left join study S
+                on ST.StudyID = S.StudyID and ST.UniversityID = S.UniversityID
+            left join university U
+                on S.UniversityID = U.UniversityID
+            left join profile_photo PP
+                on U.UniversityID = PP.UniversityID
+            left join photo P
+                on PP.PhotoID = P.PhotoID
+        where ST.UserID = #{user.id}
+        order by ST.FromYear desc
+    </select>
+    
+    <select id="getTotalStages" parameterType="map" resultType="int">
+        select  COUNT(ST.StageID)
+        from stage ST
+        where ST.UserID = #{user.id}
+    </select>
+    
+    <select id="getStage" parameterType="map" resultMap="stageResult">
+          select  ST.StageID          as stage_id,
+                ST.Description      as stage_description,
+                ST.Added            as stage_added,
+                ST.FromYear         as stage_from,
+                ST.ToYear           as stage_to,
+        
+                S.StudyID           as study_id,
+                S.Name              as study_name,
+                S.Description       as study_description,
+        
+                U.UniversityID      as uni_id,
+                U.Name              as uni_name,
+                
+                P.PhotoID           as photo_e_id,
+                P.Title             as photo_e_title,
+                P.Url               as photo_e_url,
+                P.ThumbnailUrl      as photo_e_t_url,
+                P.CreationDate      as photo_e_date
+        
+        from stage ST 
+            left join study S
+                on ST.StudyID = S.StudyID and ST.UniversityID = S.UniversityID
+            left join university U
+                on S.UniversityID = U.UniversityID
+            left join profile_photo PP
+                on U.UniversityID = PP.UniversityID
+            left join photo P
+                on PP.PhotoID = P.PhotoID
+        where ST.UserID = #{user.id} and ST.StageID = #{stageId}
+               
+    </select>
+    
+    
+    <insert id="createStage" parameterType="map" useGeneratedKeys="true" keyProperty="stage.id">
+        insert into stage (
+            UserID,
+            StudyID,
+            UniversityID,
+            FromYear,
+            ToYear,
+            Description,
+            Added
+        ) values (
+            #{user.id},
+            #{stage.study.id},
+            #{stage.study.university.id},
+            #{stage.fromYear},
+            #{stage.toYear, jdbcType=DATE},
+            #{stage.description, jdbcType=VARCHAR},
+            NOW()
+        )
+    </insert>
+    
+    <update id="updateStage" parameterType="map">
+        update stage
+        <set>
+            <if test="stage.description != null"> Description = #{ stage.description},</if>
+            <if test="stage.fromYear != null"> FromYear = #{ stage.fromYear}</if>
+            <if test="stage.toYear != null"> ToYear = #{ stage.toYear}</if>
+
+        </set>
+          where UserID = #{ user.id} AND StageID = #{ stageId}
+    </update>
+    
+    <delete id="deleteStage" parameterType="map">
+        delete from stage
+            where UserID = #{ user.id} AND StageID = #{ stageId}
+    </delete>
+    
+</mapper>

@@ -35,6 +35,9 @@
                 P.Url                   as photo_e_url,
                 P.ThumbnailUrl          as photo_e_t_url,
                 P.CreationDate          as photo_e_date
+                <if test="q != null">
+                ,match(FirstName,LastName) against(#{q} in boolean mode) as relevance
+                </if>
         from user U
             left join profile_photo PP
                 on U.UserID = PP.UserID
@@ -42,7 +45,8 @@
                 on PP.PhotoID = P.PhotoID
             where U.Type='STUDENT'
             <if test="q != null">
-                AND match(FirstName,LastName) against(#{q})
+                AND match(FirstName,LastName) against(#{q} in boolean mode)
+                order by relevance desc
             </if>
     </select>
     
@@ -50,7 +54,7 @@
         select COUNT(U.UserID) from user U
         where Type='STUDENT'
         <if test="q != null">
-                AND match(FirstName,LastName) against(#{q})
+                AND match(FirstName,LastName) against(#{q} in boolean mode)
         </if>
     </select>
     

@@ -20,6 +20,7 @@ import com.holacampus.api.hal.Linkable;
 import com.holacampus.api.utils.Utils;
 import com.holacampus.api.validators.CreationNeeded;
 import com.theoryinpractise.halbuilder.jaxrs.*;
+import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
@@ -39,6 +40,9 @@ public class University extends ActiveElement implements Linkable{
     
     @HalEmbedded( "permission")
     private Permission          permission;
+    
+    @HalEmbedded( "cities")
+    private List<City> cities;
     
     /**
      *
@@ -64,7 +68,14 @@ public class University extends ActiveElement implements Linkable{
     public void setPermission(Permission permission) {
         this.permission = permission;
     }
-    
+
+    public List<City> getCities() {
+        return cities;
+    }
+
+    public void setCities(List<City> cities) {
+        this.cities = cities;
+    }
     
 
     @Override
@@ -86,5 +97,15 @@ public class University extends ActiveElement implements Linkable{
     @HalLink("profile-photo")
     public String getProfilePhotoLink() {
         return getSelfLink() + "/profile-photo";
+    }
+    
+    @HalLink( "cities")
+    public String getCitiesLink() {
+        return getSelfLink() + "/cities";
+    }
+    
+    @HalLink( "studies")
+    public String getStudiesLink() {
+        return getSelfLink() + "/studies";
     }
 }

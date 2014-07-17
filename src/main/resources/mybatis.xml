@@ -5,7 +5,7 @@
                 <property name="username" value="root"/>
                 <property name="password" value="root" />
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://localhost:3306/holacampus"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/holacampus?useUnicode=true&amp;characterEncoding=UTF-8"/>
     </properties>
     <settings>
         <setting name="callSettersOnNulls" value="true"/>
@@ -25,6 +25,8 @@
         <typeAlias type="com.holacampus.api.domain.Country"                 alias="Country" />
         <typeAlias type="com.holacampus.api.domain.City"                    alias="City" />
         <typeAlias type="com.holacampus.api.domain.Study"                   alias="Study" />
+        <typeAlias type="com.holacampus.api.domain.Stage"                   alias="Stage" />
+        <typeAlias type="com.holacampus.api.domain.GroupEvent"              alias="GroupEvent"/>
     </typeAliases>
     
     <environments default="development">        
@@ -53,6 +55,8 @@
         <mapper resource="com/holacampus/mappers/CountryMapper.xml"/>
         <mapper resource="com/holacampus/mappers/CityMapper.xml"/>
         <mapper resource="com/holacampus/mappers/StudyMapper.xml"/>
+        <mapper resource="com/holacampus/mappers/StageMapper.xml"/>
+        <mapper resource="com/holacampus/mappers/GroupEventMapper.xml"/>
     </mappers>
    
 </configuration>

@@ -13,7 +13,7 @@
     <select id="getStudies" parameterType="map" resultMap="studyResult">
         select  S.StudyID           as study_id,
                 S.Name              as study_name,
-                S.Description       as study_university,
+                S.Description       as study_description,
         
                 U.UniversityID      as uni_id,
                 U.Name              as uni_name,
@@ -37,6 +37,40 @@
         </if>
     </select>
     
+    <select id="getStudents" parameterType="map" resultMap="com.holacampus.api.mappers.UserMapper.userEmbeddedResult">
+        select  U.UserID        as user_id, 
+                U.FirstName     as user_firstname,
+                U.LastName      as user_lastname,
+                U.BirthDate     as user_birth,
+                U.Gender        as user_gender,
+                U.Type          as user_type,
+        
+                P.PhotoID               as photo_e_id,
+                P.Title                 as photo_e_title,
+                P.Url                   as photo_e_url,
+                P.ThumbnailUrl          as photo_e_t_url,
+                P.CreationDate          as photo_e_date
+        from user U     
+	inner join stage ST
+		on U.UserID = ST.UserID
+	inner join profile_photo PP
+		on U.UserID = PP.UserID
+	left join photo P
+		on PP.PhotoID = P.PhotoID
+	where ST.UniversityID = #{university.id} and ST.StudyID = #{studyId}
+         <if test="q != null">
+                AND S.Name LIKE #{q}
+        </if>
+    </select>
+    
+    <select id="getTotalStudents" parameterType="map" resultType="int">
+        select  count(distinct ST.UserID)  from stage ST
+        where ST.UniversityID = #{university.id} and ST.StudyID = #{studyId}
+         <if test="q != null">
+                AND S.Name LIKE #{q}
+        </if>
+    </select>
+    
     <select id="getTotalStudies" parameterType="map" resultType="int">
         select  COUNT(S.StudyID)
         from study S
@@ -49,7 +83,7 @@
     <select id="getStudy" parameterType="map" resultMap="studyResult">
          select  S.StudyID           as study_id,
                 S.Name              as study_name,
-                S.Description       as study_university,
+                S.Description       as study_description,
         
                 U.UniversityID      as uni_id,
                 U.Name              as uni_name,
@@ -78,14 +112,14 @@
             Name,
             Description
         ) values (
-            #{ university.id}
+            #{ university.id},
             #{ study.name},
             #{ study.description}
         )
     </insert>
     
     <update id="updateStudy" parameterType="map">
-        update city
+        update study
         <set>
             <if test="study.name != null"> Name = #{ study.name},</if>
             <if test="study.description != null"> Description = #{ study.description}</if>
@@ -95,7 +129,7 @@
     </update>
     
     <delete id="deleteStudy" parameterType="map">
-        delete from city
+        delete from study
             where UniversityID = #{ university.id} AND StudyID = #{ studyId}
     </delete>
     

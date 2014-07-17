@@ -7,6 +7,8 @@
         <result column="uni_name"  property="name" />
         <association property="profilePhoto" column="photo_id" javaType="Photo"
             resultMap="com.holacampus.api.mappers.PhotoMapper.photoEmbeddedResult"/>
+        <collection property="cities" ofType="City" column="city_id"
+                    resultMap="com.holacampus.api.mappers.CityMapper.cityResult"/>
     </resultMap>
     
      <resultMap id="universityEmbeddedResult" type="University">
@@ -50,12 +52,23 @@
                 P.Title             as photo_e_title,
                 P.Url               as photo_e_url,
                 P.ThumbnailUrl      as photo_e_t_url,
-                P.CreationDate      as photo_e_date
+                P.CreationDate      as photo_e_date,
+                
+                CI.CityID       as city_id,
+                CI.Name         as city_name,
+                CI.Latitude     as city_latitude,
+                CI.Longitude    as city_longitude,
+        
+                CI.CountryID    as country_id
         from university U
             left join profile_photo PP
                 on U.UniversityID = PP.UniversityID
             left join photo P
                 on PP.PhotoID = P.PhotoID
+            left join university_has_city UC
+                on U.UniversityID = UC.UniversityID
+            left join city CI
+                on UC.CityID = CI.CityID and UC.CountryID = CI.CountryID
         where U.UniversityID = #{id}
     </select>
     

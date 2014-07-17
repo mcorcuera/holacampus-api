@@ -56,7 +56,7 @@
         update country
         <set>
             <if test="country.name != null"> Name = #{ country.name},</if>
-            <if test="country.location != null and country.location.latitude != null and contry.location.longitude != null"> 
+            <if test="country.location != null and country.location.latitude != null and country.location.longitude != null"> 
                     Latitude    = #{ country.location.latitude},
                     Longitude   = #{ country.location.longitude}
             </if>

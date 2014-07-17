@@ -17,7 +17,10 @@
 package com.holacampus.api.domain;
 
 import com.holacampus.api.hal.Linkable;
+import com.holacampus.api.validators.CreationNeeded;
 import com.theoryinpractise.halbuilder.jaxrs.*;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -29,8 +32,16 @@ public class Study implements Linkable{
     
     @HalProperty( name="id")
     private Long            id;
+    
+    @CreationNeeded( message="{study.name.missing}")
+    @Valid
+    @Size( min=1, max=90, message="{study.name.wrong.size}")
     @HalProperty( name="name")
     private String          name;
+        
+    @CreationNeeded( message="{study.description.missing}")
+    @Valid
+    @Size( min=1, message="{study.description.wrong.size}")
     @HalProperty( name="description")
     private String          description;
     
@@ -75,6 +86,11 @@ public class Study implements Linkable{
         if( university != null)
             return university.getSelfLink() + "/studies/" + id;
         return null;
+    }
+    
+    @HalLink("students")
+    public String getStudentsLink() {
+        return getSelfLink() + "/students";
     }
     
     

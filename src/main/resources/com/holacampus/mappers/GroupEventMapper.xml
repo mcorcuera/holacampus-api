@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.holacampus.api.mappers.GroupEventMapper">
+    
+    <resultMap id="groupeventResult" type="GroupEvent">
+        <id column="group_id" property="id" />
+        <result column="group_type" property="type" />
+        <result column="group_description" property="description"/>
+        <result column="group_creation_date" property="creationDate"/>
+        <result column="group_date" property="eventDate"/>
+        <result column="group_location_name" property="locationName"/>
+        <result column="group_latitude" property="location.latitude"/>
+        <result column="group_longitude" property="location.longitude"/>   
+        <result column="group_creator" property="creator.id"/>
+        <result column="group_creator_type" property="creator.type"/>
+        <association property="groupPhoto" column="photo_id" javaType="Photo"
+            resultMap="com.holacampus.api.mappers.PhotoMapper.photoEmbeddedResult"/>
+        <association property="city" javaType="City" column="city_id"
+                    resultMap="com.holacampus.api.mappers.CityMapper.cityResult"/>
+    </resultMap>
+    
+    <!--
+      <select id="getPermissions" parameterType="map" statementType="CALLABLE">
+        CALL getCommentContainerPermissions(
+            #{ userId,              mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ containerId,         mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ permission.level,    mode=OUT,    javaType=String,                jdbcType=VARCHAR}
+        )
+    </select>
+    -->
+    
+    <select id="getGroupsEvents" parameterType="map" resultMap="groupeventResult">
+        select  GE.GroupEventID         as group_id,
+                GE.Type                 as group_type,
+                GE.Description          as group_description,
+                GE.CreationDate         as group_creation_date,
+                GE.EventDate            as group_date,
+                GE.PlaceName            as group_location_name,
+                GE.Latitude             as group_latitude,
+                GE.Longitude            as group_longitude,
+                
+                A.ActiveElementID	as group_creator,
+		A.Type			as group_creator_type,
+		        
+                GP.PhotoID               as photo_e_id,
+                GP.Title                 as photo_e_title,
+                GP.Url                   as photo_e_url,
+                GP.ThumbnailUrl          as photo_e_t_url,
+                GP.CreationDate          as photo_e_date,
+                
+                CI.CityID               as city_id,
+                CI.Name                 as city_name,
+                CI.Latitude             as city_latitude,
+                CI.Longitude            as city_longitude,
+        
+                CI.CountryID            as country_id
+        from group_event GE
+            inner join active_element A
+                on GE.ActiveElementID = A.ActiveElementID
+            inner join profile_photo PP
+                on GE.GroupEventID = PP.GroupEventID
+            left join photo GP
+                on PP.PhotoID = GP.PhotoID
+            left join city CI
+                on GE.CityID = CI.CityID and GE.CountryID = CI.CountryID
+        where GE.Type = #{type}
+         <if test="q != null">
+                AND GE.Name like #{q}
+                order by GE.CreationDate desc
+        </if>
+    </select>
+    
+    <select id="getTotalGroupsEvents" parameterType="map" resultType="int">
+        select  count( GE.GroupEventID)
+               
+        from group_event GE
+           
+        where GE.Type = #{type}
+         <if test="q != null">
+                AND GE.Name like #{q}
+                order by GE.CreationDate desc
+        </if>
+        
+    </select>
+    
+    <select id="getGroupEvent" parameterType="map" resultMap="groupeventResult">
+        select  GE.GroupEventID         as group_id,
+                GE.Type                 as group_type,
+                GE.Description          as group_description,
+                GE.CreationDate         as group_creation_date,
+                GE.EventDate            as group_date,
+                GE.PlaceName            as group_location_name,
+                GE.Latitude             as group_latitude,
+                GE.Longitude            as group_longitude,
+                
+                A.ActiveElementID	as group_creator,
+		A.Type			as group_creator_type,
+		        
+                GP.PhotoID               as photo_e_id,
+                GP.Title                 as photo_e_title,
+                GP.Url                   as photo_e_url,
+                GP.ThumbnailUrl          as photo_e_t_url,
+                GP.CreationDate          as photo_e_date,
+                
+                CI.CityID               as city_id,
+                CI.Name                 as city_name,
+                CI.Latitude             as city_latitude,
+                CI.Longitude            as city_longitude,
+        
+                CI.CountryID            as country_id
+        from group_event GE
+            inner join active_element A
+                on GE.ActiveElementID = A.ActiveElementID
+            inner join profile_photo PP
+                on GE.GroupEventID = PP.GroupEventID
+            left join photo GP
+                on PP.PhotoID = GP.PhotoID
+            left join city CI
+                on GE.CityID = CI.CityID and GE.CountryID = CI.CountryID
+        where GE.Type = #{type} and GE.GroupEventID = #{id}
+        
+                
+    </select>
+    
+     <select id="getCommentContainer" parameterType="long" resultMap="com.holacampus.api.mappers.CommentContainerMapper.cContainerResult">
+        select  C.CommentContainerID as cc_id,
+                C.Type as cc_type,
+                C.GroupEventID as cc_owner_id
+        from comment_container C
+            where C.GroupEventID = #{id}
+    </select>
+    
+    <select id="getPhotoContainer" parameterType="long" resultMap="com.holacampus.api.mappers.PhotoContainerMapper.pContainerResult">
+        select  P.PhotoContainerID as pc_id,
+                P.Type as pc_type,
+                P.GroupEventID as pc_owner_id
+        from photo_container P
+            where GroupEventID = #{id}
+    </select>
+    
+    <select id="getProfilePhotoContainer" parameterType="long" resultMap="com.holacampus.api.mappers.ProfilePhotoContainerMapper.ppContainerResult">
+        select  P.ProfilePhotoID    as ppc_id,
+                P.Type              as ppc_type,
+                P.UserID            as ppc_owner_id,
+                P.GroupEventID      as ppc_photo_id
+        from profile_photo P
+            where GroupEventID = #{id}
+    </select>
+    
+    <insert id="createGroupEvent" parameterType="map" statementType="CALLABLE">
+         CALL newGroupEvent( 
+            #{ group.name,          mode=IN, javaType=String,           jdbcType=VARCHAR},
+            #{ group.description,   mode=IN, javaType=String,           jdbcType=VARCHAR},
+            #{ group.type,          mode=IN, javaType=String,           jdbcType=VARCHAR},
+            #{ group.eventDate,     mode=IN, javaType=java.sql.Timestamp,   jdbcType=TIMESTAMP},
+            #{ group.locationName,     mode=IN, javaType=String,           jdbcType=VARCHAR},
+            
+            <if test="group.location == null">
+                null,
+                null,
+            </if>
+            <if test="group.location != null">
+                #{ group.location.latitude,     mode=IN, javaType=Float, jdbcType=DECIMAL},
+                #{ group.location.longitude,    mode=IN, javaType=Float, jdbcType=DECIMAL},
+            </if>
+            
+            #{ creatorId, mode=IN, javaType=Long, jdbcType=INTEGER},
+           
+            <if test="group.city == null or group.city.country == null">
+                null,
+                null,
+            </if>
+            
+            <if test="group.city != null and group.city.country != null">
+                 #{ group.city.id,          mode=IN, javaType=Long, jdbcType=INTEGER},
+                 #{ group.city.country.id,  mode=IN, javaType=Long, jdbcType=INTEGER},
+            </if>
+            #{ group.id,             mode=OUT, javaType=Long, jdbcType=INTEGER}
+        )
+    </insert>
+    
+    <delete parameterType="map">
+        delete from group_event
+        where GroupEventID = #{id} and Type = #{type}
+    </delete>
+</mapper>
