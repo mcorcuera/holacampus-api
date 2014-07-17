@@ -31,6 +31,7 @@ import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.PermissionScheme;
 import com.holacampus.api.security.UserPrincipal;
 import com.holacampus.api.subresources.CommentsResource;
+import com.holacampus.api.subresources.MembersResource;
 import com.holacampus.api.subresources.PhotosResource;
 import com.holacampus.api.subresources.ProfilePhotoResource;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
@@ -135,7 +136,7 @@ public class ParticularGroupEventResource {
         return new PhotosResource( id, c, uriInfo.getPath(), ParticularGroupEventResource.photosScheme, ParticularGroupEventResource.photosCommentScheme);
     }
     
-     @Path( "/group-photo")
+    @Path( "/group-photo")
     public ProfilePhotoResource getProfilePhotoResource()
     {
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
@@ -159,6 +160,37 @@ public class ParticularGroupEventResource {
             session.close();
         }  
         return new ProfilePhotoResource( pc, ppc, id, uriInfo.getPath());
+    }
+    
+    @Path( "/members")
+    public MembersResource getMembersResource()
+    {
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+        GroupEvent parent = null;
+        
+        String elementType = null;
+        if( "groups".equals(type))
+            elementType = GroupEvent.TYPE_GROUP;
+        else
+            elementType = GroupEvent.TYPE_EVENT;
+        
+        try {            
+            GroupEventMapper mapper = session.getMapper( GroupEventMapper.class);
+            parent = mapper.getGroupEvent( elementType, id);
+            
+            if( parent == null) {
+                throw new HTTPErrorException( Response.Status.NOT_FOUND, "Group/Event " + id + " not found");
+            }
+            
+            session.commit();            
+
+        } catch( Exception e) {
+            logger.error( e.toString());
+            throw new HTTPErrorException( Response.Status.NOT_FOUND, "Group/Event " + id + " not found");
+        } finally {
+            session.close();
+        }  
+        return new MembersResource( parent);
     }
     
     @GET

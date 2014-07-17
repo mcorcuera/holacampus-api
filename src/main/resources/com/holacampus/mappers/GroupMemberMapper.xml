@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.holacampus.api.mappers.GroupMemberMapper">
+    
+    <resultMap id="memberResult" type="GroupMember">
+      <result column="member_join" property="joinDate"/>
+      <association column="ae_id" property="member"
+    </resultMap>
+    
+    <select id="getMembers" parameterType="map" resultMap="memberResult">
+        
+    </select>
+    
+    
+    <select id="getTotalMembers" parameterType="map" resultType="int">
+        
+    </select>
+    
+    <select id="getMember" parameterType="map" resultMap="memberResult">
+        
+    </select>
+    
+    <insert id="addMember" parameterType="map">
+        insert into group_event_has_member (
+            GroupEventID,
+            ActiveElementID,
+            JoinDate
+        )values(
+            #{parent.id},
+            #{activeElement.id},
+            NOW()
+        )
+    </insert>
+    
+    <delete id="deleteMember" parameterType="map">
+        delete from group_event_has_member
+        where GroupEventID = #{parent.id} and ActiveElementID = #{activeElement.id}
+    </delete>
+</mapper>
