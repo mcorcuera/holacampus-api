@@ -92,13 +92,13 @@ public class GroupsEventsResource {
             List<GroupEvent> groupList  = mapper.getGroupsEvents( elementType, q, rb);
             int total                   = mapper.getTotalGroupsEvents( elementType, q);
             session.commit();
-            /*
-            for( University university : uniList) {
+            
+            for( GroupEvent group : groupList) {
                 Permission permissions = new Permission();
-                uniMapper.getPermissions( up.getId(), university.getId(), permissions);
-                university.setPermission(permissions);
+                mapper.getPermissions( up.getId(), group.getId(), permissions);
+                group.setPermission(permissions); 
             }
-            */
+            
             groups = new HalList( groupList, total);
             
             groups.setResourceRelativePath( uriInfo.getPath());
@@ -139,6 +139,7 @@ public class GroupsEventsResource {
             GroupEventMapper mapper    = session.getMapper( GroupEventMapper.class);
             mapper.createGroupEvent( up.getId(), group);
             group = mapper.getGroupEvent( group.getType(), group.getId());
+            group.setPermission( new Permission( Permission.LEVEL_OWNER));
             session.commit();
          }catch( HTTPErrorException e) {
             throw e;

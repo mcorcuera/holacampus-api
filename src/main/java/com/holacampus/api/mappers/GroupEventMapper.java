@@ -19,6 +19,7 @@ package com.holacampus.api.mappers;
 
 import com.holacampus.api.domain.CommentContainer;
 import com.holacampus.api.domain.GroupEvent;
+import com.holacampus.api.domain.Permission;
 import com.holacampus.api.domain.PhotoContainer;
 import com.holacampus.api.domain.ProfilePhotoContainer;
 import java.util.List;
@@ -45,6 +46,9 @@ public interface GroupEventMapper {
     public PhotoContainer           getPhotoContainer( @Param("id") long id) throws Exception;
     
     public ProfilePhotoContainer    getProfilePhotoContainer( @Param("id") long id) throws Exception;
+    
+    public void                  getPermissions(  @Param("userId") Long userId, @Param("groupId") Long groupId, @Param("permission") Permission permission) throws Exception;
+
     
     public void createGroupEvent( @Param( "creatorId") Long creatorId, @Param("group") GroupEvent group) throws Exception;
     

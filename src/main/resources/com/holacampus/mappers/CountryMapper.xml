@@ -25,7 +25,7 @@
          select  count( C.CountryID)
         from country C
         <if test="q != null">
-                where C.Name LIKE #{q} ||'%'
+                where C.Name LIKE #{q}
         </if>
     </select>
     

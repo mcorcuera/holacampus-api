@@ -28,6 +28,9 @@
         <typeAlias type="com.holacampus.api.domain.Stage"                   alias="Stage" />
         <typeAlias type="com.holacampus.api.domain.GroupEvent"              alias="GroupEvent"/>
         <typeAlias type="com.holacampus.api.domain.GroupMember"             alias="GroupMember"/>
+        <typeAlias type="com.holacampus.api.domain.Conversation"            alias="Conversation"/>
+        <typeAlias type="com.holacampus.api.domain.ConversationMember"      alias="ConversationMember"/>
+        <typeAlias type="com.holacampus.api.domain.Message"                 alias="Message"/>
     </typeAliases>
     
     <environments default="development">        
@@ -59,6 +62,8 @@
         <mapper resource="com/holacampus/mappers/StageMapper.xml"/>
         <mapper resource="com/holacampus/mappers/GroupEventMapper.xml"/>
         <mapper resource="com/holacampus/mappers/GroupMemberMapper.xml"/>
+        <mapper resource="com/holacampus/mappers/ConversationMapper.xml"/>
+                                                 
     </mappers>
    
 </configuration>

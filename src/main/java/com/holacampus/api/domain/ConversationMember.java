@@ -17,15 +17,53 @@
 
 package com.holacampus.api.domain;
 
-import java.sql.Date;
+import com.holacampus.api.hal.Linkable;
+import com.theoryinpractise.halbuilder.jaxrs.*;
+import java.sql.Timestamp;
 
 /**
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
-public class ConversationMember {
+
+@HalRootElement
+public class ConversationMember implements Linkable {
     
+    private Timestamp       lastSeen;
+    @HalEmbedded( "member")
     private ActiveElement   member;
     private Conversation    conversation;
-    private Date            lastSeen;
+
+    public Timestamp getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(Timestamp lastSeen) {
+        this.lastSeen = lastSeen;
+    }
+
+    public ActiveElement getMember() {
+        return member;
+    }
+
+    public void setMember(ActiveElement member) {
+        this.member = member;
+    }
+
+    public Conversation getConversation() {
+        return conversation;
+    }
+
+    public void setConversation(Conversation conversation) {
+        this.conversation = conversation;
+    }
+
+    
+    
+    @Override
+    @HalSelfLink
+    public String getSelfLink() {
+        return conversation.getSelfLink() + "/members/" + member.getId();
+    }
+    
 }

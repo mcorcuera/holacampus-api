@@ -17,17 +17,75 @@
 
 package com.holacampus.api.domain;
 
-import java.sql.Date;
+import com.holacampus.api.hal.Linkable;
+import com.holacampus.api.utils.Utils;
+import com.theoryinpractise.halbuilder.jaxrs.*;
+import java.sql.Timestamp;
 
 /**
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
-public class Message {
+@HalRootElement
+public class Message implements Linkable {
     
-    private long            id;
-    private Conversation    conversation;
-    private ActiveElement   writer;
-    private Date            creationDate;
+    @HalProperty( name="id")
+    private Long            id;
+    @HalProperty( name="creationDate")
+    private Timestamp       creationDate;
+    @HalProperty( name="content")
     private String          content;
+
+    @HalEmbedded( "creator")
+    private ActiveElement   creator;
+    
+    private Conversation    conversation;
+    
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Conversation getConversation() {
+        return conversation;
+    }
+
+    public void setConversation(Conversation conversation) {
+        this.conversation = conversation;
+    }
+
+    public ActiveElement getCreator() {
+        return creator;
+    }
+
+    public void setCreator(ActiveElement creator) {
+        this.creator = creator;
+    }
+
+    public Timestamp getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Timestamp creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    @Override
+    @HalSelfLink
+    public String getSelfLink() {
+        return Utils.createLink( conversation.getSelfLink() + "/messages/" + id, null);
+    }
+    
+    
 }

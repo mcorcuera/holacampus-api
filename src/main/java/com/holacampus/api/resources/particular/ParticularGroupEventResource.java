@@ -223,14 +223,14 @@ public class ParticularGroupEventResource {
                 group.getGroupPhoto().setSelfLink( uriInfo.getPath() + "/group-photo");
             }
             
-            //Permission permission = new Permission();
+            Permission permission = new Permission();
             
-            //userMapper.getPermissions( up.getId(), id, permission);
-            //user.setPermission(permission);
+            mapper.getPermissions( up.getId(), id, permission);
+            group.setPermission(permission);
             session.commit();      
         } catch( Exception e) {
             logger.error( e.toString());
-            throw new HTTPErrorException( Response.Status.NOT_FOUND, "User not found");
+            throw new HTTPErrorException( Response.Status.NOT_FOUND, "Group/Event not found");
         } finally {
             session.close();
         }   

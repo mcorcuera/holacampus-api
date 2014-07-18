@@ -79,7 +79,9 @@ public final class BasicAuthenticator implements Authenticator{
                 throw new AuthenticationFailException();
             }
 
-        } catch( Exception ex) {
+        } catch( AuthenticationFailException e) {
+            throw e;
+        }catch( Exception ex) {
             logger.error(ex);
             throw new InternalServerErrorException();
         } finally {

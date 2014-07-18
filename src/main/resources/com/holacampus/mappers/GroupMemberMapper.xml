@@ -4,20 +4,89 @@
     
     <resultMap id="memberResult" type="GroupMember">
       <result column="member_join" property="joinDate"/>
-      <association column="ae_id" property="member"
+      <association property="creator" column="ae_id" javaType="ActiveElement" 
+                     resultMap="com.holacampus.api.mappers.ActiveElementMapper.activeElementEmbeddedResult" />
     </resultMap>
     
     <select id="getMembers" parameterType="map" resultMap="memberResult">
+        select  M.JoinDate              as member_join,
         
+                A.ActiveElementID	as ae_id,
+		A.Type			as ae_type,
+		
+		U.UserID		as user_id,
+		U.FirstName		as user_firstname,
+		U.LastName		as user_lastname,
+
+		UN.UniversityID         as uni_id,
+		UN.Name			as uni_name,
+                
+                P2.PhotoID               as photo_e_id,
+                P2.Title                 as photo_e_title,
+                P2.Url                   as photo_e_url,
+                P2.ThumbnailUrl          as photo_e_t_url,
+                P2.CreationDate          as photo_e_date
+        from group_event_has_member M
+            inner join active_element A
+                on M.ActiveElementID = A.ActiveElementID
+             left join user U
+                        on A.ActiveElementID = U.UserID 
+                left join university UN
+                        on A.ActiveElementID = UN.UniversityID
+                left join profile_photo PP
+                        on U.UserID = PP.UserID or UN.UniversityID = PP.UniversityID
+                left join photo P2
+                        on PP.PhotoID = P2.PhotoID
+        where M.GroupEventID = #{parent.id} 
+            <if test="q != null">
+                where UN.Name LIKE #{q} or match(U.FirstName,U.LastName) against(#{q} in boolean mode)
+            </if>
+            order by M.JoinDate desc
     </select>
     
     
     <select id="getTotalMembers" parameterType="map" resultType="int">
-        
+        select  count( M.ActiveElementID)
+        from group_event_has_member M
+            inner join active_element A
+                on M.ActiveElementID = A.ActiveElementID
+             left join user U
+                        on A.ActiveElementID = U.UserID 
+                left join university UN
+                        on A.ActiveElementID = UN.UniversityID
+        where M.GroupEventID = #{parent.id} 
     </select>
     
     <select id="getMember" parameterType="map" resultMap="memberResult">
+          select  M.JoinDate            as member_join,
         
+                A.ActiveElementID	as ae_id,
+		A.Type			as ae_type,
+		
+		U.UserID		as user_id,
+		U.FirstName		as user_firstname,
+		U.LastName		as user_lastname,
+
+		UN.UniversityID         as uni_id,
+		UN.Name			as uni_name,
+                
+                P2.PhotoID               as photo_e_id,
+                P2.Title                 as photo_e_title,
+                P2.Url                   as photo_e_url,
+                P2.ThumbnailUrl          as photo_e_t_url,
+                P2.CreationDate          as photo_e_date
+        from group_event_has_member M
+            inner join active_element A
+                on M.ActiveElementID = A.ActiveElementID
+             left join user U
+                        on A.ActiveElementID = U.UserID 
+                left join university UN
+                        on A.ActiveElementID = UN.UniversityID
+                left join profile_photo PP
+                        on U.UserID = PP.UserID or UN.UniversityID = PP.UniversityID
+                left join photo P2
+                        on PP.PhotoID = P2.PhotoID
+        where M.GroupEventID = #{parent.id} and M.ActiveElementID = #{memberId}
     </select>
     
     <insert id="addMember" parameterType="map">
@@ -34,6 +103,6 @@
     
     <delete id="deleteMember" parameterType="map">
         delete from group_event_has_member
-        where GroupEventID = #{parent.id} and ActiveElementID = #{activeElement.id}
+        where GroupEventID = #{parent.id} and ActiveElementID = #{memberId}
     </delete>
 </mapper>

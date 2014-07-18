@@ -17,14 +17,18 @@
 
 package com.holacampus.api.domain;
 
-import java.sql.Date;
+import com.holacampus.api.hal.Linkable;
+import com.holacampus.api.utils.Utils;
+import com.theoryinpractise.halbuilder.jaxrs.*;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
-public class Conversation {
+@HalRootElement
+public class Conversation implements Linkable{
     
     /**
      *
@@ -36,10 +40,113 @@ public class Conversation {
      */
     public static final String TYPE_INDIVIDUAL  = "INDIVIDUAL";
     
-    private long                        id;
+    
+    @HalProperty( name="id")
+    private Long                        id;
+    
+    @HalProperty( name="type")
     private String                      type;
-    private Date                        creationDate;
+    
+    @HalProperty( name="creationDate")
+    private Timestamp                   creationDate;
+    
+    @HalProperty( name="name")
     private String                      name;
+    
+    @HalProperty( name="unseenMessages")
+    private Integer                     unseenMessages;
+    
+    @HalProperty( name="memberCount")
+    private Integer                     memberCount;
+    
+    @HalEmbedded( "messages")
     private List<Message>               messages;
+    
+    @HalEmbedded( "members")
     private List<ConversationMember>    members;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Timestamp getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate( Timestamp creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getUnseenMessages() {
+        return unseenMessages;
+    }
+
+    public void setUnseenMessages(Integer unseenMessages) {
+        this.unseenMessages = unseenMessages;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
+    }
+
+    public List<ConversationMember> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<ConversationMember> members) {
+        this.members = members;
+    }
+
+    public Integer getMemberCount() {
+        return memberCount;
+    }
+
+    public void setMemberCount(Integer memberCount) {
+        this.memberCount = memberCount;
+    }
+
+    @Override
+    @HalSelfLink
+    public String getSelfLink() {
+        return Utils.createLink( "/conversations/" + id, null);
+    }
+    
+    @HalLink("messages")
+    public String getMessagesLink() {
+        return getSelfLink() + "/messages";
+    }
+    
+    @HalLink( "members")
+    public String getMembersLink() {
+        return getSelfLink() + "/members";
+    }
+    
+    
+
+    
+
 }

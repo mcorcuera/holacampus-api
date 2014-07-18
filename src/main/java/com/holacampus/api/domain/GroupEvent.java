@@ -56,6 +56,8 @@ public class GroupEvent implements Linkable{
     private String              locationName;
     @HalProperty( name="eventDate")
     private Timestamp            eventDate;
+    @HalProperty( name="members")
+    private Integer             members;
     
     @HalEmbedded( "creator")
     private ActiveElement       creator;
@@ -63,6 +65,9 @@ public class GroupEvent implements Linkable{
     private City                city;
     @HalEmbedded( "group-photo")
     private Photo               groupPhoto;
+    
+    @HalEmbedded( "permission")
+    private Permission          permission;
     
     private String              type;
 
@@ -154,6 +159,24 @@ public class GroupEvent implements Linkable{
         this.groupPhoto = groupPhoto;
     }
 
+    public Permission getPermission() {
+        return permission;
+    }
+
+    public void setPermission(Permission permission) {
+        this.permission = permission;
+    }
+
+    public Integer getMembers() {
+        return members;
+    }
+
+    public void setMembers(Integer members) {
+        this.members = members;
+    }
+
+    
+    
     @Override
     @HalSelfLink
     public String getSelfLink() {
@@ -161,6 +184,31 @@ public class GroupEvent implements Linkable{
         return Utils.createLink( typeUrl + id, null);
     }
     
+    @HalLink( "comments")
+    public String getCommentsLink()
+    {
+        return getSelfLink() + "/comments";
+    }
+    
+    
+    @HalLink( "photos")
+    public String getPhotosLink()
+    {
+        return getSelfLink() + "/photos";
+    }
+    
+    
+    @HalLink( "group-photo")
+    public String getGroupPhotoLink()
+    {
+        return getSelfLink() + "/group-photo";
+    }
+    
+    @HalLink( "members")
+    public String getMembersLink()
+    {
+        return getSelfLink() + "/members";
+    }
     
     
     

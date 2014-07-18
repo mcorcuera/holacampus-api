@@ -69,6 +69,8 @@ public class User extends ActiveElement implements Linkable
     @HalProperty( name="gender")
     private String              gender;
    
+    @HalProperty( name="friendCount")
+    private Integer             friendCount;
     
     @HalEmbedded( "permission")
     private Permission          permission;
@@ -199,7 +201,17 @@ public class User extends ActiveElement implements Linkable
         this.photoContainer = photoContainer;
     }
 
+    public Integer getFriendCount() {
+        return friendCount;
+    }
 
+    public void setFriendCount(Integer friendCount) {
+        this.friendCount = friendCount;
+    }
+
+    
+
+    
     @Override 
     public String toString() {
         return "User{" + "userType=" + userType + ", name=" + name + ", birthDate=" + birthDate + ", gender=" + gender + '}';

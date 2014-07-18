@@ -179,7 +179,15 @@
         )
     </insert>
     
-    <delete parameterType="map">
+    <select id="getPermissions" parameterType="map" statementType="CALLABLE">
+        CALL getGroupPermissions(
+            #{ userId,              mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ groupId,                 mode=IN,     javaType=Long,                  jdbcType=INTEGER},
+            #{ permission.level,       mode=OUT,    javaType=String,                jdbcType=VARCHAR}
+        )
+    </select>
+    
+    <delete id="deleteGroupEvent" parameterType="map">
         delete from group_event
         where GroupEventID = #{id} and Type = #{type}
     </delete>
