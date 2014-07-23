@@ -76,13 +76,9 @@ public class CountriesResource {
         
         page = Utils.getValidPage(page);
         size = Utils.getValidSize(size);
-        logger.info( "Coño Uncoded q= " + q);
         if( q != null) {
             q   = URLDecoder.decode(q, "UTF-8");
         }
-        logger.info( "Decoded q= " + q);
-        
-        
         RowBounds rb = Utils.createRowBounds(page, size);
         
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
@@ -91,6 +87,7 @@ public class CountriesResource {
             CountryMapper mapper        = session.getMapper( CountryMapper.class);
             List<Country> countryList   = mapper.getCountries(q, rb);
             int total                   = mapper.getTotalCountries(q);
+            
             session.commit();
             
             countries = new HalList<Country> ( countryList, total);
@@ -112,7 +109,7 @@ public class CountriesResource {
     }
     
     @POST
-    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_NONE)
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
     @Produces( { RepresentationFactory.HAL_JSON})
     public Country createCountry( @CreationValid @Valid Country country) {

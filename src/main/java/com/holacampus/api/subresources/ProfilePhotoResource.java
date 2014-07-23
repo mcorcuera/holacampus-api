@@ -28,6 +28,7 @@ import com.holacampus.api.mappers.ProfilePhotoContainerMapper;
 import com.holacampus.api.resources.particular.ParticularUserResource;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
+import com.holacampus.api.security.PermissionScheme;
 import com.holacampus.api.security.UserPrincipal;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
@@ -55,13 +56,13 @@ import org.apache.log4j.Logger;
  */
 public class ProfilePhotoResource {
  
-    private static final Logger logger = LogManager.getLogger( ParticularUserResource.class.getName());
+    private static final Logger logger = LogManager.getLogger( ProfilePhotoResource.class.getName());
 
     
-    private PhotoContainer          photoContainer;
-    private ProfilePhotoContainer   profilePhotoContainer;
-    private String                  path;
-    private Long                    parentId;
+    private final PhotoContainer          photoContainer;
+    private final ProfilePhotoContainer   profilePhotoContainer;
+    private final String                  path;
+    private final Long                    parentId;
     
     public ProfilePhotoResource( PhotoContainer photoContainer, 
             ProfilePhotoContainer profilePhotoContainer, Long parentId, 
@@ -139,10 +140,8 @@ public class ProfilePhotoResource {
                 throw new HTTPErrorException( Status.FORBIDDEN, "You must own the photo");
             }
             Permission permission = new Permission();
-            
             containerMapper.getPermissions( up.getId(), photoContainerId, permission);
-            
-            if( !permission.getLevel().equals( Permission.LEVEL_PARENT_OWNER)) {
+            if( !permission.getLevel().equals( Permission.LEVEL_OWNER) &&  !permission.getLevel().equals( Permission.LEVEL_PARENT_OWNER)) {
                 throw new HTTPErrorException( Status.FORBIDDEN, "You must own the element");
             }
             
@@ -189,7 +188,7 @@ public class ProfilePhotoResource {
             
             containerMapper.getPermissions( up.getId(), photoContainerId, permission);
             
-            if( !permission.getLevel().equals( Permission.LEVEL_PARENT_OWNER)) {
+            if( !permission.getLevel().equals( Permission.LEVEL_OWNER) &&  !permission.getLevel().equals( Permission.LEVEL_PARENT_OWNER)) {
                 throw new HTTPErrorException( Status.FORBIDDEN, "You must own the element");
             }
              

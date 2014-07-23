@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.holacampus.api.mappers.ActivityMapper">
+    <resultMap id="activityResult" type="Activity">
+        <id column="what_id"/>
+        <id column="where_id"/>
+        <id column="who_id"/>
+        <id column="what_type" property="whatType" />
+        <id column="who_type" property="whoType"/>
+        <id column="where_type" property="whereType"/>
+        <id column="when_date" property="when"/>
+        
+        <association column="who_id"  property="who"  javaType="ActiveElement">
+             <discriminator javaType="String" column="who_type">
+                <case value="USER" resultMap="userWhoResult" />
+                <case value="UNI" resultMap="universityWhoResult"/>
+            </discriminator>
+        </association>
+        
+        <association column="what_id" property="what"  javaType="Element">
+            <discriminator javaType="String" column="what_type">
+                <case value="COMMENT" resultMap="commentWhatResult"/>
+                <case value="PHOTO" resultMap="photoWhatResult"/>
+                <case value="EVENT_CREATION" resultMap="groupeventWhatResult" />
+                <case value="GROUP_CREATION" resultMap="groupeventWhatResult" />
+                <case value="FRIENDSHIP" resultMap="userWhatResult"/>
+                <case value="STAGE_ADDED" resultMap="stageWhatResult"/>
+                <case value="NULL" resultMap="emptyResult"/>
+            </discriminator>
+        </association>
+        <association column="where_id" property="where" notNullColumn="where_id" javaType="Element">
+            <discriminator javaType="String" column="where_type">
+                <case value="PHOTO" resultMap="photoWhereResult"/>
+                <case value="GROUP" resultMap="groupeventWhereResult" />
+                <case value="USER" resultMap="userWhereResult" />
+                <case value="UNI" resultMap="universityWhereResult"/>
+            </discriminator>
+        </association>
+        
+    </resultMap>
+    
+    
+    <!-- WHO Result Mappers -->
+    <resultMap id="userWhoResult" type="User">
+        <id     column="who_id" property="id" />
+        <result column="who_user_firstname"  property="name.firstName" />
+        <result column="who_user_lastname"   property="name.lastName" /> 
+        <association property="profilePhoto" column="of_who_photo_id" javaType="Photo" resultMap="photoOfWhoResult"/>
+    </resultMap>
+    
+    <resultMap id="universityWhoResult" type="University">
+        <id     column="who_id" property="id" />
+        <result column="who_uni_name"  property="name" />
+        <association property="profilePhoto" column="of_who_photo_id" javaType="Photo" resultMap="photoOfWhoResult"/>
+    </resultMap>
+    
+    <resultMap id="photoOfWhoResult" type="Photo">
+        <id     column="of_who_photo_id"           property="id" />
+        <result column="of_who_photo_title"        property="title" />
+        <result column="of_who_photo_url"          property="url" />
+        <result column="of_who_photo_t_url"        property="thumbnailUrl" />
+    </resultMap>
+    
+    <!-- WHAT Result Mappers -->
+    <resultMap id="photoWhatResult" type="Photo">
+        <id     column="what_id"           property="id" />
+        <result column="what_photo_title"        property="title" />
+        <result column="what_photo_url"          property="url" />
+        <result column="what_photo_t_url"        property="thumbnailUrl" />
+    </resultMap>
+    
+    <resultMap id="commentWhatResult" type="Comment">
+        <id     column="what_id"         property="id" />
+        <result column="what_comment_content"    property="content" />
+    </resultMap>
+    
+    <resultMap id="photoOfWhatResult" type="Photo">
+        <id     column="of_what_photo_id"           property="id" />
+        <result column="of_what_photo_title"        property="title" />
+        <result column="of_what_photo_url"          property="url" />
+        <result column="of_what_photo_t_url"        property="thumbnailUrl" />
+    </resultMap>
+    
+    <resultMap id="stageWhatResult" type="Stage">
+        <id column="what_id" property="id" />
+        <result column="what_stage_from" property="fromYear"/>
+        <result column="what_stage_to" property="toYear"/>
+        <association property="study" column="what_study_id" javaType="Study" resultMap="studyWhatResult" />
+    </resultMap>
+    
+    
+        <resultMap id="studyWhatResult" type="Study">
+            <id column="what_study_id" property="id" />
+            <result column="what_study_name" property="name" />
+             <association property="university" column="uni2_id" javaType="University" 
+                         resultMap="universityWhatResult" />
+        </resultMap>
+            
+            <resultMap id="universityWhatResult" type="University">
+                <id     column="what_uni_id" property="id" />
+                <result column="what_uni_name"  property="name" />
+                <association property="profilePhoto" column="of_what_photo_id" javaType="Photo" resultMap="photoOfWhatResult"/>
+            </resultMap>
+    
+    <resultMap id="userWhatResult" type="User">
+        <id     column="what_id" property="id" />
+        <result column="what_user_firstname"  property="name.firstName" />
+        <result column="what_user_lastname"   property="name.lastName" /> 
+        <association property="profilePhoto" column="of_what_photo_id" javaType="Photo" resultMap="photoOfWhatResult"/>
+    </resultMap>
+    
+     <resultMap id="groupeventWhatResult" type="GroupEvent">
+        <id column="what_id" property="id" />
+        <result column="what_group_name" property="name" />
+        <result column="what_group_type" property="type" />
+        <association property="groupPhoto" column="of_what_photo_id" javaType="Photo" resultMap="photoOfWhatResult"/>
+    </resultMap>
+    
+    <!-- WHERE results map -->
+    <resultMap id="userWhereResult" type="User">
+        <id     column="where_id" property="id" />
+        <result column="where_user_firstname"  property="name.firstName" />
+        <result column="where_user_lastname"   property="name.lastName" /> 
+        <association property="profilePhoto" column="of_where_photo_id" javaType="Photo" resultMap="photoOfWhereResult"/>
+    </resultMap>
+    
+    <resultMap id="universityWhereResult" type="University">
+        <id     column="where_id" property="id" />
+        <result column="where_uni_name"  property="name" />
+        <association property="profilePhoto" column="of_where_photo_id" javaType="Photo" resultMap="photoOfWhereResult"/>
+    </resultMap>
+    
+    <resultMap id="groupeventWhereResult" type="GroupEvent">
+        <id column="where_id" property="id" />
+        <result column="where_group_name" property="name" />
+        <result column="where_group_type" property="type" />
+        <result column="where_group_creation_date" property="creationDate"/>
+        <association property="groupPhoto" column="of_where_photo_id" javaType="Photo" resultMap="photoOfWhereResult"/>
+    </resultMap>
+    
+    <resultMap id="photoWhereResult" type="Photo">
+        <id     column="where_id"           property="id" />
+        <result column="where_photo_title"        property="title" />
+        <result column="where_photo_url"          property="url" />
+        <result column="where_photo_t_url"        property="thumbnailUrl" />
+    </resultMap>
+    
+    <resultMap id="photoOfWhereResult" type="Photo">
+        <id     column="of_where_photo_id"           property="id" />
+        <result column="of_where_photo_title"        property="title" />
+        <result column="of_where_photo_url"          property="url" />
+        <result column="of_where_photo_t_url"        property="thumbnailUrl" />
+    </resultMap>
+    
+    <select id="getActivity" parameterType="map" resultMap="activityResult">
+        select 
+                Activity.WhenDate               as when_date,
+		Activity.WhoID			as who_id,
+		Activity.WhoType		as who_type,
+
+		WhoUS.FirstName			as who_user_firstname,
+		WhoUS.LastName			as who_user_lastname,
+
+		WhoUN.Name			as who_uni_name,
+
+		OfWhoP.PhotoID			as of_who_photo_id,
+		OfWhoP.Title			as of_who_photo_title,
+		OfWhoP.Url			as of_who_photo_url,
+		OfWhoP.ThumbnailUrl		as of_who_photo_t_url,
+		
+
+		Activity.WhatID			as what_id,
+		Activity.WhatType		as what_type,
+
+		WhatPH.Title			as what_photo_title,
+		WhatPH.Url			as what_photo_url,
+		WhatPH.ThumbnailUrl		as what_photo_t_url,
+
+		WhatCO.Content			as what_comment_content,
+
+		WhatST.FromYear			as what_stage_from,
+		WhatST.ToYear			as what_stage_to,
+		WhatSY.StudyID			as what_study_id,
+		WhatSY.Name			as what_study_name,
+		WhatUN.UniversityID		as what_uni_id,
+		WhatUN.Name			as what_uni_name,
+
+		WhatUS.FirstName		as what_user_firstname,
+		WhatUS.LastName			as what_user_lastname,
+
+		WhatGE.Name			as what_group_name,
+		WhatGE.Type			as what_group_type,
+
+		OfWhatP.PhotoID			as of_what_photo_id,
+		OfWhatP.Title			as of_what_photo_title,
+		OfWhatP.Url			as of_what_photo_url,
+		OfWhatP.ThumbnailUrl            as of_what_photo_t_url,
+		
+
+		Activity.WhereID		as where_id,
+		Activity.WhereType		as where_type,
+
+		WhereUS.FirstName		as where_user_firstname,
+		WhereUS.LastName		as where_user_lastname,
+
+		WhereUN.Name			as where_uni_name,
+
+		WhereGE.Name			as where_group_name,
+		WhereGE.Type			as where_group_type,
+
+		WherePH.Title			as where_photo_title,
+		WherePH.Url			as where_photo_url,
+		WherePH.ThumbnailUrl            as where_photo_t_url,
+		
+		OfWhereP.PhotoID		as of_where_photo_id,
+		OfWhereP.Title			as of_where_photo_title,
+		OfWhereP.Url			as of_where_photo_url,
+		OfWhereP.ThumbnailUrl           as of_where_photo_t_url
+
+	from activity Activity
+	inner join (		
+                    select F.ReceiverID as MemberID 
+                    from user_has_friend F
+                            where F.Status = 'CONFIRMED' 
+                                    and  F.SenderID = #{elementId}    
+                    union all
+                    
+                    select F.SenderID as MemberID 
+                    from user_has_friend F
+                            where F.Status = 'CONFIRMED' 
+                                    and  F.ReceiverID = #{elementId}    
+                    union all
+        
+                    select distinct ST.UniversityID as MemberID 
+                    from stage ST
+                            where ST.UserID = #{elementId}
+
+                    union all
+
+                    select distinct ST.UserID as MemberID 
+                    from stage ST
+                            where ST.UniversityID = #{elementId}
+                    union all
+                    select #{elementId} as MemberID
+            ) Members
+		on Activity.WhoID = Members.MemberID
+
+	left join active_element WhoAE
+		on Activity.WhoID = WhoAE.ActiveElementID
+	left join user WhoUS
+		on WhoAE.ActiveElementID = WhoUS.UserID
+	left join university WhoUN
+		on WhoAE.ActiveElementID = WhoUN.UniversityID
+	left join profile_photo OfWhoPP
+		on WhoUS.UserID = OfWhoPP.UserID or WhoUN.UniversityID = OfWhoPP.UniversityID
+	left join photo OfWhoP
+		on OfWhoPP.PhotoID = OfWhoP.PhotoID
+	
+	left join comment WhatCO
+		on Activity.WhatID = WhatCO.CommentID 
+			and Activity.WhatType = 'COMMENT'
+	left join photo WhatPH
+		on Activity.WhatID = WhatPH.PhotoID  
+			and Activity.WhatType = 'PHOTO'
+	left join group_event WhatGE
+		on Activity.WhatID = WhatGE.GroupEventID 
+			and ( Activity.WhatType = 'GROUP_CREATION' or Activity.WhatType = 'EVENT_CREATION')
+	left join stage WhatST
+		on Activity.WhatID = WhatST.StageID
+			and Activity.WhatType = 'STAGE_ADDED'
+	left join study WhatSY
+		on WhatST.StudyID = WhatSY.StudyID and WhatST.UniversityID = WhatSY.UniversityID
+	left join university WhatUN
+		on WhatST.UniversityID = WhatUN.UniversityID
+	left join user WhatUS
+		on Activity.WhatID = WhatUS.UserID
+			and Activity.WhatType = 'FRIENDSHIP'
+	left join profile_photo OfWhatPP
+		on WhatUS.UserID = OfWhatPP.UserID 
+			or WhatUN.UniversityID = OfWhatPP.UniversityID 
+			or WhatGE.GroupEventID = OfWhatPP.GroupEventID
+	left join photo OfWhatP
+		on OfWhatPP.PhotoID = OfWhatP.PhotoID
+	
+	left join active_element WhereAE
+		on Activity.WhereID = WhereAE.ActiveElementID
+			and (Activity.WhereType = 'USER' or Activity.WhereType = 'UNI')
+	left join user WhereUS
+		on WhereAE.ActiveElementID = WhereUS.UserID
+	left join university WhereUN
+		on WhereAE.ActiveElementID = WhereUN.UniversityID
+	left join photo WherePH
+		on Activity.WhereID = WherePH.PhotoID  
+			and Activity.WhereType = 'PHOTO'
+	left join group_event WhereGE
+		on Activity.WhereID = WhereGE.GroupEventID 
+			and Activity.WhereType = 'GROUP'
+	left join profile_photo OfWherePP
+		on WhereUS.UserID = OfWherePP.UserID 
+			or WhereUN.UniversityID = OfWherePP.UniversityID 
+			or WhereGE.GroupEventID = OfWherePP.GroupEventID
+	left join photo OfWhereP
+		on OfWherePP.PhotoID = OfWhereP.PhotoID
+
+	order by Activity.WhenDate desc
+        
+    </select>
+    <select id="getTotalActivity" parameterType="map" resultType="int">
+         select count(*)
+
+	from activity Activity
+	inner join (		
+                    select F.ReceiverID as MemberID 
+                    from user_has_friend F
+                            where F.Status = 'CONFIRMED' 
+                                    and  F.SenderID = #{elementId}    
+                    union all
+                    
+                    select F.SenderID as MemberID 
+                    from user_has_friend F
+                            where F.Status = 'CONFIRMED' 
+                                    and  F.ReceiverID = #{elementId}    
+                    union all
+        
+                    select distinct ST.UniversityID as MemberID 
+                    from stage ST
+                            where ST.UserID = #{elementId}
+
+                    union all
+
+                    select distinct ST.UserID as MemberID 
+                    from stage ST
+                            where ST.UniversityID = #{elementId}
+        
+                    union all
+                    select #{elementId} as MemberID
+
+            ) Members
+		on Activity.WhoID = Members.MemberID
+
+    </select>
+</mapper>
+    

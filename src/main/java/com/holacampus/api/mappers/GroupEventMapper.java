@@ -39,6 +39,12 @@ public interface GroupEventMapper {
     
     public int getTotalGroupsEvents(@Param("type") String type, @Param("q") String q) throws Exception;
     
+    public List<GroupEvent> getGroupsEventsForActiveElement( @Param("type") String type, @Param("q") String q, @Param( "elementId") Long elementId,RowBounds rb) throws Exception;
+    
+    public List<GroupEvent> getGroupsEventsForActiveElement( @Param("type") String type, @Param("q") String q, @Param( "elementId") Long elementId) throws Exception;
+    
+    public int getTotalGroupsEventsForActiveElement(@Param("type") String type, @Param("q") String q, @Param( "elementId") Long elementId) throws Exception;
+    
     public GroupEvent getGroupEvent( @Param("type") String type, @Param( "id") Long id) throws Exception;
     
     public CommentContainer         getCommentContainer( @Param("id") long id) throws Exception;

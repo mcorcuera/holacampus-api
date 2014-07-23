@@ -18,35 +18,46 @@
 package com.holacampus.api.resources.particular;
 
 import com.holacampus.api.domain.CommentContainer;
+import com.holacampus.api.domain.GroupEvent;
 import com.holacampus.api.domain.Permission;
 import com.holacampus.api.domain.PhotoContainer;
 import com.holacampus.api.domain.ProfilePhotoContainer;
 import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
+import com.holacampus.api.hal.HalList;
+import com.holacampus.api.mappers.GroupEventMapper;
 import com.holacampus.api.mappers.UserMapper;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.PermissionScheme;
 import com.holacampus.api.security.PermissionScheme.Action;
 import com.holacampus.api.security.UserPrincipal;
+import com.holacampus.api.subresources.ActiveElementConversationsResource;
 import com.holacampus.api.subresources.CommentsResource;
 import com.holacampus.api.subresources.FriendsResource;
 import com.holacampus.api.subresources.PhotosResource;
 import com.holacampus.api.subresources.ProfilePhotoResource;
 import com.holacampus.api.subresources.StagesResource;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
+import com.holacampus.api.utils.Utils;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.List;
 import java.util.Objects;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.Encoded;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -63,6 +74,7 @@ public class ParticularUserResource {
     
     private static final PermissionScheme commentsScheme        = new PermissionScheme();
     private static final PermissionScheme photosScheme          = new PermissionScheme();
+    private static final PermissionScheme profilephotoScheme    = new PermissionScheme();
     private static final PermissionScheme photosCommentScheme   = new PermissionScheme();
     
     static {
@@ -76,6 +88,7 @@ public class ParticularUserResource {
                         .addPermissionScheme(Action.GET_UNIQUE, Permission.LEVEL_MEMBER)
                         .addPermissionScheme(Action.PUT_UNIQUE, Permission.LEVEL_OWNER)
                         .addPermissionScheme(Action.DELETE_UNIQUE, Permission.LEVEL_PARENT_OWNER);
+        
         
         photosCommentScheme     .addPermissionScheme( Action.GET_MULTIPLE, Permission.LEVEL_MEMBER)
                                 .addPermissionScheme(Action.POST_MULTIPLE, Permission.LEVEL_MEMBER)
@@ -206,6 +219,96 @@ public class ParticularUserResource {
         }
 
         return new StagesResource( user);
+    }
+    
+    @Path( "/{id}/conversations")
+    public ActiveElementConversationsResource getConversationsResource( @PathParam("id") Long id)
+    {
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+        User user = null;
+        try {
+            UserMapper mapper    = session.getMapper( UserMapper.class);
+            user = mapper.getUser(id);
+            if( user == null)
+                throw new HTTPErrorException( Status.NOT_FOUND, "User not found");
+            session.commit();
+        }catch( HTTPErrorException e) {
+            throw e;
+        }catch( Exception e) {
+            logger.info( e);
+            throw new InternalServerErrorException( e.getMessage());
+        }finally {
+            session.close();
+        }
+
+        return new ActiveElementConversationsResource( user);
+    }
+    
+    @Path( "/{id}/{type:groups|events}")
+    @GET
+    @Produces( { RepresentationFactory.HAL_JSON})
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @Encoded
+    public HalList<GroupEvent> getGroupsEvents( @PathParam("id") Long id, @PathParam("type") String type, 
+            @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
+    {
+        page = Utils.getValidPage(page);
+        size = Utils.getValidSize(size);
+        if( q != null) {
+            q   = URLDecoder.decode(q, "UTF-8");
+        }
+        String elementType = null;
+        if( "groups".equals(type))
+            elementType = GroupEvent.TYPE_GROUP;
+        else
+            elementType = GroupEvent.TYPE_EVENT;
+        
+        RowBounds rb                = Utils.createRowBounds(page, size);
+        UserPrincipal up            = (UserPrincipal) sc.getUserPrincipal(); 
+        SqlSession session          = MyBatisConnectionFactory.getSession().openSession();
+        HalList<GroupEvent> groups  = null;
+        
+        try {            
+            GroupEventMapper mapper     = session.getMapper( GroupEventMapper.class);
+            UserMapper userMapper       = session.getMapper( UserMapper.class);
+            
+            User user = userMapper.getUser(id);
+            if( user == null)
+                throw new HTTPErrorException( Status.NOT_FOUND, "User not found");
+            
+            Permission permission = new Permission();
+            
+            userMapper.getPermissions( up.getId(), id, permission);
+            
+            if( Permission.LEVEL_USER.equals( permission.getLevel()))
+                throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
+            
+            List<GroupEvent> groupList  = mapper.getGroupsEventsForActiveElement(elementType, q, id, rb);
+            int total                   = mapper.getTotalGroupsEventsForActiveElement(elementType, q, id);
+            session.commit();
+            
+            for( GroupEvent group : groupList) {
+                Permission permissions = new Permission();
+                mapper.getPermissions( up.getId(), group.getId(), permissions);
+                group.setPermission(permissions); 
+            }
+            
+            groups = new HalList( groupList, total);
+            
+            groups.setResourceRelativePath( uriInfo.getPath());
+            groups.setPage(page);
+            groups.setSize(size);
+            groups.setQuery(q);
+            
+        }catch( Exception e) {
+            logger.error( e.toString());
+            throw new InternalServerErrorException();
+        }
+        finally {
+            session.close();
+        }
+        
+        return groups;
     }
     
     

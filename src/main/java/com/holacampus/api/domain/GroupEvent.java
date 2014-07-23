@@ -31,14 +31,12 @@ import javax.validation.constraints.Size;
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 @HalRootElement
-public class GroupEvent implements Linkable{
+public class GroupEvent extends Element implements Linkable{
    
     public static final String TYPE_EVENT = "EVENT";
 
     public static final String TYPE_GROUP = "GROUP";
     
-    @HalProperty( name="id")
-    private Long                id;
     @CreationNeeded( message="{group.name.missing}")
     @Valid
     @Size( min=1, max=90, message="{group.name.wrong.size}")
@@ -63,21 +61,15 @@ public class GroupEvent implements Linkable{
     private ActiveElement       creator;
     @HalEmbedded( "city")
     private City                city;
-    @HalEmbedded( "group-photo")
+    @HalEmbedded( "groupPhoto")
     private Photo               groupPhoto;
     
     @HalEmbedded( "permission")
     private Permission          permission;
     
+    @HalProperty( name="type")
     private String              type;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -181,7 +173,7 @@ public class GroupEvent implements Linkable{
     @HalSelfLink
     public String getSelfLink() {
         String typeUrl = GroupEvent.TYPE_GROUP.equals( type) ? "/groups/" : "/events/";
-        return Utils.createLink( typeUrl + id, null);
+        return Utils.createLink( typeUrl + getId(), null);
     }
     
     @HalLink( "comments")

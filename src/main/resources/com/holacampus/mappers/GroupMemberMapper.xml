@@ -3,13 +3,18 @@
 <mapper namespace="com.holacampus.api.mappers.GroupMemberMapper">
     
     <resultMap id="memberResult" type="GroupMember">
+        <id column="ae_id"/>
       <result column="member_join" property="joinDate"/>
-      <association property="creator" column="ae_id" javaType="ActiveElement" 
+      <result column="member_parent_id" property="parent.id"/>
+      <result column="member_parent_type" property="parent.type"/>
+      <association property="member" column="ae_id" javaType="ActiveElement" 
                      resultMap="com.holacampus.api.mappers.ActiveElementMapper.activeElementEmbeddedResult" />
     </resultMap>
     
     <select id="getMembers" parameterType="map" resultMap="memberResult">
         select  M.JoinDate              as member_join,
+                GE.GroupEventID         as member_parent_id,
+                GE.Type                 as member_parent_type,
         
                 A.ActiveElementID	as ae_id,
 		A.Type			as ae_type,
@@ -27,16 +32,18 @@
                 P2.ThumbnailUrl          as photo_e_t_url,
                 P2.CreationDate          as photo_e_date
         from group_event_has_member M
+            left join group_event GE
+                on M.GroupEventID = GE.GroupEventID
             inner join active_element A
                 on M.ActiveElementID = A.ActiveElementID
-             left join user U
-                        on A.ActiveElementID = U.UserID 
-                left join university UN
-                        on A.ActiveElementID = UN.UniversityID
-                left join profile_photo PP
-                        on U.UserID = PP.UserID or UN.UniversityID = PP.UniversityID
-                left join photo P2
-                        on PP.PhotoID = P2.PhotoID
+            left join user U
+                on A.ActiveElementID = U.UserID 
+            left join university UN
+                on A.ActiveElementID = UN.UniversityID
+            left join profile_photo PP
+                on U.UserID = PP.UserID or UN.UniversityID = PP.UniversityID
+            left join photo P2
+                on PP.PhotoID = P2.PhotoID
         where M.GroupEventID = #{parent.id} 
             <if test="q != null">
                 where UN.Name LIKE #{q} or match(U.FirstName,U.LastName) against(#{q} in boolean mode)
@@ -59,6 +66,8 @@
     
     <select id="getMember" parameterType="map" resultMap="memberResult">
           select  M.JoinDate            as member_join,
+                GE.GroupEventID         as member_parent_id,
+                GE.Type                 as member_parent_type,
         
                 A.ActiveElementID	as ae_id,
 		A.Type			as ae_type,
@@ -76,16 +85,18 @@
                 P2.ThumbnailUrl          as photo_e_t_url,
                 P2.CreationDate          as photo_e_date
         from group_event_has_member M
+            left join group_event GE
+                on M.GroupEventID = GE.GroupEventID
             inner join active_element A
                 on M.ActiveElementID = A.ActiveElementID
              left join user U
-                        on A.ActiveElementID = U.UserID 
-                left join university UN
-                        on A.ActiveElementID = UN.UniversityID
-                left join profile_photo PP
-                        on U.UserID = PP.UserID or UN.UniversityID = PP.UniversityID
-                left join photo P2
-                        on PP.PhotoID = P2.PhotoID
+                on A.ActiveElementID = U.UserID 
+            left join university UN
+                on A.ActiveElementID = UN.UniversityID
+            left join profile_photo PP
+                on U.UserID = PP.UserID or UN.UniversityID = PP.UniversityID
+            left join photo P2
+                on PP.PhotoID = P2.PhotoID
         where M.GroupEventID = #{parent.id} and M.ActiveElementID = #{memberId}
     </select>
     

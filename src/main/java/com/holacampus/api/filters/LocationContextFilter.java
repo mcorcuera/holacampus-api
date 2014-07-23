@@ -20,6 +20,10 @@ package com.holacampus.api.filters;
 import com.holacampus.api.hal.Linkable;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -42,7 +46,12 @@ public class LocationContextFilter implements ContainerResponseFilter{
         
         if( responseContext.getEntity() != null && Linkable.class.isAssignableFrom( responseContext.getEntityClass())) {
             Linkable r = (Linkable) responseContext.getEntity();
-            String location = r.getSelfLink();
+            URI location = null;
+            try {
+                location = new URI( r.getSelfLink());
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(LocationContextFilter.class.getName()).log(Level.SEVERE, null, ex);
+            }
             if( location != null) {
                 responseContext.getHeaders().add("Location", location);
             }

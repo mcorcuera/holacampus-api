@@ -22,11 +22,15 @@ import com.holacampus.api.domain.City;
 import com.holacampus.api.domain.GroupEvent;
 import com.holacampus.api.domain.GroupMember;
 import com.holacampus.api.domain.Permission;
+import com.holacampus.api.domain.University;
+import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.hal.HalList;
 import com.holacampus.api.mappers.CityMapper;
 import com.holacampus.api.mappers.GroupEventMapper;
 import com.holacampus.api.mappers.GroupMemberMapper;
+import com.holacampus.api.mappers.UniversityMapper;
+import com.holacampus.api.mappers.UserMapper;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.UserPrincipal;
@@ -97,7 +101,8 @@ public class MembersResource {
           try {
             GroupMemberMapper memberMapper  = session.getMapper( GroupMemberMapper.class);
             GroupEventMapper groupMapper    = session.getMapper( GroupEventMapper.class);
-            
+            UserMapper  userMapper          = session.getMapper( UserMapper.class);
+            UniversityMapper uniMapper      = session.getMapper( UniversityMapper.class);
             Permission groupPermission = new Permission();
             
            groupMapper.getPermissions( up.getId(), parent.getId(), groupPermission);
@@ -110,8 +115,21 @@ public class MembersResource {
             
             session.commit();
             
-            for( GroupMember member : memberList)
+            for( GroupMember member : memberList) {
                 member.setParent(parent);
+                Permission permissions = new Permission();
+                ActiveElement element = member.getMember();
+                
+                if( element.getType().equals( ActiveElement.TYPE_USER)) {
+                    User user = (User) element;
+                    userMapper.getPermissions( up.getId(), user.getId(), permissions);
+                    user.setPermission(permissions);
+                }else {
+                    University university = (University) element;
+                    uniMapper.getPermissions( up.getId(), university.getId(), permissions);
+                    university.setPermission(permissions);
+                }
+            }
             
             members = new HalList<GroupMember> ( memberList, total);
             members.setResourceRelativePath( uriInfo.getPath());
@@ -132,10 +150,10 @@ public class MembersResource {
     }
     
     @POST
-    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_NONE)
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
     @Produces( { RepresentationFactory.HAL_JSON})
-    public GroupMember createCity( ActiveElement ae, @Context UriInfo uriInfo, @Context SecurityContext sc) {
+    public GroupMember addMember( ActiveElement ae, @Context UriInfo uriInfo, @Context SecurityContext sc) {
         
         logger.info( "[POST] " + uriInfo.getPath());
         
@@ -156,7 +174,7 @@ public class MembersResource {
             
             // We must be members or owners, or we are adding ourselves
             if( !(groupPermission.getLevel().equals( Permission.LEVEL_MEMBER) || groupPermission.getLevel().equals( Permission.LEVEL_OWNER))
-                    && up.getId().equals( ae.getId()))
+                    && !up.getId().equals( ae.getId()))
                throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
             
             int result = memberMapper.addMember(parent, ae);
@@ -233,7 +251,7 @@ public class MembersResource {
             
             groupMapper.getPermissions( up.getId(), parent.getId(), groupPermission);
            
-            if( !groupPermission.getLevel().equals( Permission.LEVEL_OWNER))
+            if( !groupPermission.getLevel().equals( Permission.LEVEL_OWNER) && !up.getId().equals( id))
                 throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
             
             member = memberMapper.getMember(parent, id);

@@ -34,11 +34,8 @@ import javax.validation.constraints.Size;
  */
 
 @HalRootElement
-public class Photo implements Linkable{
+public class Photo extends Element implements Linkable{
     
-    @HalProperty( name="id")
-    private Long                id;
-   
     @HalProperty( name="creationDate")
     private Date                creationDate;
    
@@ -72,13 +69,6 @@ public class Photo implements Linkable{
     
     private String selfLink;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Date getCreationDate() {
         return creationDate;
@@ -162,7 +152,7 @@ public class Photo implements Linkable{
 
     @Override
     public String toString() {
-        return "Photo{" + "id=" + id + ", creationDate=" + creationDate + ", title=" + title + ", url=" + url + ", thumbnailUrl=" + thumbnailUrl + ", data=" + data + '}';
+        return "Photo{" + "id=" + getId() + ", creationDate=" + creationDate + ", title=" + title + ", url=" + url + ", thumbnailUrl=" + thumbnailUrl + ", data=" + data + '}';
     }
     
     @HalSelfLink

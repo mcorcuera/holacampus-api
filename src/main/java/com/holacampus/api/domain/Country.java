@@ -29,11 +29,8 @@ import javax.validation.constraints.Size;
  */
 
 @HalRootElement
-public class Country implements Linkable {
-    
-    @HalProperty( name="id")
-    private Long        id;
-    
+public class Country extends Element implements Linkable {
+        
     @CreationNeeded( message="{country.name.missing}")
     @Valid
     @Size( min=1, max=45, message="{country.name.wrong.size}")
@@ -45,13 +42,6 @@ public class Country implements Linkable {
     @HalProperty( name="location")
     private Location    location;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -72,7 +62,7 @@ public class Country implements Linkable {
     @Override
     @HalSelfLink
     public String getSelfLink() {
-        return Utils.createLink("/countries/" + id, null);
+        return Utils.createLink("/countries/" + getId(), null);
     }
     
     @HalLink( "cities")

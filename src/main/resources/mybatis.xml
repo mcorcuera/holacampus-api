@@ -11,6 +11,7 @@
         <setting name="callSettersOnNulls" value="true"/>
     </settings>
      <typeAliases>
+        <typeAlias type="com.holacampus.api.domain.Element"           alias="Element" />
         <typeAlias type="com.holacampus.api.domain.ActiveElement"           alias="ActiveElement" />
         <typeAlias type="com.holacampus.api.domain.User"                    alias="User" />
         <typeAlias type="com.holacampus.api.domain.University"              alias="University" />
@@ -31,6 +32,7 @@
         <typeAlias type="com.holacampus.api.domain.Conversation"            alias="Conversation"/>
         <typeAlias type="com.holacampus.api.domain.ConversationMember"      alias="ConversationMember"/>
         <typeAlias type="com.holacampus.api.domain.Message"                 alias="Message"/>
+        <typeAlias type="com.holacampus.api.domain.Activity"                alias="Activity"/>
     </typeAliases>
     
     <environments default="development">        
@@ -63,6 +65,7 @@
         <mapper resource="com/holacampus/mappers/GroupEventMapper.xml"/>
         <mapper resource="com/holacampus/mappers/GroupMemberMapper.xml"/>
         <mapper resource="com/holacampus/mappers/ConversationMapper.xml"/>
+        <mapper resource="com/holacampus/mappers/ActivityMapper.xml"/>
                                                  
     </mappers>
    

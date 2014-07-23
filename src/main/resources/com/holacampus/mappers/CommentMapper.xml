@@ -11,6 +11,7 @@
                      resultMap="com.holacampus.api.mappers.ActiveElementMapper.activeElementEmbeddedResult" />
     </resultMap>
     
+    
     <select id="getComments" parameterType="map" resultMap="commentResult">
         select	CO.CommentID 		as comment_id,
 		CO.Content		as comment_content,

@@ -264,4 +264,25 @@ public class User extends ActiveElement implements Linkable
             return getSelfLink() + "/stages";
         return null;
     }
+    
+    
+    @HalLink( "conversations")
+    public String getConversationsLink() {
+        return getSelfLink() + "/conversations";
+    }
+    
+    @HalLink( "conversationWithMe")
+    public String getConversationWithMeLink() {
+        return getSelfLink() + "/conversations/with-me";
+    }
+    
+    @HalLink( "groups")
+    public String getGroupsLink() {
+        return getSelfLink() + "/groups";
+    }
+    
+    @HalLink( "events")
+    public String getEventsLink() {
+        return getSelfLink() + "/events";
+    }
 }

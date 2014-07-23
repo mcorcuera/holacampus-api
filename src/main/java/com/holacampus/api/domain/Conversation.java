@@ -28,7 +28,7 @@ import java.util.List;
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 @HalRootElement
-public class Conversation implements Linkable{
+public class Conversation extends Element implements Linkable{
     
     /**
      *
@@ -39,10 +39,6 @@ public class Conversation implements Linkable{
      *
      */
     public static final String TYPE_INDIVIDUAL  = "INDIVIDUAL";
-    
-    
-    @HalProperty( name="id")
-    private Long                        id;
     
     @HalProperty( name="type")
     private String                      type;
@@ -64,14 +60,6 @@ public class Conversation implements Linkable{
     
     @HalEmbedded( "members")
     private List<ConversationMember>    members;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getType() {
         return type;
@@ -132,7 +120,7 @@ public class Conversation implements Linkable{
     @Override
     @HalSelfLink
     public String getSelfLink() {
-        return Utils.createLink( "/conversations/" + id, null);
+        return Utils.createLink( "/conversations/" + getId(), null);
     }
     
     @HalLink("messages")

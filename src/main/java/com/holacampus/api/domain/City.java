@@ -28,11 +28,8 @@ import javax.validation.constraints.Size;
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 @HalRootElement
-public class City implements Linkable{
-   
-    @HalProperty( name="id")
-    private Long        id;
-    
+public class City extends Element implements Linkable{
+       
     @CreationNeeded( message="{city.name.missing}")
     @Valid
     @Size( min=1, max=45, message="{city.name.wrong.size}")
@@ -45,15 +42,6 @@ public class City implements Linkable{
     
     @HalEmbedded( "country")
     private Country     country;
-    
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
     
     public Country getCountry() {
         return country;
@@ -84,7 +72,7 @@ public class City implements Linkable{
     @HalSelfLink
     public String getSelfLink() {
         if( country != null)
-            return country.getCitiesLink() + "/" + id;
+            return country.getCitiesLink() + "/" + getId();
         return null;
     }
     

@@ -29,11 +29,8 @@ import java.util.Date;
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 @HalRootElement
-public class Stage implements Linkable{
+public class Stage extends Element implements Linkable{
     
-   
-    @HalProperty( name="id")
-    private Long    id;
     @CreationNeeded
     @HalProperty( name="fromYear")
     private Integer     fromYear;
@@ -51,13 +48,6 @@ public class Stage implements Linkable{
     
     private String path;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public User getUser() {
         return user;

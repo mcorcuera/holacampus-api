@@ -19,6 +19,7 @@ package com.holacampus.api.domain;
 
 import com.holacampus.api.hal.Linkable;
 import com.holacampus.api.utils.Utils;
+import com.holacampus.api.validators.CreationNeeded;
 import com.theoryinpractise.halbuilder.jaxrs.*;
 import java.sql.Timestamp;
 
@@ -27,12 +28,11 @@ import java.sql.Timestamp;
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 @HalRootElement
-public class Message implements Linkable {
+public class Message extends Element implements Linkable {
     
-    @HalProperty( name="id")
-    private Long            id;
     @HalProperty( name="creationDate")
     private Timestamp       creationDate;
+    @CreationNeeded( message="{message.content.missing}")
     @HalProperty( name="content")
     private String          content;
 
@@ -41,14 +41,6 @@ public class Message implements Linkable {
     
     private Conversation    conversation;
     
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Conversation getConversation() {
         return conversation;
     }
@@ -84,7 +76,7 @@ public class Message implements Linkable {
     @Override
     @HalSelfLink
     public String getSelfLink() {
-        return Utils.createLink( conversation.getSelfLink() + "/messages/" + id, null);
+        return conversation.getSelfLink() + "/messages/" + getId();
     }
     
     

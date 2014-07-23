@@ -108,4 +108,30 @@ public class University extends ActiveElement implements Linkable{
     public String getStudiesLink() {
         return getSelfLink() + "/studies";
     }
+    
+    
+    @HalLink( "students")
+    public String getStudentsLink() {
+        return getSelfLink() + "/students";
+    }
+    
+    @HalLink( "conversations")
+    public String getConversationsLink() {
+        return getSelfLink() + "/conversations";
+    }
+    
+    @HalLink( "conversationWithMe")
+    public String getConversationWithMeLink() {
+        return getSelfLink() + "/conversations/with-me";
+    }
+    
+    @HalLink( "groups")
+    public String getGroupsLink() {
+        return getSelfLink() + "/groups";
+    }
+    
+    @HalLink( "events")
+    public String getEventsLink() {
+        return getSelfLink() + "/events";
+    }
 }

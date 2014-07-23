@@ -29,6 +29,14 @@
         <result column="photo_e_date"         property="creationDate" />
     </resultMap>
     
+    <resultMap id="photoEmbeddedResult2" type="Photo">
+        <id     column="photo2_e_id"           property="id" />
+        <result column="photo2_e_title"        property="title" />
+        <result column="photo2_e_url"          property="url" />
+        <result column="photo2_e_t_url"        property="thumbnailUrl" />
+        <result column="photo2_e_date"         property="creationDate" />
+    </resultMap>
+    
     <select id="getPhotos" parameterType="map" resultMap="photoResult">
         select	P.PhotoID               as photo_id,
                 P.Title                 as photo_title,

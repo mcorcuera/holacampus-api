@@ -22,6 +22,7 @@ import com.holacampus.api.domain.Permission;
 import com.holacampus.api.domain.PhotoContainer;
 import com.holacampus.api.domain.ProfilePhotoContainer;
 import com.holacampus.api.domain.University;
+import com.holacampus.api.domain.User;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
@@ -35,6 +36,12 @@ public interface UniversityMapper {
     public List<University>         getAllUniversities( @Param("q") String q, RowBounds rb) throws Exception;
     
     public List<University>         getAllUniversities( @Param("q") String q) throws Exception;
+    
+    public List<User>               getStudents( @Param("universityId") Long universityId, @Param("q") String q, RowBounds rb) throws Exception;
+    
+    public List<User>               getStudents( @Param("universityId") Long universityId, @Param("q") String q) throws Exception;
+    
+    public int                      getTotalStudents( @Param("universityId") Long universityId, @Param("q") String q) throws Exception;
     
     public int                      getTotalUniversities( @Param("q") String q) throws Exception;
     

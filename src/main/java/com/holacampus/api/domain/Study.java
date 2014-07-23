@@ -28,10 +28,7 @@ import javax.validation.constraints.Size;
  */
 
 @HalRootElement
-public class Study implements Linkable{
-    
-    @HalProperty( name="id")
-    private Long            id;
+public class Study extends Element implements Linkable{
     
     @CreationNeeded( message="{study.name.missing}")
     @Valid
@@ -48,13 +45,6 @@ public class Study implements Linkable{
     @HalEmbedded( "university")
     private University      university;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public University getUniversity() {
         return university;
@@ -84,7 +74,7 @@ public class Study implements Linkable{
     @HalSelfLink
     public String getSelfLink() {
         if( university != null)
-            return university.getSelfLink() + "/studies/" + id;
+            return university.getSelfLink() + "/studies/" + getId();
         return null;
     }
     

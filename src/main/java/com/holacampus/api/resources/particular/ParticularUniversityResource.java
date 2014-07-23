@@ -19,6 +19,7 @@ package com.holacampus.api.resources.particular;
 
 import com.holacampus.api.domain.City;
 import com.holacampus.api.domain.CommentContainer;
+import com.holacampus.api.domain.GroupEvent;
 import com.holacampus.api.domain.Permission;
 import com.holacampus.api.domain.PhotoContainer;
 import com.holacampus.api.domain.ProfilePhotoContainer;
@@ -27,6 +28,7 @@ import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.hal.HalList;
 import com.holacampus.api.mappers.CityMapper;
+import com.holacampus.api.mappers.GroupEventMapper;
 import com.holacampus.api.mappers.UniversityMapper;
 import com.holacampus.api.mappers.UserMapper;
 import com.holacampus.api.security.AuthenticationRequired;
@@ -34,6 +36,7 @@ import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.PermissionScheme;
 import com.holacampus.api.security.PermissionScheme.Action;
 import com.holacampus.api.security.UserPrincipal;
+import com.holacampus.api.subresources.ActiveElementConversationsResource;
 import com.holacampus.api.subresources.CommentsResource;
 import com.holacampus.api.subresources.PhotosResource;
 import com.holacampus.api.subresources.ProfilePhotoResource;
@@ -42,11 +45,14 @@ import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.holacampus.api.utils.Utils;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.Encoded;
 import javax.ws.rs.GET;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -202,6 +208,90 @@ public class ParticularUniversityResource {
         return new StudiesResource( university);
     }
     
+    @Path("/conversations")
+    public ActiveElementConversationsResource getConversationsResource()    
+    {
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+        University university;
+        try {            
+            UniversityMapper uniMapper  = session.getMapper( UniversityMapper.class);
+            university                  = uniMapper.getUniversity(id);
+            
+            if( university == null) {
+                throw new HTTPErrorException( Response.Status.NOT_FOUND, "University " + id + " not found");
+            }
+            
+            session.commit();            
+
+        } catch( Exception e) {
+            logger.error( e.toString());
+            throw new HTTPErrorException( Response.Status.NOT_FOUND, "University " + id + " not found");
+        } finally {
+            session.close();
+        }  
+        
+        return new ActiveElementConversationsResource( university);
+    }
+    @Path( "/{type:groups|events}")
+    @GET
+    @Produces( { RepresentationFactory.HAL_JSON})
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @Encoded
+    public HalList<GroupEvent> getGroupsEvents( @PathParam("type") String type, 
+            @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
+    {
+        page = Utils.getValidPage(page);
+        size = Utils.getValidSize(size);
+        if( q != null) {
+            q   = URLDecoder.decode(q, "UTF-8");
+        }
+        String elementType = null;
+        if( "groups".equals(type))
+            elementType = GroupEvent.TYPE_GROUP;
+        else
+            elementType = GroupEvent.TYPE_EVENT;
+        
+        RowBounds rb                = Utils.createRowBounds(page, size);
+        UserPrincipal up            = (UserPrincipal) sc.getUserPrincipal(); 
+        SqlSession session          = MyBatisConnectionFactory.getSession().openSession();
+        HalList<GroupEvent> groups  = null;
+        
+        try {            
+            GroupEventMapper mapper     = session.getMapper( GroupEventMapper.class);
+            UniversityMapper uniMapper  = session.getMapper( UniversityMapper.class);
+            
+            University uni = uniMapper.getUniversity(id);
+            if( uni == null)
+                throw new HTTPErrorException( Status.NOT_FOUND, "University not found");
+           
+            List<GroupEvent> groupList  = mapper.getGroupsEventsForActiveElement(elementType, q, id, rb);
+            int total                   = mapper.getTotalGroupsEventsForActiveElement(elementType, q, id);
+            session.commit();
+            
+            for( GroupEvent group : groupList) {
+                Permission permissions = new Permission();
+                mapper.getPermissions( up.getId(), group.getId(), permissions);
+                group.setPermission(permissions); 
+            }
+            
+            groups = new HalList( groupList, total);
+            
+            groups.setResourceRelativePath( uriInfo.getPath());
+            groups.setPage(page);
+            groups.setSize(size);
+            groups.setQuery(q);
+            
+        }catch( Exception e) {
+            logger.error( e.toString());
+            throw new InternalServerErrorException();
+        }
+        finally {
+            session.close();
+        }
+        
+        return groups;
+    }
+    
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -242,6 +332,60 @@ public class ParticularUniversityResource {
             session.close();
         }   
         return university;
+    }
+    
+    @Path("/students")
+    @GET
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @Produces( { RepresentationFactory.HAL_JSON})
+    @Encoded
+    public HalList<User> getStudents( @PathParam( "id") Long id,  @QueryParam("page") Integer page, 
+            @QueryParam( "size") Integer size, @QueryParam( "q") String q, 
+            @Context UriInfo uriInfo, @Context SecurityContext sc)  throws UnsupportedEncodingException
+    {
+        
+        logger.info( "[GET] " + uriInfo.getPath());
+        
+        HalList<User> users = null; 
+        
+        page = Utils.getValidPage(page);
+        size = Utils.getValidSize(size);
+        if( q != null) {
+            q   = URLDecoder.decode(q, "UTF-8");
+        }
+        RowBounds rb = Utils.createRowBounds(page, size);
+        UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+
+        try {
+            UniversityMapper mapper  = session.getMapper( UniversityMapper.class);
+            UserMapper userMapper   = session.getMapper( UserMapper.class);
+            List<User> usersList    = mapper.getStudents( id, q, rb);
+            int total               = mapper.getTotalStudents(id, q);
+            
+            for( User user : usersList) {
+                Permission permissions = new Permission();
+                userMapper.getPermissions( up.getId(), user.getId(), permissions);
+                user.setPermission(permissions);
+            }
+            
+            users = new HalList( usersList, total);
+            
+            users.setResourceRelativePath( uriInfo.getPath());
+            users.setPage(page);
+            users.setSize(size);
+            users.setQuery(q);
+            
+            session.commit();
+         }catch( HTTPErrorException e) {
+            throw e;
+        }catch( Exception e) {
+            logger.info( e);
+            throw new HTTPErrorException( Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        }finally {
+            session.close();
+        }
+        return users;
     }
     
     @Path( "/cities")

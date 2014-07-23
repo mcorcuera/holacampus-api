@@ -17,12 +17,13 @@
 
 package com.holacampus.api.domain;
 
-import com.holacampus.api.domain.Conversation;
+import com.holacampus.api.hal.Linkable;
 import com.holacampus.api.security.UserPrincipal;
+import com.holacampus.api.utils.Utils;
 import com.holacampus.api.validators.CreationNeeded;
 import com.theoryinpractise.halbuilder.jaxrs.HalEmbedded;
 import com.theoryinpractise.halbuilder.jaxrs.HalProperty;
-import java.util.List;
+import com.theoryinpractise.halbuilder.jaxrs.HalSelfLink;
 import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Email;
 
@@ -30,7 +31,7 @@ import org.hibernate.validator.constraints.Email;
  *
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
-public class ActiveElement {
+public class ActiveElement extends Element implements Linkable{
     
     /**
      *
@@ -41,10 +42,7 @@ public class ActiveElement {
      *
      */
     public static final String TYPE_UNI     = "UNI";
-    
-    @HalProperty( name="id")
-    private Long                id;
-    
+        
     @HalProperty( name="type")
     private String              type;
     
@@ -75,21 +73,6 @@ public class ActiveElement {
         email = u.getName();
     }
     
-    /**
-     *
-     * @return
-     */
-    public Long getId() {
-        return id;
-    }
-
-    /**
-     *
-     * @param id
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     /**
      *
@@ -131,6 +114,14 @@ public class ActiveElement {
 
     public void setProfilePhoto(Photo profilePhoto) {
         this.profilePhoto = profilePhoto;
+    }
+
+    @HalSelfLink
+    @Override
+    public String getSelfLink() {
+        if( ActiveElement.TYPE_USER.equals(type))
+            return Utils.createLink("/users/" + getId(), null);
+        return Utils.createLink("/universities/" + getId(), null); 
     }
 
     

@@ -16,4 +16,13 @@
             <case value="UNI" resultMap="com.holacampus.api.mappers.UniversityMapper.universityEmbeddedResult"/>
         </discriminator>
     </resultMap>
+    
+     <resultMap id="activeElementEmbeddedResult2" type="ActiveElement">
+        <id column="ae2_id"  property="id" />
+        <result column="ae2_type" property="type" />
+        <discriminator javaType="String" column="ae2_type">
+            <case value="USER" resultMap="com.holacampus.api.mappers.UserMapper.userEmbeddedResult2" />
+            <case value="UNI" resultMap="com.holacampus.api.mappers.UniversityMapper.universityEmbeddedResult2"/>
+        </discriminator>
+    </resultMap>
 </mapper>

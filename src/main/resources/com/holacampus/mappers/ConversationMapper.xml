@@ -12,6 +12,13 @@
         <collection column="ae_id" property="members" ofType="ConversationMember" resultMap="conversationMemberResult"/>
     </resultMap>
     
+      <resultMap id="plainConversationResult" type="Conversation">
+        <id column="conv_id" property="id" />
+        <result column="conv_type" property="type"/>
+        <result column="conv_name" property="name"/>
+        <result column="conv_creation" property="creationDate"/>
+    </resultMap>
+    
     <resultMap id="conversationMemberResult" type="ConversationMember">
         <id column="ae_id"/>
         <id column="conv_id" property="conversation.id"/>
@@ -27,6 +34,15 @@
         <association property="creator" column="ae_id" javaType="ActiveElement" 
                      resultMap="com.holacampus.api.mappers.ActiveElementMapper.activeElementEmbeddedResult" />
     </resultMap>
+    
+    <select id="getPlainConversation" parameterType="map" resultMap="plainConversationResult">
+          select  CO.ConversationID   as conv_id,
+                CO.Name             as conv_name,
+                CO.Type             as conv_type,
+                CO.CreationDate     as conv_date
+            from conversation CO
+            where CO.ConversationID = #{id}
+    </select>
     
     <select id="getConversation" parameterType="map" resultMap="conversationResult">
         
@@ -103,7 +119,13 @@
 		U.LastName		as user_lastname,
 
 		UN.UniversityID         as uni_id,
-		UN.Name			as uni_name
+		UN.Name			as uni_name,
+                
+                P2.PhotoID               as photo_e_id,
+                P2.Title                 as photo_e_title,
+                P2.Url                   as photo_e_url,
+                P2.ThumbnailUrl          as photo_e_t_url,
+                P2.CreationDate          as photo_e_date
         from conversation CO
             left join( 
                         select ConversationID, count(*) as total from conversation_has_active_element	
@@ -116,26 +138,43 @@
 				left join conversation_has_active_element M
 					on ME.ConversationID = M.ConversationID
 				where M.ActiveElementID = #{elementId} and ME.CreationDate > M.LastSeen
+                                group by ME.ConversationID  
                         ) MES
-            on CO.ConversationID = MES.ConversationID
+                on CO.ConversationID = MES.ConversationID
+            
+            left join ( select ConversationID, MAX(M.CreationDate) as last from message M group by ConversationID) LST
+                on CO.ConversationID = LST.ConversationID
         
             left join conversation_has_active_element M
                 on CO.ConversationID = M.ConversationID
+                
+            left join conversation_has_active_element M2
+                on M.ConversationID = M2.ConversationID
             
             left join active_element A
-                        on M.ActiveElementID = A.ActiveElementID
+                        on M2.ActiveElementID = A.ActiveElementID
             
             left join user U
                     on A.ActiveElementID = U.UserID 
             
             left join university UN
                     on A.ActiveElementID = UN.UniversityID
-        where M.ActiveElementID = #{elementId}
+            
+            left join profile_photo PP
+                    on U.UserID = PP.UserID or UN.UniversityID = PP.UniversityID
+            
+            left join photo P2
+                    on PP.PhotoID = P2.PhotoID
+        
+        where M.ActiveElementID = #{elementId} and CO.Type = 'INDIVIDUAL'
+        order by GREATEST( IFNULL(LST.last,0), CO.CreationDate) desc
     </select>
     
      <select id="getTotalConversationsForActiveElement" parameterType="map" resultType="int">
-        select count(*) from conversation_has_active_element 
-            WHERE ActiveElementID = #{elementId}
+        select count(*) from conversation_has_active_element ME
+                left join conversation CO
+                    on ME.ConversationID = CO.ConversationID
+            WHERE ME.ActiveElementID = #{elementId} and CO.Type = 'INDIVIDUAL'
     </select>
     
     <select id="isMemberOfConversation" parameterType="map" resultType="int">
@@ -175,7 +214,7 @@
                                 on CE1.ConversationID = CE2.ConversationID 
                                         and CE1.ActiveElementID <> CE2.ActiveElementID
                        ) P
-                on CO.ConversationID = P.Conver
+                on CO.ConversationID = P.ConversationID
             left join (select ConversationID, count(*) as total from conversation_has_active_element	
                     group by ConversationID) MET
 		ON CO.ConversationID = MET.ConversationID
@@ -215,15 +254,15 @@
             where ConversationID = #{id}
     </delete>
     
-    <insert id="cerateConversation" parameterType="map"  useGeneratedKeys="true" keyProperty="conversation.id">
+    <insert id="createConversation" parameterType="map"  useGeneratedKeys="true" keyProperty="conversation.id">
         insert into conversation (
             Type,
             CreationDate,
             Name
         )values(
-            conversation.type,
+            #{conversation.type},
             NOW(),
-            conversation.name
+            #{conversation.name}
         )
     </insert>
     
@@ -307,9 +346,9 @@
     </select>
     
     <select id="getLastMessages" parameterType="map" resultMap="messageResult">
-        select	ME.Message 		as message_id,
-		ME.Content		as comment_content,
-		ME.CreationDate 	as comment_date,
+        select	ME.MessageID 		as message_id,
+		ME.Content		as message_content,
+		ME.CreationDate 	as message_date,
 		ME.ConversationID       as conv_id,
         
 		A.ActiveElementID	as ae_id,
@@ -343,14 +382,14 @@
     </select>
     
     <select id="getTotalMessages" parameterType="map" resultType="int">
-        select count(*) from message
+        select count(*) from message ME
             where ME.ConversationID = #{conversation.id}
     </select>
     
     <select id="getMessage" parameterType="map" resultMap="messageResult">
-        select	ME.Message 		as message_id,
-		ME.Content		as comment_content,
-		ME.CreationDate 	as comment_date,
+        select	ME.MessageID 		as message_id,
+		ME.Content		as message_content,
+		ME.CreationDate 	as message_date,
 		ME.ConversationID       as conv_id,
         
 		A.ActiveElementID	as ae_id,
@@ -380,6 +419,7 @@
                 left join photo P2
                         on PP.PhotoID = P2.PhotoID
             where ME.ConversationID = #{conversation.id} and ME.MessageID = #{messageId}
+            
     </select>
     
     <insert id="sendMessage" parameterType="map"  useGeneratedKeys="true" keyProperty="message.id">

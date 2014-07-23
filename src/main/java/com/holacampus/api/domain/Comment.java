@@ -33,10 +33,8 @@ import java.util.Date;
  */
 
 @HalRootElement
-public class Comment implements Linkable{
+public class Comment extends Element implements Linkable{
     
-    @HalProperty( name="id")
-    private Long                id;
     
     @CreationNeeded( message="{comment.content.missing}")
     @HalProperty( name="content")
@@ -59,14 +57,7 @@ public class Comment implements Linkable{
     
     private String              selfLink;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
+  
     public String getContent() {
         return content;
     }
@@ -144,7 +135,7 @@ public class Comment implements Linkable{
 
     @Override
     public String toString() {
-        return "Comment{" + "id=" + id + ", content=" + content + ", isRecomment=" + isRecomment + ", creationDate=" + creationDate + ", creator=" + creator + '}';
+        return "Comment{" + "id=" + getId() + ", content=" + content + ", isRecomment=" + isRecomment + ", creationDate=" + creationDate + ", creator=" + creator + '}';
     }
     
     

@@ -4,6 +4,7 @@
     
     <resultMap id="groupeventResult" type="GroupEvent">
         <id column="group_id" property="id" />
+        <result column="group_name" property="name" />
         <result column="group_type" property="type" />
         <result column="group_description" property="description"/>
         <result column="group_creation_date" property="creationDate"/>
@@ -14,9 +15,17 @@
         <result column="group_creator" property="creator.id"/>
         <result column="group_creator_type" property="creator.type"/>
         <association property="groupPhoto" column="photo_id" javaType="Photo"
-            resultMap="com.holacampus.api.mappers.PhotoMapper.photoEmbeddedResult"/>
+            resultMap="groupPhotoResult"/>
         <association property="city" javaType="City" column="city_id"
                     resultMap="com.holacampus.api.mappers.CityMapper.cityResult"/>
+    </resultMap>
+    
+      <resultMap id="groupPhotoResult" type="Photo">
+        <id     column="g_photo_id"           property="id" />
+        <result column="g_photo_title"        property="title" />
+        <result column="g_photo_url"          property="url" />
+        <result column="g_photo_t_url"        property="thumbnailUrl" />
+        <result column="g_photo_date"         property="creationDate" />
     </resultMap>
     
     <!--
@@ -31,6 +40,7 @@
     
     <select id="getGroupsEvents" parameterType="map" resultMap="groupeventResult">
         select  GE.GroupEventID         as group_id,
+                GE.Name                 as group_name,
                 GE.Type                 as group_type,
                 GE.Description          as group_description,
                 GE.CreationDate         as group_creation_date,
@@ -42,11 +52,11 @@
                 A.ActiveElementID	as group_creator,
 		A.Type			as group_creator_type,
 		        
-                GP.PhotoID               as photo_e_id,
-                GP.Title                 as photo_e_title,
-                GP.Url                   as photo_e_url,
-                GP.ThumbnailUrl          as photo_e_t_url,
-                GP.CreationDate          as photo_e_date,
+                GP.PhotoID               as g_photo_id,
+                GP.Title                 as g_photo_title,
+                GP.Url                   as g_photo_url,
+                GP.ThumbnailUrl          as g_photo_t_url,
+                GP.CreationDate          as g_photo_date,
                 
                 CI.CityID               as city_id,
                 CI.Name                 as city_name,
@@ -68,6 +78,52 @@
                 AND GE.Name like #{q}
                 order by GE.CreationDate desc
         </if>
+        order by GE.EventDate asc, GE.CreationDate desc
+    </select>
+    
+    <select id="getGroupsEventsForActiveElement" parameterType="map" resultMap="groupeventResult">
+        select  GE.GroupEventID         as group_id,
+                GE.Name                 as group_name,
+                GE.Type                 as group_type,
+                GE.Description          as group_description,
+                GE.CreationDate         as group_creation_date,
+                GE.EventDate            as group_date,
+                GE.PlaceName            as group_location_name,
+                GE.Latitude             as group_latitude,
+                GE.Longitude            as group_longitude,
+                
+                A.ActiveElementID	as group_creator,
+		A.Type			as group_creator_type,
+		        
+                GP.PhotoID               as g_photo_id,
+                GP.Title                 as g_photo_title,
+                GP.Url                   as g_photo_url,
+                GP.ThumbnailUrl          as g_photo_t_url,
+                GP.CreationDate          as g_photo_date,
+                
+                CI.CityID               as city_id,
+                CI.Name                 as city_name,
+                CI.Latitude             as city_latitude,
+                CI.Longitude            as city_longitude,
+        
+                CI.CountryID            as country_id
+        from group_event GE
+            left join group_event_has_member ME
+                on GE.GroupEventID = ME.GroupEventID
+            inner join active_element A
+                on GE.ActiveElementID = A.ActiveElementID
+            inner join profile_photo PP
+                on GE.GroupEventID = PP.GroupEventID
+            left join photo GP
+                on PP.PhotoID = GP.PhotoID
+            left join city CI
+                on GE.CityID = CI.CityID and GE.CountryID = CI.CountryID
+        where GE.Type = #{type} and ( ME.ActiveElementID = #{elementId} or GE.ActiveElementID = #{elementId})
+         <if test="q != null">
+                AND GE.Name like #{q}
+        </if>
+        
+        order by GE.EventDate asc, GE.CreationDate desc
     </select>
     
     <select id="getTotalGroupsEvents" parameterType="map" resultType="int">
@@ -83,8 +139,24 @@
         
     </select>
     
+    <select id="getTotalGroupsEventsForActiveElement" parameterType="map" resultType="int">
+        select  count( GE.GroupEventID)
+               
+        from group_event GE
+            left join group_event_has_member ME
+                on GE.GroupEventID = ME.GroupEventID
+           
+        where GE.Type = #{type} and ( ME.ActiveElementID = #{elementId} or GE.ActiveElementID = #{elementId})
+         <if test="q != null">
+                AND GE.Name like #{q}
+                order by GE.CreationDate desc
+        </if>
+        
+    </select>
+    
     <select id="getGroupEvent" parameterType="map" resultMap="groupeventResult">
         select  GE.GroupEventID         as group_id,
+                GE.Name                 as group_name,
                 GE.Type                 as group_type,
                 GE.Description          as group_description,
                 GE.CreationDate         as group_creation_date,
@@ -96,11 +168,11 @@
                 A.ActiveElementID	as group_creator,
 		A.Type			as group_creator_type,
 		        
-                GP.PhotoID               as photo_e_id,
-                GP.Title                 as photo_e_title,
-                GP.Url                   as photo_e_url,
-                GP.ThumbnailUrl          as photo_e_t_url,
-                GP.CreationDate          as photo_e_date,
+                GP.PhotoID               as g_photo_id,
+                GP.Title                 as g_photo_title,
+                GP.Url                   as g_photo_url,
+                GP.ThumbnailUrl          as g_photo_t_url,
+                GP.CreationDate          as g_photo_date,
                 
                 CI.CityID               as city_id,
                 CI.Name                 as city_name,

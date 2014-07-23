@@ -19,8 +19,17 @@
         <id     column="user_id" property="id" />
         <result column="user_firstname"  property="name.firstName" />
         <result column="user_lastname"   property="name.lastName" /> 
-        <association property="profilePhoto" column="photo_id" javaType="Photo"
+        <association property="profilePhoto" column="photo2_e_id" javaType="Photo"
             resultMap="com.holacampus.api.mappers.PhotoMapper.photoEmbeddedResult"/>
+    </resultMap>
+    
+     
+    <resultMap id="userEmbeddedResult2" type="User">
+        <id     column="user_id" property="id" />
+        <result column="user_firstname"  property="name.firstName" />
+        <result column="user_lastname"   property="name.lastName" /> 
+        <association property="profilePhoto" column="photo2_e_id" javaType="Photo"
+            resultMap="com.holacampus.api.mappers.PhotoMapper.photoEmbeddedResult2"/>
     </resultMap>
     
     <select id="getAllUsers" parameterType="map" resultMap="userResult">
@@ -81,11 +90,13 @@
                 on PP.PhotoID = P.PhotoID
             left join(
 		select SenderID, count(*) as total from user_has_friend F
+                where F.Status = 'CONFIRMED'
 		group by SenderID
 		) Sended
 		on U.UserID = SenderID
             left join(
                     select ReceiverID, count(*) as total FROM user_has_friend F
+                    where F.Status = 'CONFIRMED'
                     group by ReceiverID) Received
             on U.UserID = ReceiverID
             where U.UserID = #{id}
