@@ -100,6 +100,91 @@
         where M.GroupEventID = #{parent.id} and M.ActiveElementID = #{memberId}
     </select>
     
+    <select id="getEligibles" parameterType="map" resultMap="com.holacampus.api.mappers.ActiveElementMapper.activeElementEmbeddedResult">
+            select A.ActiveElementID	as ae_id,
+                            A.Type			as ae_type,
+
+                            U.UserID		as user_id,
+                            U.FirstName		as user_firstname,
+                            U.LastName		as user_lastname,
+
+                            UN.UniversityID         as uni_id,
+                            UN.Name			as uni_name,
+                
+                P2.PhotoID               as photo_e_id,
+                P2.Title                 as photo_e_title,
+                P2.Url                   as photo_e_url,
+                P2.ThumbnailUrl          as photo_e_t_url,
+                P2.CreationDate          as photo_e_date
+
+                from (select F.ReceiverID as MemberID 
+                    from user_has_friend F
+                            where F.Status = 'CONFIRMED' 
+                                    and  F.SenderID = #{currentId} 
+                    union all
+                    
+                    select F.SenderID as MemberID 
+                    from user_has_friend F
+                            where F.Status = 'CONFIRMED' 
+                                    and  F.ReceiverID = #{currentId}   
+                    union all
+        
+                    select distinct ST.UniversityID as MemberID 
+                    from stage ST
+                            where ST.UserID = #{currentId}
+
+                    union all
+
+                    select distinct ST.UserID as MemberID 
+                    from stage ST
+                            where ST.UniversityID = #{currentId}) Members
+                left join active_element A
+                                on Members.MemberID = A.ActiveElementID
+                left join user U
+                                on A.ActiveElementID = U.UserID 
+                left join university UN
+                                on A.ActiveElementID = UN.UniversityID
+                left join profile_photo PP
+                                on U.UserID = PP.UserID or UN.UniversityID = PP.UniversityID
+                left join photo P2
+                                on PP.PhotoID = P2.PhotoID
+                where not exists (
+                        select null from group_event_has_member GE
+                            where GE.ActiveElementID = Members.MemberID and GE.GroupEventID = #{parent.id}
+                )
+        
+    </select>
+    
+    <select id="getTotalEligibles" parameterType="map" resultType="int" >
+        select count(*)
+
+                from (select F.ReceiverID as MemberID 
+                    from user_has_friend F
+                            where F.Status = 'CONFIRMED' 
+                                    and  F.SenderID = #{currentId} 
+                    union all
+                    
+                    select F.SenderID as MemberID 
+                    from user_has_friend F
+                            where F.Status = 'CONFIRMED' 
+                                    and  F.ReceiverID = #{currentId}   
+                    union all
+        
+                    select distinct ST.UniversityID as MemberID 
+                    from stage ST
+                            where ST.UserID = #{currentId}
+
+                    union all
+
+                    select distinct ST.UserID as MemberID 
+                    from stage ST
+                            where ST.UniversityID = #{currentId}) Members
+                where not exists (
+                        select null from group_event_has_member GE
+                            where GE.ActiveElementID = Members.MemberID and GE.GroupEventID = #{parent.id}
+                )
+    </select>
+    
     <insert id="addMember" parameterType="map">
         insert into group_event_has_member (
             GroupEventID,

@@ -23,6 +23,7 @@
                 <case value="PHOTO" resultMap="photoWhatResult"/>
                 <case value="EVENT_CREATION" resultMap="groupeventWhatResult" />
                 <case value="GROUP_CREATION" resultMap="groupeventWhatResult" />
+                <case value="MEMBERSHIP" resultMap="groupeventWhatResult" />
                 <case value="FRIENDSHIP" resultMap="userWhatResult"/>
                 <case value="STAGE_ADDED" resultMap="stageWhatResult"/>
                 <case value="NULL" resultMap="emptyResult"/>
@@ -264,7 +265,9 @@
 			and Activity.WhatType = 'PHOTO'
 	left join group_event WhatGE
 		on Activity.WhatID = WhatGE.GroupEventID 
-			and ( Activity.WhatType = 'GROUP_CREATION' or Activity.WhatType = 'EVENT_CREATION')
+			and ( Activity.WhatType = 'GROUP_CREATION' 
+                            or Activity.WhatType = 'EVENT_CREATION' 
+                            or Activity.WhatType = 'MEMBERSHIP' )
 	left join stage WhatST
 		on Activity.WhatID = WhatST.StageID
 			and Activity.WhatType = 'STAGE_ADDED'

@@ -195,6 +195,61 @@ public class MembersResource {
         return member;
     }
     
+    @Path("/eligible")
+    @GET
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @Produces( { RepresentationFactory.HAL_JSON})
+    @Encoded
+    public HalList<ActiveElement> getStudents( @QueryParam("page") Integer page, 
+            @QueryParam( "size") Integer size,
+            @Context UriInfo uriInfo, @Context SecurityContext sc)  throws UnsupportedEncodingException
+    {
+        
+        logger.info( "[GET] " + uriInfo.getPath());
+        
+        HalList<ActiveElement> eligibles = null; 
+        
+        page = Utils.getValidPage(page);
+        size = Utils.getValidSize(size);
+        RowBounds rb = Utils.createRowBounds(page, size);
+        
+        UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
+        SqlSession session = MyBatisConnectionFactory.getSession().openSession();
+
+        try {
+            GroupMemberMapper memberMapper  = session.getMapper( GroupMemberMapper.class);
+            GroupEventMapper groupMapper    = session.getMapper( GroupEventMapper.class);
+            
+            Permission groupPermission = new Permission();
+            
+            groupMapper.getPermissions( up.getId(), parent.getId(), groupPermission);
+            
+            // We must be members or owners, or we are adding ourselves
+            if( !(groupPermission.getLevel().equals( Permission.LEVEL_MEMBER) 
+                    || groupPermission.getLevel().equals( Permission.LEVEL_OWNER)))
+               throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
+            
+            List<ActiveElement> eligibleList    = memberMapper.getEligibles(parent, up.getId(), rb);
+            int total                           = memberMapper.getTotalEligibles(parent, up.getId());
+            
+            eligibles = new HalList( eligibleList, total);
+            
+            eligibles.setResourceRelativePath( uriInfo.getPath());
+            eligibles.setPage(page);
+            eligibles.setSize(size);
+            
+            session.commit();
+         }catch( HTTPErrorException e) {
+            throw e;
+        }catch( Exception e) {
+            logger.info( e);
+            throw new HTTPErrorException( Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        }finally {
+            session.close();
+        }
+        return eligibles;
+    }
+    
     @Path( "{id}")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)

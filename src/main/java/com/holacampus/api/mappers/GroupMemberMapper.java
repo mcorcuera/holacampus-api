@@ -37,6 +37,12 @@ public interface GroupMemberMapper {
     
     public int getTotalMembers( @Param("parent") GroupEvent parent, @Param("q") String q) throws Exception;
     
+    public List<ActiveElement> getEligibles( @Param("parent") GroupEvent parent, @Param("currentId") Long currentId, RowBounds rb) throws Exception;
+    
+    public List<ActiveElement> getEligibles( @Param("parent") GroupEvent parent, @Param("currentId") Long currentId) throws Exception;
+    
+    public int getTotalEligibles( @Param("parent") GroupEvent parent, @Param("currentId") Long currentId) throws Exception;
+    
     public GroupMember getMember( @Param("parent") GroupEvent parent, @Param("memberId") Long memberId) throws Exception;
     
     public int addMember( @Param("parent") GroupEvent parent, @Param("activeElement") ActiveElement activeElement ) throws Exception;

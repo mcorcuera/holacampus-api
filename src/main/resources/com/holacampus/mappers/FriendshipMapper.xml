@@ -130,7 +130,8 @@
        
     <update id="acceptFriend" parameterType="map">
         update user_has_friend
-        set Status = 'CONFIRMED'
+        set Status = 'CONFIRMED',
+            StatusChangeDate = NOW()
             where (SenderID = #{currentUserId} AND ReceiverID = #{friendId})
                      OR (SenderID = #{friendId}) AND ReceiverID = #{currentUserId}
     </update>

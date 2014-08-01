@@ -179,15 +179,14 @@ public class ProfilePhotoResource {
             if( profilePhotoContainer.getPhoto() == null) {
                 return;
             }
-            
             photo = photoMapper.getPhoto( profilePhotoContainer.getPhoto().getId());
-            
+            logger.info("1");
             long photoContainerId = photoMapper.getPhotoContainerId( photo.getId());
             
             Permission permission = new Permission();
-            
+            logger.info("2");
             containerMapper.getPermissions( up.getId(), photoContainerId, permission);
-            
+            logger.info("3");
             if( !permission.getLevel().equals( Permission.LEVEL_OWNER) &&  !permission.getLevel().equals( Permission.LEVEL_PARENT_OWNER)) {
                 throw new HTTPErrorException( Status.FORBIDDEN, "You must own the element");
             }
