@@ -21,7 +21,10 @@ import java.security.Principal;
 import javax.ws.rs.core.SecurityContext;
 
 /**
- *
+ * Esta clase implementa a {@link SecurityContext} y es utilizada para proveer
+ * de los datos de autenticación a las funciones que se encargan de gestionar las 
+ * peticiones a la API para que tengan información sobre el usuario que realiza
+ * la petición.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public final class MySecurityContext implements SecurityContext{
@@ -30,30 +33,43 @@ public final class MySecurityContext implements SecurityContext{
     private final String            authenticationScheme;
     private final boolean           secure;
     
-    
+    /**
+     * Crea una nueva instancia de la clase.
+     * @param principal Usuario autenticado
+     * @param scheme Esquema usado para la autenticación
+     * @param secure Indica si la conexión es segura
+     */
     public MySecurityContext( UserPrincipal principal, String scheme, boolean secure)
     {
         this.userPrincipal = principal;
         this.authenticationScheme = scheme;
         this.secure = secure;
     }
-    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Principal getUserPrincipal() {
         return userPrincipal;
     }
     
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isUserInRole(String role) {
         return role.equals( userPrincipal.getRole());
     }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isSecure() {
         return secure;
     }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getAuthenticationScheme() {
         return authenticationScheme;

@@ -22,10 +22,18 @@ import org.apache.ibatis.annotations.Param;
 
 /**
  *
+ * Mapper para la clase {@link CommentContainerMapper}
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 public interface CommentContainerMapper {
     
+    /**
+     * Obtiene los permisos de un usuario sobre un contenedor de comentarios en concreto
+     * @param userId Identificador del usuario o universidad
+     * @param containerId Identificador del contenedor
+     * @param permission Permisos que tiene el usuario sobre el elemento
+     * @throws Exception
+     */
     public void getPermissions(  @Param("userId") Long userId, @Param("containerId") Long containerId, @Param("permission") Permission permission) throws Exception;
 
     

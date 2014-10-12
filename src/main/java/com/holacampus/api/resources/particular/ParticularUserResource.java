@@ -32,7 +32,7 @@ import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.PermissionScheme;
 import com.holacampus.api.security.PermissionScheme.Action;
 import com.holacampus.api.security.UserPrincipal;
-import com.holacampus.api.subresources.ActiveElementConversationsResource;
+import com.holacampus.api.subresources.ConversationsResource;
 import com.holacampus.api.subresources.CommentsResource;
 import com.holacampus.api.subresources.FriendsResource;
 import com.holacampus.api.subresources.PhotosResource;
@@ -103,7 +103,7 @@ public class ParticularUserResource {
     private SecurityContext sc;
     
     @Path("/{id}/comments")
-    public CommentsResource getCommentResource( @PathParam("id") long id) 
+    public CommentsResource getCommentsResource( @PathParam("id") long id) 
     {
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
         CommentContainer c;
@@ -222,7 +222,7 @@ public class ParticularUserResource {
     }
     
     @Path( "/{id}/conversations")
-    public ActiveElementConversationsResource getConversationsResource( @PathParam("id") Long id)
+    public ConversationsResource getConversationsResource( @PathParam("id") Long id)
     {
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
         User user = null;
@@ -241,7 +241,7 @@ public class ParticularUserResource {
             session.close();
         }
 
-        return new ActiveElementConversationsResource( user);
+        return new ConversationsResource( user);
     }
     
     @Path( "/{id}/{type:groups|events}")

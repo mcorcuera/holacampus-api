@@ -23,13 +23,34 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
 /**
- *
+ * Mapper para la clase {@link Activity}
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public interface ActivityMapper {
     
+    /**
+     * Obtiene la actividad reciente para un usuario o universidad determinado
+     * @param elementId Identificador del usuario o universidad
+     * @return Lista con la actividad reciente del usuario
+     * @throws Exception
+     */
     public List<Activity> getActivity( @Param( "elementId") Long elementId) throws Exception;
+
+    /**
+      Obtiene la actividad reciente para un usuario o universidad determinado
+     * @param elementId Identificador del usuario o universidad
+     * @param rb Limites (inicio y tamaño) del resultado
+     * @return Lista con la actividad reciente del usuario.
+     * @throws Exception
+     */
     public List<Activity> getActivity( @Param( "elementId") Long elementId, RowBounds rb) throws Exception;
+
+    /**
+     * Obtiene la cantidad total de actividad reciente de un usuario o universidad
+     * @param elementId Identificador del usuario o universidad
+     * @return Cantidad de actividad reciente
+     * @throws Exception
+     */
     public int getTotalActivity( @Param( "elementId") Long elementId) throws Exception;
     
 }

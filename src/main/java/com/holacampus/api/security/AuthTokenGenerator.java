@@ -20,18 +20,30 @@ package com.holacampus.api.security;
 import org.apache.commons.lang.RandomStringUtils;
 
 /**
- *
+ * Esta clase se encarga de generar un nuevo token aleatorio de un tamaño especificado
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class AuthTokenGenerator {
     
+    /**
+     * Tamaño por defecto del token
+     */
     public static final int DEFAULT_SIZE = 48;
     
+    /**
+     * Genera un token aleatorio del tamaño especificado
+     * @param size Tamaño del token
+     * @return Token (cadena de caracteres aleatorios)
+     */
     public static String getAuthToken( int size)
     {
         return RandomStringUtils.random( size, true, true);
     }
     
+    /**
+     *Genera un token aleatorio del tamaño por defecto
+     * @return Token (cadena de caracteres aleatorios)
+     */
     public static String getAuthToken()
     {
         return getAuthToken( DEFAULT_SIZE);

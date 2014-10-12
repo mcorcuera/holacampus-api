@@ -18,7 +18,7 @@
 package com.holacampus.api.security;
 
 /**
- *
+ * Excepción lanzada cuando hay un error de autenticación
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class AuthenticationFailException extends Exception{

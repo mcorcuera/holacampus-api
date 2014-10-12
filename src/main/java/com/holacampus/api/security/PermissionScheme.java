@@ -22,14 +22,67 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * Esta clase se encarga de gestionar los permisos necesarios para actucar sobre
+ * cada recurso.
+ * 
+ * <p>
+ * Así, permite definir permisos dependiendo del método HTTP que se pretende ejecutar
+ * sobre el recurso (GET, POST, PUT, DELETE) y dependiendo de si se trata de un recurso
+ * individual o de una colección de recursos
+ * </p>
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public final class PermissionScheme {
     
+    /**
+     * Acción sobre el recurso
+     */
     public enum Action {
-        GET_UNIQUE, POST_UNIQUE, PUT_UNIQUE, DELETE_UNIQUE,
-        GET_MULTIPLE, POST_MULTIPLE, PUT_MULTIPLE, DELETE_MULTIPLE
+
+        /**
+         * Petición GET sobre un recurso individual
+         */
+        GET_UNIQUE,
+
+        /**
+         * Petición POST sobre un recurso individual
+         */
+        POST_UNIQUE,
+
+        /**
+         * Petición PUT sobre un recurso individual
+         */
+        PUT_UNIQUE,
+
+        /**
+        * Petición DELETE sobre un recurso individual
+
+         */
+        DELETE_UNIQUE,
+
+        /**
+        * Petición GET sobre una colección de recursos
+
+         */
+        GET_MULTIPLE,
+
+        /**
+        * Petición POST sobre una colección de recursos
+        *
+         */
+        POST_MULTIPLE,
+
+        /**
+        * Petición PUT sobre una colección de recursos
+        *
+         */
+        PUT_MULTIPLE,
+
+        /**
+        * Petición DELETE una colección de recursos
+        *
+         */
+        DELETE_MULTIPLE
     }
     
     private static Map<String,Integer> levels = new HashMap<String,Integer>();
@@ -45,10 +98,19 @@ public final class PermissionScheme {
     
     private Map<Action,String> permissions;
     
+    /**
+     * Crea una nueva instancia del objeto.
+     */
     public PermissionScheme() {
         permissions = new HashMap<Action,String>();
     }
     
+    /**
+     * Añade un permiso al esquema de permisos del recurso
+     * @param action Acción sobre la que se define el permiso
+     * @param level Nivel de autenticación requerido.
+     * @return
+     */
     public PermissionScheme addPermissionScheme( Action action, String level) 
     {
         if( permissions.get( action) != null)
@@ -59,11 +121,23 @@ public final class PermissionScheme {
         return this;
     }
     
+    /**
+     * Obtiene el nivel de autenticación requerido para realizar la acción sobre
+     * el recurso
+     * @param action Acción a realizar
+     * @return El nivel de autenticación requerido
+     */
     public String getPermissionLevel( Action action)
     {
         return permissions.get( action);
     }
     
+    /**
+     * Comprueba si una acción está permitida para un cierto nivel de permisos
+     * @param action Acción a realizar
+     * @param permission Permisos del usuario
+     * @return true si tiene permisos, false si no
+     */
     public boolean isAllowed( Action action, String permission)
     {
         String requiredPermission = permissions.get( action);

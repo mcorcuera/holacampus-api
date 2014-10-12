@@ -20,7 +20,7 @@ package com.holacampus.api.security;
 import java.security.Principal;
 
 /**
- *
+ * Esta clase contiene los datos del usuario que realiza la petición.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public final class UserPrincipal implements Principal{
@@ -29,6 +29,13 @@ public final class UserPrincipal implements Principal{
     private final Long    id;
     private final String  role;
     
+    /**
+     * Crea una nueva instancia a partir del nombre de usuario (email), el id
+     * y el rol de este
+     * @param name
+     * @param id
+     * @param role
+     */
     public UserPrincipal( String name, Long id, String role)
     {
         this.name   = name;
@@ -42,11 +49,19 @@ public final class UserPrincipal implements Principal{
          return name;
     }
     
+    /**
+     * Obtiene el id del usuario
+     * @return
+     */
     public Long getId()
     {
         return id;
     }
     
+    /**
+     * Obtiene el rol del usuario
+     * @return
+     */
     public String getRole()
     {
         return role;

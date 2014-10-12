@@ -17,20 +17,36 @@
 
 package com.holacampus.api.security;
 
-import com.holacampus.api.domain.User;
 import javax.ws.rs.core.MultivaluedMap;
 
 /**
- *
+ * Esta interfaz provee de métodos usados para la autenticación de las peticiones
+ * del cliente para un tipo de autenticación.
+ * <p>
+ * Las clases que la implementer deberán proveer la lógica necesaria para autenticar
+ * las peticiones del cliente (conexión con base de datos, comprobación de credenciales, etc.)
+ * y devolver los credenciales del usuario.
+ * </p>
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public interface Authenticator {
       
-    public static final int OK          = 0;
-    public static final int AUTH_FAIL   = 401;
-    public static final int BAD_SINTAX  = 409;
-    
+    /**
+     * Esta función se encarga de comprobar si una petición está autenticada por un
+     * método en concreto a partir de la cabecera de ésta.
+     * 
+     * @param headers Cabeceras HTTP de la petición
+     * @return Devuelve los credenciales del usario autenticado
+     * @throws AuthenticationFailException Cuando los credenciales de usuario no están 
+     * presentes o no son correctos
+     * @throws AuthenticationBadSintaxException Cuando las cabeceras necesarias para la petición
+     * tienen un formato incorrecto
+     */
     public UserPrincipal authenticate( MultivaluedMap<String,String> headers) throws AuthenticationFailException, AuthenticationBadSintaxException;
     
+    /**
+     * Devuelve el identificador del tipo de autenticación que implementa la clase
+     * @return Identificador del tipo de autenticación que implementa la clase
+     */
     public String getScheme();
 }

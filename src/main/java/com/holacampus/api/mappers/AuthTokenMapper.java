@@ -20,20 +20,49 @@ package com.holacampus.api.mappers;
 import com.holacampus.api.domain.AuthToken;
 import org.apache.ibatis.annotations.Param;
 
-/**
- *
+/**Mapper para la clase {@link Activity}
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public interface AuthTokenMapper {
     
-    
+    /**
+     * Almacena un token de autenticación en la base de datos
+     * @param auth Token a almacenar
+     * @param id id del {@link ActiveElement} al que pertenece el token
+     * @return La cantidad de elementos insertados
+     * @throws Exception
+     */
     public int storeAuthToken( @Param("auth") AuthToken auth, @Param( "id") Long id) throws Exception;
     
+    /**
+     * Obtiene el token de autenticación a partir de su id
+     * @param id id del token de autenticación
+     * @return Token de autenticación
+     * @throws Exception
+     */
     public AuthToken getAuthToken( String id) throws Exception;
     
+    /**
+     * Obtiene el token de autenticación y los datos del elemento al que esta asociado
+     * @param id id del token de autenticación
+     * @return Token de autenticación.
+     * @throws Exception
+     */
     public AuthToken getAuthTokenAndCredentials( String id) throws Exception;
     
+    /**
+     * Elimina el token de autenticación
+     * @param id Identificador del token de autenticación
+     * @return Número de elementos eliminados
+     * @throws Exception
+     */
     public int deleteAuthToken( String id) throws Exception;
     
+    /**
+     * Elimina todos los tokens de autenticación de un usuario
+     * @param id Indentificador del usuario
+     * @return Número de elementos eliminados
+     * @throws Exception
+     */
     public int deleteAllElementTokens( Long id) throws Exception;
 }

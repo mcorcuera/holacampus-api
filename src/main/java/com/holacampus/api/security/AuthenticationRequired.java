@@ -23,7 +23,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
+ * Anotación utilizada para especificar la autenticación requerida
+ * por los métodos que gestionan las peticiones a la API
+ * 
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 
@@ -31,5 +33,9 @@ import java.lang.annotation.Target;
 @Target( ElementType.METHOD)
 public @interface AuthenticationRequired {
     
+    /**
+     * Nombre de la autenticación requerida
+     * @return
+     */
     String value();
 }

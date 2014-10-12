@@ -48,14 +48,14 @@ import org.apache.log4j.Logger;
  *
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
-public class ActiveElementConversationsResource {
+public class ConversationsResource {
     
-    private static final Logger logger = LogManager.getLogger( ActiveElementConversationsResource.class.getName());
+    private static final Logger logger = LogManager.getLogger( ConversationsResource.class.getName());
 
     
     private ActiveElement activeElement;
     
-    public ActiveElementConversationsResource ( ActiveElement e)
+    public ConversationsResource ( ActiveElement e)
     {
         this.activeElement = e;
     }

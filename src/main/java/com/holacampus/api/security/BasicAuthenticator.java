@@ -31,7 +31,15 @@ import org.apache.log4j.Logger;
 import org.glassfish.jersey.internal.util.Base64;
 
 /**
- *
+ * Esta clase implementa la interfaz {@link Authenticator} y provee la lógica para
+ * autenticar las peticiones que deben ser autenticadas con el esquema de autenticación 
+ * <a href="http://tools.ietf.org/html/rfc2617">basico</a>
+ * 
+ * <p>
+ * Para ello analiza la cabecera Basic de la petición para obtener de esta el nombre
+ * de usuario y la contraseña que deberán ser comprobados con los datos almacenados en el
+ * servidor.
+ * </p>
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public final class BasicAuthenticator implements Authenticator{
@@ -41,6 +49,10 @@ public final class BasicAuthenticator implements Authenticator{
     private static final String AUTHENTICATION_HEADER = "Authorization";
     private static final String SCHEME = "[Bb]asic";
     
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final UserPrincipal authenticate(MultivaluedMap<String, String> headers) throws AuthenticationFailException, AuthenticationBadSintaxException
     {
@@ -124,7 +136,10 @@ public final class BasicAuthenticator implements Authenticator{
         
         return credentials;
     }
-
+  
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final String getScheme() {
         return AuthenticationScheme.AUTHENTICATION_SCHEME_BASIC;

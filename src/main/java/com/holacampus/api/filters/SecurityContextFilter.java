@@ -40,7 +40,28 @@ import org.apache.log4j.Logger;
 import org.glassfish.jersey.server.ExtendedUriInfo;
 
 /**
- *
+ * Esta clase se encarga de filtrar todas las peticiones a la API de holacampus
+ * y gestionar la autenticación de estas.
+ * <p>
+ * Para ello hace uso de la anotación {@link AuthenticationRequired} que especifica
+ * el nivel de autorización requerido.
+ * </p>
+ * <p>
+ * Para realizar la autenticación hace uso de los {@link Authenticator} o autenticadores
+ * registrados en {@link AuthenticationScheme}. Así, contamos con tres tipos de autenticación
+ * requerida:
+ * <ul>
+ *  <li> Sin autenticación </li>
+ *  <li> Basic Authentication: lógica implementada en {@link BasicAuthenticator} </li>
+ *  <li> Token Authentication {@link TokenAuthenticator}</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Dependiendo de los parametros especificados en la anotación {@link AuthenticationRequired}
+ * se escogerá un {@link Authenticator} que será el encargado de gestionar la autenticación
+ * de la petición del cliente. En caso de error de autenticación se devolverá al cliente
+ * una respuesta con código de error <b>404 - Not Authorized </b>
+ * </p>
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 @Provider
@@ -48,6 +69,9 @@ public class SecurityContextFilter implements ContainerRequestFilter{
 
     private static final Logger logger = LogManager.getLogger( SecurityContextFilter.class.getName());
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void filter(ContainerRequestContext crc) throws IOException {
         logger.info("[AUTH] Security check");   
@@ -77,8 +101,6 @@ public class SecurityContextFilter implements ContainerRequestFilter{
         if( !authenticationScheme.equals(AuthenticationScheme.AUTHENTICATION_SCHEME_NONE)) {
            
             try {
-                User user = new User();
-                
                 principal = AuthenticationScheme.authenticate(authenticationScheme, crc.getHeaders());
                 sc = new MySecurityContext( principal, authenticationScheme, false);
                  

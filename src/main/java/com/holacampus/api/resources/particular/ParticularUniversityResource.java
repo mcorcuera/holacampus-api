@@ -36,7 +36,7 @@ import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.PermissionScheme;
 import com.holacampus.api.security.PermissionScheme.Action;
 import com.holacampus.api.security.UserPrincipal;
-import com.holacampus.api.subresources.ActiveElementConversationsResource;
+import com.holacampus.api.subresources.ConversationsResource;
 import com.holacampus.api.subresources.CommentsResource;
 import com.holacampus.api.subresources.PhotosResource;
 import com.holacampus.api.subresources.ProfilePhotoResource;
@@ -209,7 +209,7 @@ public class ParticularUniversityResource {
     }
     
     @Path("/conversations")
-    public ActiveElementConversationsResource getConversationsResource()    
+    public ConversationsResource getConversationsResource()    
     {
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
         University university;
@@ -230,7 +230,7 @@ public class ParticularUniversityResource {
             session.close();
         }  
         
-        return new ActiveElementConversationsResource( university);
+        return new ConversationsResource( university);
     }
     @Path( "/{type:groups|events}")
     @GET

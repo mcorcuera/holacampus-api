@@ -21,7 +21,7 @@ import com.holacampus.api.domain.Permission;
 import org.apache.ibatis.annotations.Param;
 
 /**
- *
+ * Mapper para la clase {@link ActiveElement}
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 public interface ActiveElementMapper {

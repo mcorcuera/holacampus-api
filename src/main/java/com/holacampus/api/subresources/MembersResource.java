@@ -200,7 +200,7 @@ public class MembersResource {
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
     @Encoded
-    public HalList<ActiveElement> getStudents( @QueryParam("page") Integer page, 
+    public HalList<ActiveElement> getElegible( @QueryParam("page") Integer page, 
             @QueryParam( "size") Integer size,
             @Context UriInfo uriInfo, @Context SecurityContext sc)  throws UnsupportedEncodingException
     {

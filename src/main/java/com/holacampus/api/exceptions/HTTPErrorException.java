@@ -23,16 +23,26 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 /**
- *
+ * Excepción que sirve para devolver respuestas al cliente con un código de error
+ * determinado
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class HTTPErrorException extends WebApplicationException{
     
+    /**
+     * Crea un HTTPErrorException con un código de error determinado
+     * @param status Código de estado HTTP
+     */
     public HTTPErrorException( Status status)
     {
         super( Response.status(status).build());
     }
     
+    /**
+     * Crea un HTTPErrorException con un código de error y mensaje determinado
+     * @param status Código de estado HTTP
+     * @param message Mensaje incluido en la respuesta HTTP
+     */
     public HTTPErrorException( Status status, String message)
     {
         super( Response.status( status).entity(status).entity(message).type(MediaType.TEXT_PLAIN).build());

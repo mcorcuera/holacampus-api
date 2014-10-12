@@ -41,24 +41,58 @@ import javax.crypto.spec.PBEKeySpec;
  * Author: havoc AT defuse.ca
  * www: http://crackstation.net/hashing-security.htm
  */
+
+/**
+ * Clase que implementa el Hash+Salt de las contraseñas
+ * @author Mikele
+ */
+
 public class PasswordHash
 {
-    public static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
+    // Algoritmo usado para realizar el Hash
 
-    // The following constants may be changed without breaking existing hashes.
+    /**
+     * Nombre del algoritmo usado
+     */
+        public static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
+
+    /**
+     * Tamaño del Salt
+     */
     public static final int SALT_BYTE_SIZE = 32;
+
+    /**
+     * Tamaño del Hash
+     */
     public static final int HASH_BYTE_SIZE = 32;
+
+    /**
+     * Iteraciones realizadas por el algoritmo
+     */
     public static final int PBKDF2_ITERATIONS = 1000;
 
+    /**
+     * Indice de iteraciones del algoritmo
+     */
     public static final int ITERATION_INDEX = 0;
+
+    /**
+     * Indice del salt
+     */
     public static final int SALT_INDEX = 1;
+
+    /**
+     * Indice de PBKDF2_INDEX
+     */
     public static final int PBKDF2_INDEX = 2;
 
     /**
-     * Returns a salted PBKDF2 hash of the password.
+     * Devuelve el hash usando PBKDF2 y un salt de la contraseña.
      *
-     * @param   password    the password to hash
-     * @return              a salted PBKDF2 hash of the password
+     * @param   password    la contraseña sobre la que aplicar el hash
+     * @param credentials los credenciales donde se almacenarán la configuración 
+     * del algoritmo
+     * @return              la contraseña tras haber aplicado sobre ella el hash
      * @throws java.security.NoSuchAlgorithmException
      * @throws java.security.spec.InvalidKeySpecException
      */
@@ -69,10 +103,12 @@ public class PasswordHash
     }
 
     /**
-     * Returns a salted PBKDF2 hash of the password.
+     * Devuelve el hash usando PBKDF2 y un salt de la contraseña.
      *
-     * @param   password    the password to hash
-     * @return              a salted PBKDF2 hash of the password
+     * @param   password    la contraseña sobre la que aplicar el hash
+     * @param credentials los credenciales donde se almacenarán la configuración 
+     * del algoritmo
+     * @return               la contraseña tras haber aplicado sobre ella el hash
      * @throws java.security.NoSuchAlgorithmException
      * @throws java.security.spec.InvalidKeySpecException
      */
@@ -96,11 +132,13 @@ public class PasswordHash
     }
 
     /**
-     * Validates a password using a hash.
+     * Valida una contraseña con respecto a los credenciales de un usuario
      *
-     * @param   password        the password to check
-     * @param   credentials     the credentials information containing the salt, the hashed password and the iterations
-     * @return                  true if the password is correct, false if not
+     * @param   password        La contraseña a validar
+     * @param   credentials    los credenciales del usuario sobre los que comprobar la contraseña
+     * @return                  true si la contraseña coincide, false si no.
+     * @throws java.security.NoSuchAlgorithmException
+     * @throws java.security.spec.InvalidKeySpecException
      */
     public static boolean validatePassword(String password, Credentials credentials)
         throws NoSuchAlgorithmException, InvalidKeySpecException
@@ -109,11 +147,13 @@ public class PasswordHash
     }
 
     /**
-     * Validates a password using a hash.
+     * Valida una contraseña con respecto a los credenciales de un usuario
      *
-     * @param   password        the password to check
-     * @param   credentials     the credentials information containing the salt, the hashed password and the iterations
-     * @return                  true if the password is correct, false if not
+     * @param   password        La contraseña a validar
+     * @param   credentials    los credenciales del usuario sobre los que comprobar la contraseña
+     * @return                  true si la contraseña coincide, false si no.
+     * @throws java.security.NoSuchAlgorithmException
+     * @throws java.security.spec.InvalidKeySpecException
      */
     public static boolean validatePassword(char[] password, Credentials credentials)
         throws NoSuchAlgorithmException, InvalidKeySpecException
@@ -131,13 +171,11 @@ public class PasswordHash
     }
 
     /**
-     * Compares two byte arrays in length-constant time. This comparison method
-     * is used so that password hashes cannot be extracted from an on-line 
-     * system using a timing attack and then attacked off-line.
+     * Compara dos cadenas de bytes de manera lenta. 
      * 
-     * @param   a       the first byte array
-     * @param   b       the second byte array 
-     * @return          true if both byte arrays are the same, false if not
+     * @param   a       la primera cadena de bytes
+     * @param   b       la segunda cadena de bytes
+     * @return          true si son iguales, false si no lo son.
      */
     private static boolean slowEquals(byte[] a, byte[] b)
     {
@@ -148,13 +186,13 @@ public class PasswordHash
     }
 
     /**
-     *  Computes the PBKDF2 hash of a password.
+     * Calcula el hash PBKDF2 de una contraseña
      *
-     * @param   password    the password to hash.
-     * @param   salt        the salt
-     * @param   iterations  the iteration count (slowness factor)
-     * @param   bytes       the length of the hash to compute in bytes
-     * @return              the PBDKF2 hash of the password
+     * @param   password    la contraseña sobre la que aplicar el hash
+     * @param   salt        el Salt
+     * @param   iterations  las iteraciones que realiza el algoritmo
+     * @param   bytes       El tamño del hash
+     * @return              El hash PBKDF2 de la contraseña
      */
     private static byte[] pbkdf2(char[] password, byte[] salt, int iterations, int bytes)
         throws NoSuchAlgorithmException, InvalidKeySpecException
@@ -165,10 +203,11 @@ public class PasswordHash
     }
 
     /**
-     * Converts a string of hexadecimal characters into a byte array.
+     * Convierte una cadena de caracteres que representan un número en hexadecimal
+     * en una cadena de bytes
      *
-     * @param   hex         the hex string
-     * @return              the hex string decoded into a byte array
+     * @param   hex         la cadena del número en hexadecimal
+     * @return              la cadena de bytes decodificada
      */
     private static byte[] fromHex(String hex)
     {
@@ -181,10 +220,11 @@ public class PasswordHash
     }
 
     /**
-     * Converts a byte array into a hexadecimal string.
+     * Convierte una cadena de bytes en una cadena de caracteres que representa esta 
+     * cadena en codificación hexadecimal.
      *
-     * @param   array       the byte array to convert
-     * @return              a length*2 character string encoding the byte array
+     * @param   array       la cadena de caracteres a convertir
+     * @return             la cadena representando los bytes en hexadecimal.
      */
     public static String toHex(byte[] array)
     {
@@ -196,53 +236,5 @@ public class PasswordHash
         else
             return hex;
     }
-
-    /**
-     * Tests the basic functionality of the PasswordHash class
-     *
-     * @param   args        ignored
-     */ 
-    /*
-    public static void main(String[] args)
-    {
-        try
-        {
-            // Print out 10 hashes
-            for(int i = 0; i < 10; i++)
-                System.out.println(PasswordHash.createHash("p\r\nassw0Rd!"));
-
-            // Test password validation
-            boolean failure = false;
-            System.out.println("Running tests...");
-            for(int i = 0; i < 100; i++)
-            {
-                String password = ""+i;
-                String hash = createHash(password);
-                String secondHash = createHash(password);
-                if(hash.equals(secondHash)) {
-                    System.out.println("FAILURE: TWO HASHES ARE EQUAL!");
-                    failure = true;
-                }
-                String wrongPassword = ""+(i+1);
-                if(validatePassword(wrongPassword, hash)) {
-                    System.out.println("FAILURE: WRONG PASSWORD ACCEPTED!");
-                    failure = true;
-                }
-                if(!validatePassword(password, hash)) {
-                    System.out.println("FAILURE: GOOD PASSWORD NOT ACCEPTED!");
-                    failure = true;
-                }
-            }
-            if(failure)
-                System.out.println("TESTS FAILED!");
-            else
-                System.out.println("TESTS PASSED!");
-        }
-        catch(Exception ex)
-        {
-            System.out.println("ERROR: " + ex);
-        }
-    }
-    */
 
 }

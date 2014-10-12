@@ -30,6 +30,13 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
 
 /**
+ * Esta clase filtra todas las respuestas al cliente e incluye la cabecera
+ * Location con el identificador del recurso que envía al cliente.
+ * <p>
+ * Para ello, el objeto que se devuelve al cliente debe implementar la interfaz
+ * {@link Linkable}
+ * </p>
+ * 
  *
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
@@ -37,6 +44,8 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class LocationContextFilter implements ContainerResponseFilter{
 
+    /** {@inheritDoc}
+	 */
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
         

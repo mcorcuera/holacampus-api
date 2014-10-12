@@ -18,7 +18,8 @@
 package com.holacampus.api.security;
 
 /**
- *
+ * Excepción lanzada cuando no existe un autenticador {@link Authenticator} registrado
+ * para un esquema en concreto.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class UnknownAuthenticationSchemeException extends Exception{

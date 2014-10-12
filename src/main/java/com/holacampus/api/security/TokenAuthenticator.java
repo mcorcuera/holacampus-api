@@ -30,7 +30,15 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase implementa la interfaz {@link Authenticator} y provee la lógica para
+ * autenticar las peticiones que deben ser autenticadas con el esquema de autenticación
+ * mediante tokens
+ * 
+ * <p>
+ * Para ello analiza la cabecera <b>X-Auth-Token</b> de la petición para obtener de esta
+ * el Token de autenticación. Tras ello comprueba si este token existe en el servidor y si es así
+ * obtiene el usuario al que pertenece
+ * </p>
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 
@@ -41,7 +49,10 @@ public class TokenAuthenticator implements Authenticator{
 
     
     private static final String AUTHENTICATION_HEADER = "X-Auth-Token";
-    
+      
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public UserPrincipal authenticate(MultivaluedMap<String, String> headers) throws AuthenticationFailException, AuthenticationBadSintaxException
     {
@@ -87,7 +98,10 @@ public class TokenAuthenticator implements Authenticator{
         
         return up;
     }
-
+  
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getScheme() {
         return AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN;

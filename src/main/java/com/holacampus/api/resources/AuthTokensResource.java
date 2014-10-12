@@ -59,7 +59,7 @@ public class AuthTokensResource {
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_BASIC)
     @Produces( { RepresentationFactory.HAL_JSON})
-    public AuthToken newAuthenticationToken ( @Context SecurityContext sc)
+    public AuthToken getNewAuthenticationToken ( @Context SecurityContext sc)
     {
         logger.info( "[POST] /auth-tokens");
         

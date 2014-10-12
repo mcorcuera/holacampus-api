@@ -18,7 +18,8 @@
 package com.holacampus.api.security;
 
 /**
- *
+ * Excepción que se lanza cuando hay un error en la sintaxis de la cabecera de
+ * autenticación
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class AuthenticationBadSintaxException extends Exception{
