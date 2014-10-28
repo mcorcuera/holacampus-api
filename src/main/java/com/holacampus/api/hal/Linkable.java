@@ -17,14 +17,14 @@
 package com.holacampus.api.hal;
 
 /**
- *
+ * Interfaz que permite obtener el enlace a la representación de un recurso
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 public interface Linkable {
     
     /**
      *
-     * @return
+     * @return enlace a la representación del recurso
      */
     public String getSelfLink();
     

@@ -76,8 +76,16 @@
         where GE.Type = #{type}
          <if test="q != null">
                 AND GE.Name like #{q}
-                order by GE.CreationDate desc
         </if>
+        
+        <if test="type == 'EVENT' and pending != null and pending == true">
+            AND GE.EventDate &gt; NOW()
+        </if>
+        
+        <if test="type == 'EVENT' and pending != null and pending == false">
+            AND GE.EventDate &lt; NOW()
+        </if>
+
         order by GE.EventDate asc, GE.CreationDate desc
     </select>
     
@@ -123,6 +131,14 @@
                 AND GE.Name like #{q}
         </if>
         
+        <if test="type == 'EVENT' and pending != null and pending == true">
+            AND GE.EventDate &gt; NOW()
+        </if>
+        
+        <if test="type == 'EVENT' and pending != null and pending == false">
+            AND GE.EventDate &lt; NOW()
+        </if>
+        
         order by GE.EventDate asc, GE.CreationDate desc
     </select>
     
@@ -135,6 +151,14 @@
          <if test="q != null">
                 AND GE.Name like #{q}
                 order by GE.CreationDate desc
+        </if>
+        
+        <if test="type == 'EVENT' and pending != null and pending == true">
+            AND GE.EventDate &gt; NOW()
+        </if>
+        
+        <if test="type == 'EVENT' and pending != null and pending == false">
+            AND GE.EventDate &lt; NOW()
         </if>
         
     </select>
@@ -150,6 +174,14 @@
          <if test="q != null">
                 AND GE.Name like #{q}
                 order by GE.CreationDate desc
+        </if>
+        
+        <if test="type == 'EVENT' and pending != null and pending == true">
+            AND GE.EventDate &gt; NOW()
+        </if>
+        
+        <if test="type == 'EVENT' and pending != null and pending == false">
+            AND GE.EventDate &lt; NOW()
         </if>
         
     </select>

@@ -25,7 +25,8 @@ import com.theoryinpractise.halbuilder.jaxrs.builders.BuilderException;
 import com.theoryinpractise.halbuilder.jaxrs.builders.PropertyBuilder;
 
 /**
- *
+ * Constructor de un objeto de la clase {@link Location} utilizado por el plugin
+ * HAL-JSON para JAX-RS
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class LocationBuilder implements PropertyBuilder<Location>{

@@ -23,7 +23,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
 /**
- *
+ * Clase que representa los estudios ofertados por una universidad
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 
@@ -45,27 +45,50 @@ public class Study extends Element implements Linkable{
     @HalEmbedded( "university")
     private University      university;
 
-
+    /**
+     *
+     * @return universidad a la que pertenecen los estudios
+     */
     public University getUniversity() {
         return university;
     }
 
+    /**
+     *
+     * @param university universidad a la que pertenecen los estudios
+     */
     public void setUniversity(University university) {
         this.university = university;
     }
 
+    /**
+     *
+     * @return nombre de los estudios
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     *
+     * @param name nombre de los estudios
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     *
+     * @return descripción de los estudios
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     *
+     * @param description descripción de los estudios
+     */
     public void setDescription(String description) {
         this.description = description;
     }
@@ -78,6 +101,11 @@ public class Study extends Element implements Linkable{
         return null;
     }
     
+    /**
+     *
+     * @return enlace a la representación de la lista de estudiantes del 
+     * estudio
+     */
     @HalLink("students")
     public String getStudentsLink() {
         return getSelfLink() + "/students";

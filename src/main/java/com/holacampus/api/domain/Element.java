@@ -20,7 +20,8 @@ package com.holacampus.api.domain;
 import com.theoryinpractise.halbuilder.jaxrs.*;
 
 /**
- *
+ * Superclase de la que heredan todos los elementos de la red social
+ * que cuentan con una tabla en la base de datos identificable por un id
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 @HalRootElement
@@ -28,10 +29,18 @@ public class Element {
     @HalProperty( name="id")
     private Long id;
 
+    /**
+     *
+     * @return identificador del elemento
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id identificador del elemento
+     */
     public void setId(Long id) {
         this.id = id;
     }

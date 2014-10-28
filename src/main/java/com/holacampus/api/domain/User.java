@@ -31,7 +31,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 
 /**
- *  Bean object for User
+ * Clase que representa a los usuarios de la red social
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 
@@ -40,14 +40,20 @@ public class User extends ActiveElement implements Linkable
 
 {
     
+    /**
+     * Estudiante 
+     */
     public static final String TYPE_STUDENT     = "STUDENT";
 
-    public static final String TYPE_UNI_MNG     = "UNI_MNG";
-
-    public static final String TYPE_MNG         = "MNG";
     
+    /**
+     * Género masculino
+     */
     public static final String GENDER_MASCULINE = "M";
 
+    /**
+     * Género femenino
+     */
     public static final String GENDER_FEMENINE  = "F";
     
     @CreationNeeded( message="{user.name.missing}")
@@ -80,7 +86,7 @@ public class User extends ActiveElement implements Linkable
     private PhotoContainer      photoContainer;
    
     /**
-     *
+     * Constructor por defecto
      */
     
     public User()
@@ -89,6 +95,11 @@ public class User extends ActiveElement implements Linkable
         setType( TYPE_USER);
     }
     
+      /**
+     * Crea un nuevo usuario a partir de un {@link UserPrincipal} a partir
+     * de los datos contenidos en este.
+     * @param u UserPrincipal donde se encuentran los datos
+     */
     public User( UserPrincipal u)
     {
         super( u); 
@@ -96,7 +107,7 @@ public class User extends ActiveElement implements Linkable
     
     /**
      *
-     * @return
+     * @return tipo de usuario
      */
     public String getUserType() {
         return userType;
@@ -104,7 +115,7 @@ public class User extends ActiveElement implements Linkable
 
     /**
      *
-     * @param userType
+     * @param userType tipo de usuario
      */
     public void setUserType(String userType) {
         this.userType = userType;
@@ -112,7 +123,7 @@ public class User extends ActiveElement implements Linkable
 
     /**
      *
-     * @return
+     * @return nombre del usuario
      */
     public Name getName() {
         return name;
@@ -120,7 +131,7 @@ public class User extends ActiveElement implements Linkable
 
     /**
      *
-     * @param name
+     * @param name nombre del usuario
      */
     public void setName(Name name) {
         this.name = name;
@@ -128,7 +139,7 @@ public class User extends ActiveElement implements Linkable
 
     /**
      *
-     * @return
+     * @return fecha de nacimiento del usuario
      */
     public Date getBirthDate() {
         return birthDate;
@@ -136,7 +147,7 @@ public class User extends ActiveElement implements Linkable
 
     /**
      *
-     * @param birthDate
+     * @param birthDate fecha de nacimiento del usuario
      */
     public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
@@ -146,7 +157,7 @@ public class User extends ActiveElement implements Linkable
 
     /**
      *
-     * @return
+     * @return género del usuario
      */
     public String getGender() {
         return gender;
@@ -154,16 +165,24 @@ public class User extends ActiveElement implements Linkable
 
     /**
      *
-     * @param gender
+     * @param gender género del usuario
      */
     public void setGender(String gender) {
         this.gender = gender;
     }
 
+    /**
+     *
+     * @return permisos sobre el usuario
+     */
     public Permission getPermission() {
         return permission;
     }
 
+    /**
+     *
+     * @param permission permisos sobre el usuario
+     */
     public void setPermission(Permission permission) {
         this.permission = permission;
     }
@@ -171,7 +190,7 @@ public class User extends ActiveElement implements Linkable
     
     /**
      *
-     * @return
+     * @return contenedor de comentarios del usuario
      */
     public CommentContainer getCommentContainer() {
         return commentContainer;
@@ -179,7 +198,7 @@ public class User extends ActiveElement implements Linkable
 
     /**
      *
-     * @param commentContainer
+     * @param commentContainer contenedor de comentarios del usuario
      */
     public void setCommentContainer(CommentContainer commentContainer) {
         this.commentContainer = commentContainer;
@@ -187,7 +206,7 @@ public class User extends ActiveElement implements Linkable
 
     /**
      *
-     * @return
+     * @return contenedor de fotos del usuario
      */
     public PhotoContainer getPhotoContainer() {
         return photoContainer;
@@ -195,23 +214,28 @@ public class User extends ActiveElement implements Linkable
 
     /**
      *
-     * @param photoContainer
+     * @param photoContainer contenedor de fotos del usuario
      */
     public void setPhotoContainer(PhotoContainer photoContainer) {
         this.photoContainer = photoContainer;
     }
 
+    /**
+     *
+     * @return número de amistades
+     */
     public Integer getFriendCount() {
         return friendCount;
     }
 
+    /**
+     *
+     * @param friendCount número de amistades
+     */
     public void setFriendCount(Integer friendCount) {
         this.friendCount = friendCount;
     }
 
-    
-
-    
     @Override 
     public String toString() {
         return "User{" + "userType=" + userType + ", name=" + name + ", birthDate=" + birthDate + ", gender=" + gender + '}';
@@ -219,10 +243,6 @@ public class User extends ActiveElement implements Linkable
 
     
 
-    /**
-     *
-     * @return
-     */
     @HalSelfLink
     @Override
     public String getSelfLink() {
@@ -230,6 +250,10 @@ public class User extends ActiveElement implements Linkable
         
     }
     
+    /**
+     *
+     * @return enlace a la representación de los comentarios del usuario
+     */
     @HalLink("comments")
     public String getCommentsLink() {
         if(  User.TYPE_STUDENT.equals( userType))
@@ -237,6 +261,10 @@ public class User extends ActiveElement implements Linkable
         return null;
     }
     
+    /**
+     *
+     * @return enlace a la representación de las fotos del usuario
+     */
     @HalLink("photos")
     public String getPhotosLink() {
         if(  User.TYPE_STUDENT.equals( userType))
@@ -244,6 +272,10 @@ public class User extends ActiveElement implements Linkable
         return null;
     }
     
+    /**
+     *
+     * @return enlace a la representación de las amistades del usuario
+     */
     @HalLink( "friends")
     public String getFriendsLink()  {
         if(  User.TYPE_STUDENT.equals( userType))
@@ -251,6 +283,10 @@ public class User extends ActiveElement implements Linkable
         return null;
     }    
     
+    /**
+     *
+     * @return enlace a la representación de la foto de perfil del usuario
+     */
     @HalLink("profile-photo")
     public String getProfilePhotoLink() {
         if( User.TYPE_STUDENT.equals( userType))
@@ -258,6 +294,11 @@ public class User extends ActiveElement implements Linkable
         return null;
     }
     
+    /**
+     *
+     * @return enlace a la representación de las etapas en la trayectoria académica
+     * del usuario
+     */
     @HalLink( "stages")
     public String getStagesLink() {
         if( User.TYPE_STUDENT.equals( userType))
@@ -265,22 +306,39 @@ public class User extends ActiveElement implements Linkable
         return null;
     }
     
-    
+    /**
+     *
+     * @return enlace a la representación de las conversaciones del usuario
+     */
     @HalLink( "conversations")
     public String getConversationsLink() {
         return getSelfLink() + "/conversations";
     }
     
+    /**
+     *
+     * @return enlace a la representación de la conversación con el usuario
+     */
     @HalLink( "conversationWithMe")
     public String getConversationWithMeLink() {
         return getSelfLink() + "/conversations/with-me";
     }
     
+    /**
+     *
+     * @return enlace a la representación de los grupos a los que pertenece el 
+     * usuario
+     */
     @HalLink( "groups")
     public String getGroupsLink() {
         return getSelfLink() + "/groups";
     }
     
+    /**
+     *
+     * @return enlace a la representación de los eventos a los que pertenece el 
+     * usuario
+     */
     @HalLink( "events")
     public String getEventsLink() {
         return getSelfLink() + "/events";

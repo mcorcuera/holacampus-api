@@ -17,17 +17,10 @@
 
 package com.holacampus.api;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import javax.validation.ParameterNameProvider;
-import javax.validation.Validation;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.ext.ContextResolver;
 import org.glassfish.jersey.server.validation.ValidationConfig;
-import org.glassfish.jersey.server.validation.internal.InjectingConstraintValidatorFactory;
 
 /**
  * Custom configuration of validation. This configuration defines custom:

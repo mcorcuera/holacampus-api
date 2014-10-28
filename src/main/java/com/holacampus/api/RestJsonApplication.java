@@ -32,7 +32,14 @@ import org.glassfish.jersey.server.validation.ValidationFeature;
 
 
 /**
- * 
+ * Punto de entrada de la API, donde se registran los siguientes elementos:
+ * <ul>
+ *  <li> Paquetes donde encontrar los recursos</li>
+ *  <li> Extensiones </li>
+ *  <li> Logger </li>
+ *  <li> Autenticadores para los distintos esquemas </li>
+ *  <li> Builders para el plugin HAL-JSON </li>
+ * </ul>
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 
@@ -40,7 +47,8 @@ import org.glassfish.jersey.server.validation.ValidationFeature;
 public class RestJsonApplication extends ResourceConfig{
     
     /**
-     *
+     * Contructor en el cual se registran e inicializan todos los elementos 
+     * necesarios
      */
     public RestJsonApplication() {
         

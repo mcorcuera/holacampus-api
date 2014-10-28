@@ -29,7 +29,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
 /**
- *
+ * Clase que representa las fotos de la red social
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 
@@ -69,83 +69,162 @@ public class Photo extends Element implements Linkable{
     
     private String selfLink;
 
-
+    /**
+     *
+     * @return fecha de creación de la foto
+     */
     public Date getCreationDate() {
         return creationDate;
     }
 
+    /**
+     *
+     * @param creationDate fecha de creación de la foto
+     */
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
     }
 
+    /**
+     *
+     * @return título de la foto
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     *
+     * @param title título de la foto
+     */
     public void setTitle(String title) {
         this.title = title;
     }
 
+    /**
+     *
+     * @return url al archivo de imagen de la foto
+     */
     public String getUrl() {
         return url;
     }
 
+    /**
+     *
+     * @param url url al archivo de imagen de la foto
+     */
     public void setUrl(String url) {
         this.url = url;
     }
 
+    /**
+     *
+     * @return url al archivo de imagen en miniatura de la foto
+     */
     public String getThumbnailUrl() {
         return thumbnailUrl;
     }
 
+    /**
+     *
+     * @param thumbnailUrl url al archivo de imagen en miniatura de la foto
+     */
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
     }
 
+    /**
+     *
+     * @return creador de la foto
+     */
     public ActiveElement getCreator() {
         return creator;
     }
 
+    /**
+     *
+     * @param creator creador de la foto
+     */
     public void setCreator(ActiveElement creator) {
         this.creator = creator;
     }
 
+    /**
+     *
+     * @return permisos sobre la foto
+     */
     public Permission getPermission() {
         return permission;
     }
 
+    /**
+     *
+     * @param permission permisos sobre la foto
+     */
     public void setPermission(Permission permission) {
         this.permission = permission;
     }
     
+    /**
+     *
+     * @return datos binarios de la foto
+     */
     public String getData() {
         return data;
     }
 
+    /**
+     *
+     * @param data datos binarios de la foto
+     */
     public void setData(String data) {
         this.data = data;
     }
 
+    /**
+     *
+     * @return true si se trata de una foto de perfil
+     */
     public boolean isProfilePhoto() {
         return profilePhoto;
     }
 
+    /**
+     *
+     * @param profilePhoto  true si se trata de una foto de perfil
+     */
     public void setProfilePhoto(boolean profilePhoto) {
         this.profilePhoto = profilePhoto;
     }
     
+    /**
+     *
+     * @return  contenedor de comentarios de la foto
+     */
     public CommentContainer getCommentContainer() {
         return commentContainer;
     }
 
+    /**
+     *
+     * @param commentContainer contenedor de comentarios de la foto
+     */
     public void setCommentContainer(CommentContainer commentContainer) {
         this.commentContainer = commentContainer;
     }
 
+    /**
+     *
+     * @return contenedor de fotos al que pertenece la foto
+     */
     public PhotoContainer getPhotoContainer() {
         return photoContainer;
     }
 
+    /**
+     *
+     * @param photoContainer contenedor de fotos al que pertenece la foto
+     */
     public void setPhotoContainer(PhotoContainer photoContainer) {
         this.photoContainer = photoContainer;
     }
@@ -156,14 +235,23 @@ public class Photo extends Element implements Linkable{
     }
     
     @HalSelfLink
+    @Override
     public String getSelfLink() {
         return Utils.createLink( selfLink, null);
     }
     
+    /**
+     *
+     * @param l link a la representación de la foto
+     */
     public void setSelfLink( String l) {
         selfLink = l;
     }
     
+    /**
+     *
+     * @return link a la representación de los comentarios de la foto
+     */
     @HalLink("comments") 
     public String getCommentsLink() {
         if( profilePhoto || selfLink == null)

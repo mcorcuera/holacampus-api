@@ -54,7 +54,11 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al subrecurso
+ * Friends. Es decir, gestiona las peticiones a la URL 
+ * <code>users/{uid}/friends</code>.
+ * <br/><br/>
+ * Este subrecurso se encarga de gestionar las relaciones de amistad de un usuario.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class FriendsResource {
@@ -62,13 +66,29 @@ public class FriendsResource {
     private static final Logger logger = LogManager.getLogger( FriendsResource.class.getName());
 
         
-    private Long elId;
+    private final Long userId;
     
-    public FriendsResource( Long elId)
+    /**
+     * Constructor del subrecurso de relaciones de amistad
+     * @param userId identificador del usuario al que pertenece el subrecurso
+     */
+    public FriendsResource( Long userId)
     {
-        this.elId = elId;
+        this.userId = userId;
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>users/{uid}/friends</code>. Esta operación devuelve un lista 
+     * con las relaciones de amistad del usuario. Cabe notar que solo se 
+     * devuelven las relaciones de amistad confirmadas (no las pendientes de 
+     * confirmación por alguna de las dos partes)
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return lista de relaciones de amistad del tamaño especificado
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -82,6 +102,17 @@ public class FriendsResource {
         return getFriends( uriInfo.getPath(), up.getId(), false, false, null, page, size);
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>users/{uid}/friends/pending</code>. Esta operación devuelve un lista 
+     * con las relaciones de amistad del usuario que aún están pendientes de confirmar
+     * por el usuario al que le fue enviada la petición
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return lista de relaciones de amistad pendientes de confirmación  del tamaño especificado
+     */
     @Path("/pending")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -93,13 +124,24 @@ public class FriendsResource {
         
         UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
         
-        if( !elId.equals(up.getId())) {
+        if( !userId.equals(up.getId())) {
             throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
         }
         
         return getFriends( uriInfo.getPath(), up.getId(), false, true, null, page, size);
     }
     
+     /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>users/{uid}/friends/uncorfirmed</code>. Esta operación devuelve un lista 
+     * con las relaciones de amistad del usuario que aún están pendientes de confirmar
+     * por el usuario al que pertenece el subrecurso
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return lista de relaciones de amistad pendientes de confirmación  del tamaño especificado
+     */
     @Path("/unconfirmed")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -111,7 +153,7 @@ public class FriendsResource {
         
         UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
         
-        if( !elId.equals(up.getId())) {
+        if( !userId.equals(up.getId())) {
             throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
         }
         
@@ -132,23 +174,23 @@ public class FriendsResource {
         try {
             FriendshipMapper friendMapper   = session.getMapper(FriendshipMapper.class);
             UserMapper userMapper           = session.getMapper( UserMapper.class);
-            List<Friendship> friendships    = friendMapper.getFriends(elId, null, unconfirmed, pending, rb);
-            int total                       = friendMapper.getTotalFriends(elId, null, unconfirmed, pending);
+            List<Friendship> friendships    = friendMapper.getFriends(userId, null, unconfirmed, pending, rb);
+            int total                       = friendMapper.getTotalFriends(userId, null, unconfirmed, pending);
             List<Friend> friendList = null;
             if( total > 0) {
                 friendList = new ArrayList<Friend>();
                 for( Friendship fs : friendships) {
-                    Friend friend = new Friend( fs, elId);
+                    Friend friend = new Friend( fs, userId);
                    
                     User user = userMapper.getUser( friend.getUser().getId());
                     Permission permission = new Permission();
                     userMapper.getPermissions( currentUser, user.getId(), permission);
                     user.setPermission(permission);
                     friend.setUser(user);
-                    friend.setSelfLink( "users/" + elId + "/friends/" + friend.getUser().getId());
+                    friend.setSelfLink( "users/" + userId + "/friends/" + friend.getUser().getId());
                     
                     // If the user is getting his friends, put information of who asked who
-                    if( elId == currentUser) {
+                    if( userId == currentUser) {
                         if( fs.getSender().getId() == currentUser)
                             friend.setAskedByMe(true);
                         else friend.setAskedByMe(false);
@@ -178,7 +220,15 @@ public class FriendsResource {
         return friends;
     }
     
-    
+    /**
+     * Esta función gestiona las peticiones POST al recurso 
+     * <code>users/{uid}/friends/</code>. Esta operación envía una nueva petición 
+     * de amistad al usuario al que pertenece el subrecurso de parte del usuario
+     * que realiza la petición
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación de la relación de amistad recien creada
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -187,7 +237,7 @@ public class FriendsResource {
         Friend friend = null;
         UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
         
-        if( up.getId().equals( elId)) {
+        if( up.getId().equals( userId)) {
             throw new HTTPErrorException(Status.CONFLICT, "You can't be friends with yourself");
         }
         
@@ -197,21 +247,21 @@ public class FriendsResource {
             FriendshipMapper mapper = session.getMapper( FriendshipMapper.class);
             UserMapper userMapper           = session.getMapper( UserMapper.class);
 
-            Friendship friendship = mapper.getFriend( up.getId(), elId);
+            Friendship friendship = mapper.getFriend( up.getId(), userId);
             
             if( friendship != null) {
-                throw new HTTPErrorException(Status.CONFLICT, "You are already friend with " + elId);
+                throw new HTTPErrorException(Status.CONFLICT, "You are already friend with " + userId);
             }
             
-            int result = mapper.createFriendship( up.getId(), elId);
+            int result = mapper.createFriendship( up.getId(), userId);
             
             if( result == 0) {
                 throw new HTTPErrorException( Status.INTERNAL_SERVER_ERROR, "An error ocurred");
             }
             
-            friendship = mapper.getFriend( up.getId(), elId);
+            friendship = mapper.getFriend( up.getId(), userId);
             
-            friend = new Friend( friendship, elId);
+            friend = new Friend( friendship, userId);
             
             
             User user = userMapper.getUser( friend.getUser().getId());
@@ -220,13 +270,13 @@ public class FriendsResource {
             user.setPermission(permission);
             friend.setUser(user);
             
-            if( elId == up.getId()) {
+            if( userId == up.getId()) {
                 if( friendship.getSender().getId() == up.getId())
                     friend.setAskedByMe(true);
                 else friend.setAskedByMe(false);
             }
             
-            friend.setSelfLink( "users/" + up.getId() + "/friends/" + elId);
+            friend.setSelfLink( "users/" + up.getId() + "/friends/" + userId);
             
             session.commit();
             
@@ -243,6 +293,15 @@ public class FriendsResource {
         return friend;
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>users/{uid}/friends/{id}</code>. Esta operación obtiene la 
+     * representación de la relación de amistad identificada por <b>id</b>
+     * @param id identificador de la relación de amistad
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación de la relación de amistad
+     */
     @Path("/{id}")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -258,14 +317,14 @@ public class FriendsResource {
         try {
             FriendshipMapper friendMapper   = session.getMapper(FriendshipMapper.class);
             UserMapper userMapper           = session.getMapper( UserMapper.class);
-            Friendship f                    = friendMapper.getFriend(elId, id);
+            Friendship f                    = friendMapper.getFriend(userId, id);
             
             if( f == null)
                 throw new HTTPErrorException( Status.NOT_FOUND, "friend " + id + " not found");
             
-            friend = new Friend( f, elId);
+            friend = new Friend( f, userId);
             
-            if( elId == up.getId()) {
+            if( userId == up.getId()) {
                 if( f.getSender().getId() == up.getId())
                     friend.setAskedByMe(true);
                 else friend.setAskedByMe(false);
@@ -291,6 +350,17 @@ public class FriendsResource {
         return friend;
     }
     
+    /**
+     * Esta función gestiona las peticiones PUT al recurso 
+     * <code>users/{uid}/friends/{id}</code>. Esta operación modifica los
+     * datos de la petición de amistad identificada por <b>id</b>. De esta 
+     * manera se podrán aceptar o denegar las peticiones de amistad
+     * @param friend datos de la amistad a modificar
+     * @param id identificador de la relación de amistad
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación de la relación de amistad ya modificada
+     */
     @Path("/{id}")
     @PUT
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -302,7 +372,7 @@ public class FriendsResource {
         UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
         
         // Check if we have permissions. We can only update our friends
-        if( !up.getId().equals( elId)) {
+        if( !up.getId().equals( userId)) {
             throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed to delete this friend");
         }
         
@@ -318,9 +388,9 @@ public class FriendsResource {
             
             Friendship friendship = mapper.getFriend( up.getId(), id);
             
-            friend = new Friend( friendship, elId);
+            friend = new Friend( friendship, userId);
             
-            if( elId == up.getId()) {
+            if( userId == up.getId()) {
                 if( friendship.getSender().getId() == up.getId())
                     friend.setAskedByMe(true);
                 else friend.setAskedByMe(false);
@@ -348,6 +418,14 @@ public class FriendsResource {
         return friend;
     }
     
+    /**
+     * Esta función gestiona las peticiones DELETE al recurso 
+     * <code>users/{uid}/friends/{id}</code>. Esta operación elimina 
+     * la petición de amistad identificada por <b>id</b>. 
+     * @param id identificador de la relación de amistad
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     */
     @Path("/{id}")
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -356,7 +434,7 @@ public class FriendsResource {
         UserPrincipal up = (UserPrincipal) sc.getUserPrincipal();
         
         // Check if we have permissions. We can only delete our friends
-        if( !up.getId().equals( elId)) {
+        if( !up.getId().equals( userId)) {
             throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed to delete this friend");
         }
         

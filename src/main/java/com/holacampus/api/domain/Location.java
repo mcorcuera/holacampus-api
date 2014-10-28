@@ -19,7 +19,7 @@ package com.holacampus.api.domain;
 import javax.validation.constraints.NotNull;
 
 /**
- *
+ * Clase que representa una localización geográfica (latitud y longitud
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 public class Location {
@@ -29,27 +29,50 @@ public class Location {
     @NotNull(  message="{location.longitude.missing}")
     private float    longitude;
 
-    
+    /**
+     * Constructor por defecto
+     */
     public Location() {
     }
 
+    /**
+     * Constructor con datos de localización
+     * @param latitude latitud de la localización
+     * @param longitude longitud de la localización
+     */
     public Location(float latitude, float longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
+    /**
+     *
+     * @return latitud de la localización
+     */
     public float getLatitude() {
         return latitude;
     }
 
+    /**
+     *
+     * @param latitude latitud de la localización
+     */
     public void setLatitude(float latitude) {
         this.latitude = latitude;
     }
 
+    /**
+     *
+     * @return longitud de la localización
+     */
     public float getLongitude() {
         return longitude;
     }
 
+    /**
+     *
+     * @param longitude longitud de la localización
+     */
     public void setLongitude(float longitude) {
         this.longitude = longitude;
     }

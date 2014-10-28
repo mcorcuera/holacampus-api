@@ -70,7 +70,10 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API a un recurso
+ * University particualr. Es decir, gestiona las peticiones a la URL 
+ * <code>/universities/{id}</code> donde <code>id</code> es el identificador
+ * de la universidad
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 
@@ -110,6 +113,12 @@ public class ParticularUniversityResource {
                                 .addPermissionScheme(Action.DELETE_UNIQUE, Permission.LEVEL_PARENT_OWNER);
     }
     
+    /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con los comentarios de la universidad. Esto es, a la URL 
+     * <code>/universities/{id}/comments</code>
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path("/comments")
     public CommentsResource getCommentResource() 
     {
@@ -130,9 +139,15 @@ public class ParticularUniversityResource {
             session.close();
         }
         
-        return new CommentsResource( id, c, uriInfo.getPath(), commentsScheme);
+        return new CommentsResource( c, uriInfo.getPath(), commentsScheme);
     }
     
+     /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con las fotos de la universidad. Esto es, a la URL 
+     * <code>/universities/{id}/photos</code>
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path( "/photos")
     public PhotosResource getPhotosResource( )
     {
@@ -153,9 +168,15 @@ public class ParticularUniversityResource {
             session.close();
         }  
         
-        return new PhotosResource( id, c, uriInfo.getPath(), photosScheme, photosCommentScheme);
+        return new PhotosResource( c, uriInfo.getPath(), photosScheme, photosCommentScheme);
     }
     
+     /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con la foto de perfil de la universidad. Esto es, a la URL 
+     * <code>/universities/{id}/profile-photo</code>
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path( "/profile-photo")
     public ProfilePhotoResource getProfilePhotoResource()
     {
@@ -180,9 +201,15 @@ public class ParticularUniversityResource {
             session.close();
         }  
         
-        return new ProfilePhotoResource( pc, ppc, id, uriInfo.getPath());
+        return new ProfilePhotoResource( pc, ppc, uriInfo.getPath());
     }
     
+     /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con los estudios de la universidad. Esto es, a la URL 
+     * <code>/universities/{id}/studies</code>
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path("/studies")
     public StudiesResource getStudiesResource()    
     {
@@ -208,6 +235,12 @@ public class ParticularUniversityResource {
         return new StudiesResource( university);
     }
     
+    /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con las conversaciones de la universidad. Esto es, a la URL 
+     * <code>/universities/{id}/conversations</code>
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path("/conversations")
     public ConversationsResource getConversationsResource()    
     {
@@ -232,66 +265,13 @@ public class ParticularUniversityResource {
         
         return new ConversationsResource( university);
     }
-    @Path( "/{type:groups|events}")
-    @GET
-    @Produces( { RepresentationFactory.HAL_JSON})
-    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
-    @Encoded
-    public HalList<GroupEvent> getGroupsEvents( @PathParam("type") String type, 
-            @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
-    {
-        page = Utils.getValidPage(page);
-        size = Utils.getValidSize(size);
-        if( q != null) {
-            q   = URLDecoder.decode(q, "UTF-8");
-        }
-        String elementType = null;
-        if( "groups".equals(type))
-            elementType = GroupEvent.TYPE_GROUP;
-        else
-            elementType = GroupEvent.TYPE_EVENT;
-        
-        RowBounds rb                = Utils.createRowBounds(page, size);
-        UserPrincipal up            = (UserPrincipal) sc.getUserPrincipal(); 
-        SqlSession session          = MyBatisConnectionFactory.getSession().openSession();
-        HalList<GroupEvent> groups  = null;
-        
-        try {            
-            GroupEventMapper mapper     = session.getMapper( GroupEventMapper.class);
-            UniversityMapper uniMapper  = session.getMapper( UniversityMapper.class);
-            
-            University uni = uniMapper.getUniversity(id);
-            if( uni == null)
-                throw new HTTPErrorException( Status.NOT_FOUND, "University not found");
-           
-            List<GroupEvent> groupList  = mapper.getGroupsEventsForActiveElement(elementType, q, id, rb);
-            int total                   = mapper.getTotalGroupsEventsForActiveElement(elementType, q, id);
-            session.commit();
-            
-            for( GroupEvent group : groupList) {
-                Permission permissions = new Permission();
-                mapper.getPermissions( up.getId(), group.getId(), permissions);
-                group.setPermission(permissions); 
-            }
-            
-            groups = new HalList( groupList, total);
-            
-            groups.setResourceRelativePath( uriInfo.getPath());
-            groups.setPage(page);
-            groups.setSize(size);
-            groups.setQuery(q);
-            
-        }catch( Exception e) {
-            logger.error( e.toString());
-            throw new InternalServerErrorException();
-        }
-        finally {
-            session.close();
-        }
-        
-        return groups;
-    }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>/universities/{id}</code>. Esta operación devuelve la representación
+     * de la universidad identificada por <b>id</b>
+     * @return la representación de la universidad
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -333,15 +313,131 @@ public class ParticularUniversityResource {
         }   
         return university;
     }
+
+    /**
+      * Esta función gestiona las peticiones GET al recurso 
+     * <code>/universities/{id}/groups|events</code>. Esta operación devuelve una 
+     * lista con los grupos o eventos a los que pertenece la 
+     * universidad identificada por <b>id</b>
+     * @param type identifica si se trata de una petición de grupos o eventos
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param q cadena de caracteres que sirve para filtrar por nombre los
+     * resultados
+     * @return lista con los grupos o eventos del tamaño especificado y filtrada
+     * por nombre
+     * @throws UnsupportedEncodingException
+     */
+    @Path( "/{type:groups|events}")
+    @GET
+    @Produces( { RepresentationFactory.HAL_JSON})
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @Encoded
+    public HalList<GroupEvent> getGroupsEvents( @PathParam("type") String type, 
+            @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
+    {
+        return getGroupsEvents( type, page, size, q, true);
+    }
     
+    /**
+      * Esta función gestiona las peticiones GET al recurso 
+     * <code>/universities/{id}/events/past</code>. Esta operación devuelve una 
+     * lista con los eventos ya pasados a los que pertenece la 
+     * universidad identificada por <b>id</b>
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param q cadena de caracteres que sirve para filtrar por nombre los
+     * resultados
+     * @return lista con los eventos pasados del tamaño especificado y filtrada
+     * por nombre
+     * @throws UnsupportedEncodingException
+     */
+    @Path( "/events/past")  
+    @GET
+    @Produces( { RepresentationFactory.HAL_JSON})
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @Encoded
+    public HalList<GroupEvent> getPastEvents( @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
+    {
+        return getGroupsEvents( GroupEvent.TYPE_EVENT, page, size, q, false);
+    }
+    
+    private HalList<GroupEvent> getGroupsEvents( String type, Integer page,  Integer size,  String q, Boolean pending) throws UnsupportedEncodingException
+    {
+        page = Utils.getValidPage(page);
+        size = Utils.getValidSize(size);
+        if( q != null) {
+            q   = URLDecoder.decode(q, "UTF-8");
+        }
+        String elementType = null;
+        if( "groups".equals(type))
+            elementType = GroupEvent.TYPE_GROUP;
+        else
+            elementType = GroupEvent.TYPE_EVENT;
+        
+        RowBounds rb                = Utils.createRowBounds(page, size);
+        UserPrincipal up            = (UserPrincipal) sc.getUserPrincipal(); 
+        SqlSession session          = MyBatisConnectionFactory.getSession().openSession();
+        HalList<GroupEvent> groups  = null;
+        
+        try {            
+            GroupEventMapper mapper     = session.getMapper( GroupEventMapper.class);
+            UniversityMapper uniMapper  = session.getMapper( UniversityMapper.class);
+            
+            University uni = uniMapper.getUniversity(id);
+            if( uni == null)
+                throw new HTTPErrorException( Status.NOT_FOUND, "University not found");
+           
+            List<GroupEvent> groupList  = mapper.getGroupsEventsForActiveElement(elementType, q, id, pending, rb);
+            int total                   = mapper.getTotalGroupsEventsForActiveElement(elementType, q, id, pending);
+            session.commit();
+            
+            for( GroupEvent group : groupList) {
+                Permission permissions = new Permission();
+                mapper.getPermissions( up.getId(), group.getId(), permissions);
+                group.setPermission(permissions); 
+            }
+            
+            groups = new HalList( groupList, total);
+            
+            groups.setResourceRelativePath( uriInfo.getPath());
+            groups.setPage(page);
+            groups.setSize(size);
+            groups.setQuery(q);
+            
+        }catch( Exception e) {
+            logger.error( e.toString());
+            throw new InternalServerErrorException();
+        }
+        finally {
+            session.close();
+        }
+        
+        return groups;
+    }
+    
+  
+    
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>/universities/{id}/students</code>. Esta operación devuelve una 
+     * lista con los estudiantes de la  
+     * universidad identificada por <b>id</b>
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param q cadena de caracteres que sirve para filtrar por nombre los
+     * resultados
+     * @return lista con los estudiantes del tamaño especificado y filtrada
+     * por nombre
+     * @throws UnsupportedEncodingException
+     */
     @Path("/students")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
     @Encoded
-    public HalList<User> getStudents( @PathParam( "id") Long id,  @QueryParam("page") Integer page, 
-            @QueryParam( "size") Integer size, @QueryParam( "q") String q, 
-            @Context UriInfo uriInfo, @Context SecurityContext sc)  throws UnsupportedEncodingException
+    public HalList<User> getStudents(@QueryParam("page") Integer page, 
+            @QueryParam( "size") Integer size, @QueryParam( "q") String q )  throws UnsupportedEncodingException
     {
         
         logger.info( "[GET] " + uriInfo.getPath());
@@ -388,6 +484,15 @@ public class ParticularUniversityResource {
         return users;
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>/universities/{id}/cities</code>. Esta operación devuelve una 
+     * lista con las ciudades en donde se encuentra la 
+     * universidad identificada por <b>id</b>
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @return lista con los estudiantes del tamaño especificado
+     */
     @Path( "/cities")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -430,6 +535,14 @@ public class ParticularUniversityResource {
         return cities;
     }
     
+     /**
+     * Esta función gestiona las peticiones POST al recurso 
+     * <code>/universities/{id}/cities</code>. Esta operación añade una nueva
+     * ciudad a la lista de ciudades en donde se encuentra la universidad 
+     * identificada por <b>id</b>
+     * @param city datos de la ciudad a añadir
+     * @return representación de la ciudad añadida
+     */
     @Path( "/cities")
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -470,6 +583,15 @@ public class ParticularUniversityResource {
         return city;
     }
     
+    /**
+     * Esta función gestiona las peticiones DELETE al recurso 
+     * <code>/universities/{id}/cities</code>. Esta operación elimina una
+     * ciudad de la lista de ciudades en donde se encuentra la universidad 
+     * identificada por <b>id</b>
+     * @param cityId identificador de la ciudad a eliminar
+     * @param countryId identificador del país al que pertenece la ciudad a 
+     * eliminar
+     */
     @Path( "/cities")
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)

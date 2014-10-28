@@ -20,17 +20,25 @@ package com.holacampus.api.domain;
 import java.util.List;
 
 /**
- *
+ *  Clase que representa a los contenedores de comentarios
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 public class CommentContainer extends Container{
    
     private List<Comment> comments;
 
+    /**
+     *
+     * @return lista de comentarios existentes en el contenedor
+     */
     public List<Comment> getComments() {
         return comments;
     }
 
+    /**
+     *
+     * @param comments lista de comentarios en el contenedor
+     */
     public void setComments(List<Comment> comments) {
         this.comments = comments;
     }

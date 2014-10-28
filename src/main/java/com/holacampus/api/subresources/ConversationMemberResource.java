@@ -51,20 +51,37 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al subrecurso
+ * ConversationMembers. Es decir, gestiona las peticiones a la URL 
+ * <code>/conversations/{cid}/members</code>. Estos recursos son los miembros que
+ * pertenecen a una conversación
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class ConversationMemberResource {
     
     private static final Logger logger = LogManager.getLogger( ConversationMemberResource.class.getName());
 
-    private Conversation conversation;
+    private final Conversation conversation;
     
+    /**
+     * Contructor del subrecurso de miembros de la conversación
+     * @param conversation conversación a la que pertenece el subrecurso
+     */
     public ConversationMemberResource( Conversation conversation)
     {
         this.conversation = conversation;
     }
 
+    /**
+      * Esta función gestiona las peticiones GET al recurso 
+     * <code>/conversations/{cid}/members</code>. Esta operación devuelve un lista 
+     * con los miembro de la conversación
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return lista con los miembros de la conversación
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -102,6 +119,15 @@ public class ConversationMemberResource {
         return members;
     }
     
+    /**
+     * Esta función gestiona las peticiones POST al recurso 
+     * <code>/conversations/{cid}/members</code>. Esta operación añade un nuevo
+     * miembro a la conversación
+     * @param member miembro a añadir en la conversación
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return reperesentación del miembro recien añadido
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
@@ -142,6 +168,15 @@ public class ConversationMemberResource {
         return member;
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>/conversations/{cid}/members/{id}</code>. Esta operación obtiene
+     * la representación de un miembro en concreto
+     * @param id identificador del miembro de la conversación
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación del miembro de la conversación
+     */
     @Path( "/{id}")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -175,6 +210,14 @@ public class ConversationMemberResource {
         return member;
     }
     
+    /**
+     * Esta función gestiona las peticiones DELETE al recurso 
+     * <code>/conversations/{cid}/members/{id}</code>. Esta operación elimina a
+     *  un miembro en concreto de la conversación
+     * @param id identificador del miembro a eliminar
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     */
     @Path( "/{id}")
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -222,6 +265,13 @@ public class ConversationMemberResource {
         return;
     }
     
+    /**
+     * Esta función gestiona las peticiones DELETE al recurso 
+     * <code>/conversations/{cid}/members/me</code>. Esta operación elimina al 
+     * usuario que realiza la petición de la conversación
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     */
     @Path( "/me")
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -231,7 +281,8 @@ public class ConversationMemberResource {
         deleteMember( ((UserPrincipal) sc.getUserPrincipal()).getId(), sc, uriInfo);
     }
     
-    public void checkMembership( ConversationMapper mapper, Long userId) throws HTTPErrorException, Exception
+   
+    private void checkMembership( ConversationMapper mapper, Long userId) throws HTTPErrorException, Exception
     {
         int isMember = mapper.isMemberOfConversation( conversation.getId(), userId);
             

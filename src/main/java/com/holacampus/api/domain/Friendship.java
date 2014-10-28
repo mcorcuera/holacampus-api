@@ -20,12 +20,19 @@ import java.util.Date;
 
 
 /**
- *
+ * Clase que representa una relación de amistad
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 public class Friendship {
     
+    /**
+     * La amistad está confirmada
+     */
     public static final String STATUS_CONFIRMED     = "CONFIRMED";
+
+    /**
+     * La amistad no esta confirmada
+     */
     public static final String STATUS_UNCONFIRMED   = "UNCONFIRMED";
     
     private User    sender;
@@ -34,42 +41,82 @@ public class Friendship {
     private Date    petitionDate;
     private Date    statusChangeDate;
 
+    /**
+     *
+     * @return usuario que envió la petición de amistad
+     */
     public User getSender() {
         return sender;
     }
 
+    /**
+     *
+     * @param sender usuario que recivió la petición de amistad
+     */
     public void setSender(User sender) {
         this.sender = sender;
     }
 
+    /**
+     *
+     * @return usuario que recibió la petición de amistad
+     */
     public User getReceiver() {
         return receiver;
     }
 
+    /**
+     *
+     * @param receiver usuario que recibió la petición de amistad
+     */
     public void setReceiver(User receiver) {
         this.receiver = receiver;
     }
 
+    /**
+     *
+     * @return estado de la relaci´ón de amistad
+     */
     public String getStatus() {
         return status;
     }
 
+    /**
+     *
+     * @param status estado de la relación de amistad
+     */
     public void setStatus(String status) {
         this.status = status;
     }
 
+    /**
+     *
+     * @return fecha de la petición de amistad
+     */
     public Date getPetitionDate() {
         return petitionDate;
     }
 
+    /**
+     *
+     * @param petitionDate fecha de la petición de amistad
+     */
     public void setPetitionDate(Date petitionDate) {
         this.petitionDate = petitionDate;
     }
 
+    /**
+     *
+     * @return fecha de cambio del estado de la petición de amistad
+     */
     public Date getStatusChangeDate() {
         return statusChangeDate;
     }
 
+    /**
+     *
+     * @param statusChangeDate  fecha de cambio del estado de la petición de amistad
+     */
     public void setStatusChangeDate(Date statusChangeDate) {
         this.statusChangeDate = statusChangeDate;
     }

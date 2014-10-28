@@ -24,7 +24,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
 /**
- *
+ * Esta clase representa las diferentes ciudades de la red social
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 @HalRootElement
@@ -43,27 +43,50 @@ public class City extends Element implements Linkable{
     @HalEmbedded( "country")
     private Country     country;
     
+    /**
+     *
+     * @return país al que pertenece la ciudad
+     */
     public Country getCountry() {
         return country;
     }
 
+    /**
+     *
+     * @param country país al que pertenece la ciudad
+     */
     public void setCountry(Country country) {
         this.country = country;
     }
 
-
+    /**
+     *
+     * @return nombre de la ciudad
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     *
+     * @param name nombre de la ciudad
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     *
+     * @return localización de la ciudad
+     */
     public Location getLocation() {
         return location;
     }
 
+    /**
+     *
+     * @param location localización de la ciudad
+     */
     public void setLocation(Location location) {
         this.location = location;
     }

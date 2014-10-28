@@ -47,7 +47,9 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al recurso
+ * GroupsEvents. Es decir, gestiona las peticiones a la URL 
+ * <code>/groups</code> o <code>/events</code>.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 @Path("/{type:groups|events}")
@@ -64,6 +66,18 @@ public class GroupsEventsResource {
     @Context
     private SecurityContext sc;
     
+    /**
+     *Esta función gestiona las peticiones GET al recurso 
+     * <code>/groups</code> o <code>/events</code>. Esta operación devuelve 
+     * una lista con los grupos o eventos de la red social
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param q cadena de caracteres que sirve para filtrar por nombre los
+     * resultados
+     * @return lista con los grupos o eventos del tamaño especificado y filtrada
+     * por nombre
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @Produces( { RepresentationFactory.HAL_JSON})
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -89,8 +103,8 @@ public class GroupsEventsResource {
         
         try {            
             GroupEventMapper mapper     = session.getMapper( GroupEventMapper.class);
-            List<GroupEvent> groupList  = mapper.getGroupsEvents( elementType, q, rb);
-            int total                   = mapper.getTotalGroupsEvents( elementType, q);
+            List<GroupEvent> groupList  = mapper.getGroupsEvents( elementType, q, null, rb);
+            int total                   = mapper.getTotalGroupsEvents( elementType, q, null);
             session.commit();
             
             for( GroupEvent group : groupList) {
@@ -117,6 +131,15 @@ public class GroupsEventsResource {
         return groups;
     }
     
+    
+    
+    /**
+     *sta función gestiona las peticiones POST al recurso 
+     * <code>/groups</code> o <code>/events</code>. Esta operación crea un nuevo
+     * grupo o evento en la red social
+     * @param group datos del grupo o evento a crear
+     * @return representación del grupo o evento recién creado
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})

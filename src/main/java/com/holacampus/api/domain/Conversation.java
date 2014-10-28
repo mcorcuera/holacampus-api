@@ -24,19 +24,19 @@ import java.sql.Timestamp;
 import java.util.List;
 
 /**
- *
+ * Clase que representa las conversaciones de la red social
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 @HalRootElement
 public class Conversation extends Element implements Linkable{
     
     /**
-     *
+     * Conversación grupal
      */
     public static final String TYPE_GROUP       = "GROUP";
 
     /**
-     *
+     * Conversación individual
      */
     public static final String TYPE_INDIVIDUAL  = "INDIVIDUAL";
     
@@ -61,58 +61,114 @@ public class Conversation extends Element implements Linkable{
     @HalEmbedded( "members")
     private List<ConversationMember>    members;
 
+    /**
+     *
+     * @return tipo de conversación
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     *
+     * @param type tipo de conversación
+     */
     public void setType(String type) {
         this.type = type;
     }
 
+    /**
+     *
+     * @return fecha de creación de la conversación
+     */
     public Timestamp getCreationDate() {
         return creationDate;
     }
 
+    /**
+     *
+     * @param creationDate fecha de creación de la conversación
+     */
     public void setCreationDate( Timestamp creationDate) {
         this.creationDate = creationDate;
     }
 
+    /**
+     *
+     * @return nombre de la conversación (en caso de conversaciones grupales)
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     *
+     * @param name nombre de la conversación
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     *
+     * @return número total de mensajes no leidos en la conversación
+     */
     public Integer getUnseenMessages() {
         return unseenMessages;
     }
 
+    /**
+     *
+     * @param unseenMessages número total de mensajes no leidos en la conversación
+     */
     public void setUnseenMessages(Integer unseenMessages) {
         this.unseenMessages = unseenMessages;
     }
 
+    /**
+     *
+     * @return lista con los mensajes de la conversación
+     */
     public List<Message> getMessages() {
         return messages;
     }
 
+    /**
+     *
+     * @param messages lista con los mensajes de la conversación
+     */
     public void setMessages(List<Message> messages) {
         this.messages = messages;
     }
 
+    /**
+     *
+     * @return lista con los miembros de la conversación
+     */
     public List<ConversationMember> getMembers() {
         return members;
     }
 
+    /**
+     *
+     * @param members lista con los miembros de la conversación
+     */
     public void setMembers(List<ConversationMember> members) {
         this.members = members;
     }
 
+    /**
+     *
+     * @return número total de miembros en la conversación
+     */
     public Integer getMemberCount() {
         return memberCount;
     }
 
+    /**
+     *
+     * @param memberCount número total de miembros en la conversación 
+     */
     public void setMemberCount(Integer memberCount) {
         this.memberCount = memberCount;
     }
@@ -123,11 +179,19 @@ public class Conversation extends Element implements Linkable{
         return Utils.createLink( "/conversations/" + getId(), null);
     }
     
+    /**
+     *
+     * @return enlace a la representación de los mensajes de la conversación
+     */
     @HalLink("messages")
     public String getMessagesLink() {
         return getSelfLink() + "/messages";
     }
     
+    /**
+     *
+     * @return enlace  a la representación de los miembros de la conversación
+     */
     @HalLink( "members")
     public String getMembersLink() {
         return getSelfLink() + "/members";

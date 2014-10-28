@@ -25,10 +25,8 @@ import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.mappers.PhotoContainerMapper;
 import com.holacampus.api.mappers.PhotoMapper;
 import com.holacampus.api.mappers.ProfilePhotoContainerMapper;
-import com.holacampus.api.resources.particular.ParticularUserResource;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
-import com.holacampus.api.security.PermissionScheme;
 import com.holacampus.api.security.UserPrincipal;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
@@ -51,7 +49,10 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al subrecurso
+ * ProfilePhoto. Es decir, gestiona las peticiones a la URL 
+ * <code>.../profile-photo</code>. Estos recursos son las fotos
+ * de perfil de los diferentes elementos de la red social
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class ProfilePhotoResource {
@@ -62,19 +63,30 @@ public class ProfilePhotoResource {
     private final PhotoContainer          photoContainer;
     private final ProfilePhotoContainer   profilePhotoContainer;
     private final String                  path;
-    private final Long                    parentId;
     
+    /**
+     *  Contructor del subrecurso de fotos de perfil
+     * @param photoContainer contenedor de fotos del elementos al que pertenece
+     * el subrecurso
+     * @param profilePhotoContainer contenedor de fotos de perfil del elemento 
+     * al que pertenece el subrecurso
+     * @param path ruta que identifica al subrecurso
+     */
     public ProfilePhotoResource( PhotoContainer photoContainer, 
-            ProfilePhotoContainer profilePhotoContainer, Long parentId, 
-            String path) 
+            ProfilePhotoContainer profilePhotoContainer, String path) 
     {
         this.photoContainer         = photoContainer;
         this.profilePhotoContainer  = profilePhotoContainer;
         this.path                   = path;
-        this.parentId               = parentId;
         
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>.../profile-photo</code>. Esta operación devuelve la representación
+     * de la foto de perfil del elemento al que pertenece
+     * @return representación de la foto de perfil
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -105,6 +117,14 @@ public class ProfilePhotoResource {
         return photo;
     }
     
+    /**
+     * Esta función gestiona las peticiones PUT al recurso 
+     * <code>.../profile-photo</code>. Esta operación modifica la foto de perfil
+     * del elemento al que pertenece
+     * @param data datos de la foto a establecer como foto de perfil
+     * @param sc información de seguridad y autenticación de la petición
+     * @return representación de la foto de perfil del elemento ya modificada
+     */
     @PUT
     @Produces( { RepresentationFactory.HAL_JSON})
     @Consumes( {MediaType.APPLICATION_JSON})
@@ -163,6 +183,12 @@ public class ProfilePhotoResource {
         return photo;
     }
     
+    /**
+     * Esta función gestiona las peticiones DELETE al recurso 
+     * <code>.../profile-photo</code>. Esta operación elimina la foto de perfil
+     * del elemento al que pertenece
+     * @param sc información de seguridad y autenticación de la petición
+     */
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     public void deleteProfilePhoto( @Context SecurityContext sc) {

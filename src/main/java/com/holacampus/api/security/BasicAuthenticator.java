@@ -50,9 +50,6 @@ public final class BasicAuthenticator implements Authenticator{
     private static final String SCHEME = "[Bb]asic";
     
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public final UserPrincipal authenticate(MultivaluedMap<String, String> headers) throws AuthenticationFailException, AuthenticationBadSintaxException
     {
@@ -137,9 +134,6 @@ public final class BasicAuthenticator implements Authenticator{
         return credentials;
     }
   
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public final String getScheme() {
         return AuthenticationScheme.AUTHENTICATION_SCHEME_BASIC;

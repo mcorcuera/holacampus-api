@@ -16,9 +16,7 @@
  */
 package com.holacampus.api.mappers;
 
-import com.holacampus.api.domain.CommentContainer;
-import com.holacampus.api.domain.Permission;
-import org.apache.ibatis.annotations.Param;
+import com.holacampus.api.domain.*;
 
 /**
  * Mapper para la clase {@link ActiveElement}
@@ -26,7 +24,5 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface ActiveElementMapper {
     
-    
-
     
 }

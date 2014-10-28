@@ -35,18 +35,54 @@ import javax.activation.MimeTypeParseException;
 import javax.imageio.ImageIO;
 import org.glassfish.jersey.internal.util.Base64;
 
+/**
+ * Clase que provee de utilidad para la subida y almacenamiento de fotos. Entre
+ * sus funciones se encuentra el analizar los datos de entrada y comprobar que 
+ * se trata de datos de image. Después crea una versión en miniatura de la imagen
+ * y tras ello almacena ambas imagenes en disco para que puedan ser accedidas por
+ * el servidor HTTP instalado en la maquina
+ *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
+ */
 public class PhotoUploader {
+
+    /**
+     * Carpeta donde almacenar las imágenes
+     */
     public static final String  IMAGE_FOLDER         = "C:/Program Files/Apache Software Foundation/Apache2.2/htdocs/holacampus/images";
+
+    /**
+     * URL donde se encuentran las imágenes
+     */
     public static final String  IMAGE_BASE_URL       = "http://localhost/holacampus/images";
     
+    /**
+     * Carpeta donde alamcenar las miniaturas de las imagenes
+     */
     public static final String  THUMB_FOLDER         = "C:/Program Files/Apache Software Foundation/Apache2.2/htdocs/holacampus/thumbnails";
+
+    /**
+     * URL donde se encuentrar las miniaturas de las imagenes
+     */
     public static final String  THUMB_BASE_URL       = "http://localhost/holacampus/thumbnails";
    
+    /**
+     * Tamaño máximo de las miniaturas
+     */
     public static final int     THUMB_DIMENSION      = 170;
     
+    /**
+     * Esta función almacena la imagen y la miniatura de esta en disco. Para ello 
+     * necesita de los datos binarios de la imagen codificados en base64. Para guardar
+     * la imagen, le dará a esta un nombre de archivo que coincidirá con el resultado
+     * de aplicar el algoritmo MD5 al contenido de la foto.
+     * @param photo datos binarios de la foto a almacenar codificados en Base64
+     * @return URLs donde encontrar la imagen y la miniatura de esta
+     * @throws NoSuchAlgorithmException
+     * @throws MimeTypeParseException
+     * @throws IOException
+     */
     public static PhotoUrls uploadPhoto( String photo) throws NoSuchAlgorithmException, MimeTypeParseException, IOException {
        
-        String url                  = null;
         PhotoUrls photoUrls         = null;
         StringBuffer hexString      = new StringBuffer();
         byte[] photoBytes           = Base64.decode(photo.getBytes());
@@ -117,7 +153,7 @@ public class PhotoUploader {
         return photoUrls;
     }
     
-    public static BufferedImage toBufferedImage(Image img)
+    private static BufferedImage toBufferedImage(Image img)
     {
         if (img instanceof BufferedImage)
         {
@@ -136,8 +172,19 @@ public class PhotoUploader {
         return bimage;
     }
     
+    /**
+     * Esta clase contiene las urls de la imagen y la de su miniatura
+     */
     public static class PhotoUrls {
+
+        /**
+         * url de la imagen
+         */
         public String url;
+
+        /**
+         * url de la miniatura
+         */
         public String thumbnailUrl;
     }
 }

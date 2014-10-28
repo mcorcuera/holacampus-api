@@ -18,40 +18,90 @@
 package com.holacampus.api.domain;
 
 /**
- *
+ * Superclase para los distintos contenedores (de comentarios, fotos, etc.)
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 public class Container {
     
-    
+    /**
+     * Tipo de elemento al que puede pertenecer el contenedor
+     */
     public static enum ElementType{
-        USER, UNI, GROUP, COMMENT, PHOTO
+
+        /**
+         * Usuario
+         */
+        USER,
+
+        /**
+         * Universidad
+         */
+        UNI,
+
+        /**
+         * Grupo (o evento)
+         */
+        GROUP,
+
+        /**
+         * Comentario
+         */
+        COMMENT,
+
+        /**
+         * Foto
+         */
+        PHOTO
     }
     
     private Long        id;
     private ElementType type;
     private Long        ownerId;
 
+    /**
+     *
+     * @return identificador del contenedor
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id identificador del contenedor
+     */
     public void setId(Long id) {
         this.id = id;
     }
 
+    /**
+     *
+     * @return tipo de elemento al que pertenece el contendor
+     */
     public ElementType getType() {
         return type;
     }
 
+    /**
+     *
+     * @param type tipo de elemento al que pertenece el contenedor
+     */
     public void setType(ElementType type) {
         this.type = type;
     }
 
+    /**
+     *
+     * @return identificador del tipo de elemento al que pertenece el contenedor
+     */
     public Long getOwnerId() {
         return ownerId;
     }
 
+    /**
+     *
+     * @param ownnerId identificador del tipo de elemento al que pertenece el contenedor
+     */
     public void setOwnerId(Long ownnerId) {
         this.ownerId = ownnerId;
     }

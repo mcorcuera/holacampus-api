@@ -49,7 +49,10 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API a un recurso
+ * GroupEvent particualr. Es decir, gestiona las peticiones a la URL 
+ * <code>/groups|events/{id}</code> donde <code>id</code> es el identificador
+ * del grupo o evento.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 
@@ -90,6 +93,12 @@ public class ParticularGroupEventResource {
     @PathParam( "id")
     private Long id;
     
+    /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con los comentarios del grupo o evento. Esto es, a la URL 
+     * <code>/groups|events/{id}/comments</code>
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path("/comments")
     public CommentsResource getCommentResource() 
     {
@@ -110,9 +119,15 @@ public class ParticularGroupEventResource {
             session.close();
         }
         
-        return new CommentsResource( id, c, uriInfo.getPath(), ParticularGroupEventResource.commentsScheme);
+        return new CommentsResource( c, uriInfo.getPath(), ParticularGroupEventResource.commentsScheme);
     }
     
+     /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con las fotos del grupo o evento. Esto es, a la URL 
+     * <code>/groups|events/{id}/photos</code>
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path( "/photos")
     public PhotosResource getPhotosResource()
     {
@@ -133,9 +148,16 @@ public class ParticularGroupEventResource {
             session.close();
         }  
         
-        return new PhotosResource( id, c, uriInfo.getPath(), ParticularGroupEventResource.photosScheme, ParticularGroupEventResource.photosCommentScheme);
+        return new PhotosResource( c, uriInfo.getPath(), ParticularGroupEventResource.photosScheme, ParticularGroupEventResource.photosCommentScheme);
     }
     
+      
+     /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con la foto de perfil del grupo o evento. Esto es, a la URL 
+     * <code>/groups|events/{id}/group-photo</code>
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path( "/group-photo")
     public ProfilePhotoResource getProfilePhotoResource()
     {
@@ -159,9 +181,15 @@ public class ParticularGroupEventResource {
         } finally {
             session.close();
         }  
-        return new ProfilePhotoResource( pc, ppc, id, uriInfo.getPath());
+        return new ProfilePhotoResource( pc, ppc, uriInfo.getPath());
     }
     
+    /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con los miembros del grupo o evento. Esto es, a la URL 
+     * <code>/groups|events/{id}/members</code>
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path( "/members")
     public MembersResource getMembersResource()
     {
@@ -193,6 +221,12 @@ public class ParticularGroupEventResource {
         return new MembersResource( parent);
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>/groups|events/{id}</code>. Esta operación devuelve la representación
+     * del grupo o evento identificado por <b>id</b>
+     * @return representación del grupo o evento
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})

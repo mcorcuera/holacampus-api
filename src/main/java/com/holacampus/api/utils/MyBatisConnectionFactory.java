@@ -25,7 +25,8 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 
 /**
- *
+ * Esta clase sirve de contenedor del {@link SqlSessionFactory} necesario
+ * por MyBatis. Este {@link SqlSessionFactory} debe ser único para todas las consultas
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 public class MyBatisConnectionFactory {
@@ -43,8 +44,9 @@ public class MyBatisConnectionFactory {
     }
     
     /**
-     *
-     * @return
+     * Devuelve el  {@link SqlSessionFactory} necesario
+     * por MyBatis ya inicializado
+     * @return el objeto ya inicializado
      */
     public static SqlSessionFactory getSession() {
        return sqlMapper; 

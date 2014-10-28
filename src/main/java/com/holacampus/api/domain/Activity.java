@@ -21,7 +21,8 @@ import com.theoryinpractise.halbuilder.jaxrs.*;
 import java.sql.Timestamp;
 
 /**
- *
+ * Esta clase define una actividad en concreto en la red social. Establece 
+ * de que actividad se trata, quien la realiza y dónde, entre otros datos.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 @HalRootElement
@@ -48,58 +49,115 @@ public class Activity {
     @HalProperty( name="when")
     private Timestamp when;
 
+    /**
+     *
+     * @return el tipo de actividad
+     */
     public String getWhatType() {
         return whatType;
     }
 
+    /**
+     *
+     * @param whatType el tipo de actividad a establecer
+     */
     public void setWhatType(String whatType) {
         this.whatType = whatType;
     }
 
+    /**
+     *
+     * @return el elemento en el que consiste la actividad. Puede ser un comentario,
+     * una foto, etc.
+     */
     public Element getWhat() {
         return what;
     }
 
+    /**
+     *
+     * @param what el elemento en el que consiste la actividad
+     */
     public void setWhat(Element what) {
         this.what = what;
     }
 
+    /**
+     *
+     * @return el tipo de elemento activo que realiza la actividad
+     */
     public String getWhoType() {
         return whoType;
     }
 
+    /**
+     *
+     * @param whoType el tipo de elemento activo que realiza la actividad
+     */
     public void setWhoType(String whoType) {
         this.whoType = whoType;
     }
 
+    /**
+     *
+     * @return el elemento activo que realiza la actividad
+     */
     public ActiveElement getWho() {
         return who;
     }
 
+    /**
+     *
+     * @param who el elemento activo que realiza la actividad
+     */
     public void setWho(ActiveElement who) {
         this.who = who;
     }
 
+    /**
+     *
+     * @return el tipo de elemento donde se realiza la activad (comentario, grupor,...)
+     */
     public String getWhereType() {
         return whereType;
     }
 
+    /**
+     *
+     * @param whereType el tipo de elemento donde se realiza la actividad.
+     */
     public void setWhereType(String whereType) {
         this.whereType = whereType;
     }
 
+    /**
+     *
+     * @return el elemento donde se realiza la actividad (comentario, grupo, etc..)
+     */
     public Element getWhere() {
         return where;
     }
 
+    /**
+     *
+     * @param where el elemento donde se realiza la actividad
+     */
     public void setWhere(Element where) {
         this.where = where;
     }
 
+    /**
+     *
+     * @return momento en el que se realizó la actividad
+     */
     public Timestamp getWhen() {
         return when;
     }
 
+    /**
+     *
+     * @param when momento en el que se realizó la actividad
+     */
     public void setWhen(Timestamp when) {
         this.when = when;
     }

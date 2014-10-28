@@ -21,17 +21,25 @@ import com.holacampus.api.domain.Container;
 import java.util.List;
 
 /**
- *
+ * Clase que representa a los contenedores de fotos
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 public class PhotoContainer extends Container{
     
     private List<Photo> photos;
 
+    /**
+     *
+     * @return fotos contenidas en el contenedor
+     */
     public List<Photo> getPhotos() {
         return photos;
     }
 
+    /**
+     *
+     * @param photos fotos contenidas en el contenedor
+     */
     public void setPhotos(List<Photo> photos) {
         this.photos = photos;
     }

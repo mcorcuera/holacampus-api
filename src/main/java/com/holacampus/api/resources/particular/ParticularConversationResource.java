@@ -19,9 +19,7 @@ package com.holacampus.api.resources.particular;
 
 import com.holacampus.api.domain.Conversation;
 import com.holacampus.api.exceptions.HTTPErrorException;
-import com.holacampus.api.hal.HalList;
 import com.holacampus.api.mappers.ConversationMapper;
-import com.holacampus.api.resources.ConversationResource;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.UserPrincipal;
@@ -31,8 +29,6 @@ import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
@@ -41,7 +37,10 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API a un recurso
+ * Conversation particualr. Es decir, gestiona las peticiones a la URL 
+ * <code>/conversations/{id}</code> donde <code>id</code> es el identificador
+ * de la conversación.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 @Path( "/conversations/{id}")
@@ -59,6 +58,12 @@ public class ParticularConversationResource {
     @PathParam( "id")
     private Long id;
     
+    /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con los mensajes de la conversación. Esto es, a la URL 
+     * <code>/coversations/{id}/messages</code>
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path( "/messages")
     public MessagesResource getMessagesResource()
     {
@@ -87,7 +92,13 @@ public class ParticularConversationResource {
         return new MessagesResource( conversation);
     }
     
-     @Path( "/members")
+     /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con los miembros de la conversación. Esto es, a la URL 
+     * <code>/coversations/{id}/members</code>
+     * @return recurso que se encarga de gestionar la petición
+     */
+    @Path( "/members")
     public ConversationMemberResource getConversationMemberResource()
     {
         Conversation conversation = null;
@@ -115,6 +126,12 @@ public class ParticularConversationResource {
         return new ConversationMemberResource( conversation);
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>/conversations/{id}</code>. Esta operación devuelve la representación
+     * de la conversación identificada por <b>id</b>
+     * @return la representación de la conversación
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})

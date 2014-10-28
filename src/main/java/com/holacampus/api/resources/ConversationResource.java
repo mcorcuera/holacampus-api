@@ -41,7 +41,10 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ *Esta clase se encarga de gestionar las peticiones de la API al recurso
+ * Conversations. Es decir, gestiona las peticiones a la URL 
+ * <code>/conversations</code>.
+ * 
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 @Path( "/conversations")
@@ -55,6 +58,14 @@ public class ConversationResource {
     @Context
     private UriInfo uriInfo;
     
+    /**
+     *  Esta función gestiona las peticiones POST al recurso 
+     * <code>/conversations</code>. Esta operación crea una nueva conversación
+     * en la red social. Esta conversación no tendrá ningún miembro en el momento
+     * de su creación.
+     * @param conversation objeto con los datos de la conversación
+     * @return representación de la conversación recién creada
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})

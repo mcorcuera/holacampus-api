@@ -28,18 +28,20 @@ import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Email;
 
 /**
- *
+ *  Esta clase identifica a los elementos de la red social que son capaces de 
+ * modificar los elementos de esta. Dicho de otra manera, los elementos que 
+ * tienen un rol activo en la red social
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 public class ActiveElement extends Element implements Linkable{
     
     /**
-     *
+     * El tipo de elemento activo para los usuarios
      */
     public static final String TYPE_USER    = "USER";
 
     /**
-     *
+     * El tiepo de elemento activo para las universidades
      */
     public static final String TYPE_UNI     = "UNI";
         
@@ -61,12 +63,19 @@ public class ActiveElement extends Element implements Linkable{
     @HalEmbedded( "profilePhoto")
     private Photo               profilePhoto;
     
-    
+    /**
+     * Contructor por defecto
+     */
     public ActiveElement()
     {
         
     }
     
+    /**
+     * Crea un nuevo usuario a partir de un {@link UserPrincipal} a partir
+     * de los datos contenidos en este.
+     * @param u UserPrincipal donde se encuentran los datos
+     */
     public ActiveElement( UserPrincipal u) {
         this();
         setId( u.getId());
@@ -75,43 +84,63 @@ public class ActiveElement extends Element implements Linkable{
     
 
     /**
-     *
-     * @return
+     * 
+     * @return el tipo de elemento activo
      */
     public String getType() {
         return type;
     }
     
     /**
-     *
-     * @param type
+     * @param type tipo de elemento activo a establecer
      */
     public void setType(String type) {
         this.type = type;
     }
 
+    /**
+     * @return email del elemento activo
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     *
+     * @param email email a establecer
+     */
     public void setEmail(String email) {
         this.email = email;
     }
 
+    /**
+     *
+     * @return contraseña de acceso del elemento activo
+     */
     public String getPassword() {
         return password;
     }
 
+    /**
+     *
+     * @param password contraseña a establecer
+     */
     public void setPassword(String password) {
         this.password = password;
     }
 
-    
-    
+    /**
+     *
+     * @return foto de perfil del elemento activo
+     */
     public Photo getProfilePhoto() {
         return profilePhoto;
     }
 
+    /**
+     *
+     * @param profilePhoto foto de perfil a establecer
+     */
     public void setProfilePhoto(Photo profilePhoto) {
         this.profilePhoto = profilePhoto;
     }

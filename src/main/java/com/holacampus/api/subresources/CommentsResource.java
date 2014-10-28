@@ -59,7 +59,10 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al subrecurso
+ * Comments. Es decir, gestiona las peticiones a la URL 
+ * <code>.../commments</code>. Estos recursos son los comentarios o recomentarios
+ * realizados sobre otros elementos de la red social.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class CommentsResource {
@@ -68,17 +71,31 @@ public class CommentsResource {
  
     private final CommentContainer  container;
     private final String            path;
-    private Long                    elId;
     private final PermissionScheme  permissionScheme;
     
-    public CommentsResource( long id, CommentContainer c, String path, PermissionScheme scheme)
+    /**
+     * Contructor del subrecurso de comentarios
+     * @param c contenedor de comentarios al que pertenece el subrecurso
+     * @param path ruta que identifica al subrecurso
+     * @param scheme esquema de permisos necesarios sobre el subrecurso
+     */
+    public CommentsResource( CommentContainer c, String path, PermissionScheme scheme)
     {
-        this.elId               = id;
         this.container          = c;
         this.path               = path;
         this.permissionScheme   = scheme;
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>.../comments</code>. Esta operación devuelve un lista con los comentarios
+     * registrados en el contenedor de comentarios.
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return lista de los comentarios con el tamaño especificado
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -141,6 +158,15 @@ public class CommentsResource {
         return comments;
     }
     
+    /**
+     * Esta función gestiona las peticiones POST al recurso 
+     * <code>.../comments</code>. Esta operación crea un nuevo comentarios
+     * en el contenedor de comentarios.
+     * @param comment comentario a crear
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación del comentario ya creado
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
@@ -200,6 +226,15 @@ public class CommentsResource {
     
     // Comment Detail resource
     
+    /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con las respuestas a un comentario. Esto es, a la URL 
+     * <code>.../comments/{id}/recomments</code>
+     * @param id identificador del comentario
+     * @param uriInfo  información de la URL de la petición
+     * @return recurso que se encarga de gestionar la petición
+     */
+        
     @Path("/{id}/recomments")
     public CommentsResource getCommentResource( @PathParam("id") long id, @Context UriInfo uriInfo) {
         
@@ -237,9 +272,18 @@ public class CommentsResource {
                         .addPermissionScheme(Action.DELETE_UNIQUE, Permission.LEVEL_PARENT_OWNER);
     
     
-        return new CommentsResource( id, c, uriInfo.getPath(), recommentsScheme);
+        return new CommentsResource( c, uriInfo.getPath(), recommentsScheme);
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>.../comments/{id}</code>. Esta operación devuelve la representación
+     * de un comentario concreto.
+     * @param id identificador del comentario
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación del comentario
+     */
     @Path("/{id}")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -284,6 +328,12 @@ public class CommentsResource {
         return comment;
     }
     
+    /**
+     * Esta función gestiona las peticiones DELETE al recurso 
+     * <code>.../comments/{id}</code>. Esta operación elimina un comentario concreto.
+     * @param id  identificador del comentario
+     * @param sc información de seguridad y autenticación de la petición
+     */
     @Path("/{id}")
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)

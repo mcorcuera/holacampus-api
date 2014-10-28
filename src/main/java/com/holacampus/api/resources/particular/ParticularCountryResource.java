@@ -44,7 +44,10 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API a un recurso
+ * Country particualr. Es decir, gestiona las peticiones a la URL 
+ * <code>/countries/{id}</code> donde <code>id</code> es el identificador
+ * del país.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 
@@ -56,6 +59,13 @@ public class ParticularCountryResource {
     @Context
     private UriInfo uriInfo;
     
+    /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con las ciudades del país. Esto es, a la URL 
+     * <code>/countries/{id}/cities</code>
+     * @param id identificador del país
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path("/cities")
     public CityResource getCityResource( @PathParam("id") Long id) {
         Country country = null;
@@ -82,6 +92,13 @@ public class ParticularCountryResource {
         return new CityResource( country);
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>/countries/{id}</code>. Esta operación devuelve la representación
+     * del país identificada por <b>id</b>
+     * @param id identificador del país
+     * @return representación del país
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -109,6 +126,14 @@ public class ParticularCountryResource {
         return country;
     }
     
+    /**
+     * Esta función gestiona las peticiones PUT al recurso 
+     * <code>/countries/{id}</code>. Esta operación modifica los datos del país
+     * identificada por <b>id</b>
+     * @param country datos a modificar del país
+     * @param id identificador del país a modificar
+     * @return representación del país ya modificado
+     */
     @PUT
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -139,6 +164,12 @@ public class ParticularCountryResource {
         return country;
     }
     
+    /**
+      *Esta función gestiona las peticiones DELTE al recurso 
+     * <code>/countries/{id}</code>. Esta operación elimina el país
+     * representado por <b>id</b>
+     * @param id identificador del país
+     */
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     public void deleteCountry( @PathParam( "id") Long id) {

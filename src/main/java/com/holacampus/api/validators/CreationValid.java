@@ -36,7 +36,8 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.Payload;
 
 /**
- *
+ * Anota un objeto estableciendo que debe ser validado teniendo en cuenta
+ * que se trata de un objeto recien creado.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 @Target({ METHOD, FIELD, PARAMETER })
@@ -44,19 +45,45 @@ import javax.validation.Payload;
 @Constraint(validatedBy = CreationValid.Validator.class)
 public @interface CreationValid {
     
+    /**
+     *
+     * @return mensaje a devolver cuando hay un error de validación
+     */
     String message() default "{invalid}";
 
+    /**
+     *
+     * @return 
+     */
     Class<?>[] groups() default {};
 
+    /**
+     *
+     * @return
+     */
     Class<? extends Payload>[] payload() default {};
     
-     public class Validator implements ConstraintValidator<CreationValid,Object>{
+    /**
+     * Clase que contiene la lógica de validación
+     */
+    public class Validator implements ConstraintValidator<CreationValid,Object>{
 
+        /**
+         *
+         * @param a
+         */
         @Override
         public void initialize(CreationValid a) {
             
         }
 
+        /**
+         * A partir del objeto y los criterios de validación, determina si 
+         * pasa la validación o no
+         * @param t
+         * @param cvc
+         * @return true, si está validado, false en caso contrario
+         */
         @Override
         public boolean isValid(Object t, ConstraintValidatorContext cvc) 
         {

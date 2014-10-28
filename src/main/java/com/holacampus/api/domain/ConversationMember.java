@@ -22,7 +22,7 @@ import com.theoryinpractise.halbuilder.jaxrs.*;
 import java.sql.Timestamp;
 
 /**
- *
+ * Clase que representa a los miembros de una conversación
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 
@@ -34,32 +34,54 @@ public class ConversationMember implements Linkable {
     private ActiveElement   member;
     private Conversation    conversation;
 
+    /**
+     *
+     * @return ultima vez que el miembro ha visto los mensajes de la conversación
+     */
     public Timestamp getLastSeen() {
         return lastSeen;
     }
 
+    /**
+     *
+     * @param lastSeen ultima vez que el miembro ha visto los mensajes de la conversación
+     */
     public void setLastSeen(Timestamp lastSeen) {
         this.lastSeen = lastSeen;
     }
 
+    /**
+     *
+     * @return  el elemento activo que es miembro de la conversación
+     */
     public ActiveElement getMember() {
         return member;
     }
 
+    /**
+     *
+     * @param member el elemento activo que es miembro de la conversación
+     */
     public void setMember(ActiveElement member) {
         this.member = member;
     }
 
+    /**
+     *
+     * @return la conversación de la que el miembro es miembro
+     */
     public Conversation getConversation() {
         return conversation;
     }
 
+    /**
+     *
+     * @param conversation la conversación de la que el miembro es miembro
+     */
     public void setConversation(Conversation conversation) {
         this.conversation = conversation;
     }
 
-    
-    
     @Override
     @HalSelfLink
     public String getSelfLink() {

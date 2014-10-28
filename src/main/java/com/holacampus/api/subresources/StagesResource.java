@@ -19,13 +19,10 @@ package com.holacampus.api.subresources;
 
 import com.holacampus.api.domain.Permission;
 import com.holacampus.api.domain.Stage;
-import com.holacampus.api.domain.Study;
-import com.holacampus.api.domain.University;
 import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.hal.HalList;
 import com.holacampus.api.mappers.StageMapper;
-import com.holacampus.api.mappers.StudyMapper;
 import com.holacampus.api.mappers.UserMapper;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
@@ -36,7 +33,6 @@ import com.holacampus.api.utils.Utils;
 import com.holacampus.api.validators.CreationValid;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.List;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -60,7 +56,12 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al subrecurso
+ * Stages. Es decir, gestiona las peticiones a la URL 
+ * <code>users/{uid}/stages</code>.
+ * <br/><br/>
+ * Este subrecurso se encarga de gestionar las diferentes etapas dentro de la
+ * trayectoria académica del usuario
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class StagesResource {
@@ -78,11 +79,26 @@ public class StagesResource {
                         .addPermissionScheme(PermissionScheme.Action.DELETE_UNIQUE, Permission.LEVEL_OWNER);
     }
     
+    /**
+     * Constructor del subrecurso de etapas de la trayectoría académica.
+     * @param user usuario al que pertenecen las etapas
+     */
     public StagesResource( User user)
     {
         this.user = user;
     }
     
+   /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>users/{uid}/stages</code>. Esta operación devuelve un lista 
+     * con las etapas de la trayectoría académica del usuario. 
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return lista con las etapas de la trayectoria académica del tamaño especificado
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -137,6 +153,15 @@ public class StagesResource {
         return stages;
     }
     
+   /**
+     * Esta función gestiona las peticiones POST al recurso 
+     * <code>users/{uid}/stages</code>. Esta operación añade una nueva etapa
+     * a la trayectoria académica del usuario
+     * @param stage datos de la etapa a añadir
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación de la etapa ya añadida
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
@@ -183,6 +208,18 @@ public class StagesResource {
     }
     
       /* Particular Study */
+
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>users/{uid}/stages/{id}</code>. Esta operación obtiene la representación
+     * de una etapa en concreto, identificada por <b>id</b>, dentro de la trayectoria
+     * académica del usuario
+     * @param id identificador de la etapa académica
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación de la etapa académica
+     */
+    
     
     @Path( "{id}")
     @GET
@@ -225,6 +262,17 @@ public class StagesResource {
         return stage;
     }
     
+    /**
+     * Esta función gestiona las peticiones PUT al recurso 
+     * <code>users/{uid}/stages/{id}</code>. Esta operación modifica los datos de
+     * una etapa en concreto, identificada por <b>id</b>, dentro de la trayectoria
+     * académica del usuario
+     * @param stage datos a modificar de la etapa
+     * @param id identificador de la etapa académica
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación de la etapa académica ya modificada
+     */
     @Path( "{id}")
     @PUT
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -267,6 +315,15 @@ public class StagesResource {
         return stage;
     }
     
+     /**
+     * Esta función gestiona las peticiones DELETE al recurso 
+     * <code>users/{uid}/stages/{id}</code>. Esta operación elimina 
+     * una etapa en concreto, identificada por <b>id</b>, dentro de la trayectoria
+     * académica del usuario
+     * @param id identificador de la etapa académica
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     */
     @Path( "{id}")
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)

@@ -45,7 +45,7 @@ import javax.ws.rs.ext.Provider;
 public class LocationContextFilter implements ContainerResponseFilter{
 
     /** {@inheritDoc}
-	 */
+    */
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
         

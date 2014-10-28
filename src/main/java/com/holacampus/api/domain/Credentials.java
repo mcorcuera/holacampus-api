@@ -19,7 +19,7 @@ package com.holacampus.api.domain;
 import com.holacampus.api.security.PasswordHash;
 
 /**
- *
+ * Clase que representa los credenciales de autenticación de la red social
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 public class Credentials {
@@ -29,35 +29,66 @@ public class Credentials {
     private byte[]              hashedPassword   ;
     private int                 iterations;
     
-
+    /**
+     *
+     * @return elemento al que pertenecen los credenciales
+     */
     public ActiveElement getElement() {
         return element;
     }
 
+    /**
+     *
+     * @param element  elemento al que pertenecen los credenciales
+     */
     public void setElement(ActiveElement element) {
         this.element = element;
     }
 
+    /**
+     *
+     * @return salt utilizado para la creación del hash
+     */
     public byte[] getSalt() {
         return salt;
     }
 
+    /**
+     *
+     * @param salt salt utilizado para la creación del hash
+     */
     public void setSalt(byte[] salt) {
         this.salt = salt;
     }
 
+    /**
+     *
+     * @return la contraseña "hasheada"
+     */
     public byte[] getHashedPassword() {
         return hashedPassword;
     }
 
+    /**
+     *
+     * @param hashedPassword la contraseña "hasheada"
+     */
     public void setHashedPassword(byte[] hashedPassword) {
         this.hashedPassword = hashedPassword;
     }
 
+    /**
+     *
+     * @return las iteraciones del algoritmo de hash
+     */
     public int getIterations() {
         return iterations;
     }
 
+    /**
+     *
+     * @param iterations las iteraciones del algoritmo de hash
+     */
     public void setIterations(int iterations) {
         this.iterations = iterations;
     }

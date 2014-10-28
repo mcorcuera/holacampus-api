@@ -18,17 +18,25 @@
 package com.holacampus.api.domain;
 
 /**
- *
+ * Clase que representa a los contenedores de comentarios de la red social
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class ProfilePhotoContainer extends Container{
     
     private Photo photo;
 
+    /**
+     * 
+     * @return foto de perfil
+     */
     public Photo getPhoto() {
         return photo;
     }
 
+    /**
+     *
+     * @param photo foto de perfil
+     */
     public void setPhoto(Photo photo) {
         this.photo = photo;
     }

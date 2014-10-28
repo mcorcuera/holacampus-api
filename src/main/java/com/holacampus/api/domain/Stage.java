@@ -25,7 +25,8 @@ import com.theoryinpractise.halbuilder.jaxrs.*;
 import java.util.Date;
 
 /**
- *
+ * Clase que representa a las etapas dentro de la trayectoria académica de un 
+ * estudiante
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 @HalRootElement
@@ -48,51 +49,98 @@ public class Stage extends Element implements Linkable{
     
     private String path;
 
-
+    /**
+     *
+     * @return usuario al que pertenece la trayectoria académica
+     */
     public User getUser() {
         return user;
     }
 
+    /**
+     *
+     * @param user usuario al que pertenece la trayectoria académica
+     */
     public void setUser(User user) {
         this.user = user;
     }
 
+    /**
+     *
+     * @return estudios que se realizaron en esta etapa
+     */
     public Study getStudy() {
         return study;
     }
 
+    /**
+     *
+     * @param study estudios que se realizaron en esta etapa
+     */
     public void setStudy(Study study) {
         this.study = study;
     }
 
+    /**
+     *
+     * @return año de inicio de la etapa
+     */
     public Integer getFromYear() {
         return fromYear;
     }
 
+    /**
+     * 
+     * @param fromYear año de inicio de la etapa
+     */
     public void setFromYear(Integer fromYear) {
         this.fromYear = fromYear;
     }
 
+    /**
+     *
+     * @return año de final de la etapa
+     */
     public Integer getToYear() {
         return toYear;
     }
 
+    /**
+     *
+     * @param toYear año de final de la etapa
+     */
     public void setToYear(Integer toYear) {
         this.toYear = toYear;
     }
 
+    /**
+     *
+     * @return descripción de la etapa
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     *
+     * @param description descripción de la etapa
+     */
     public void setDescription(String description) {
         this.description = description;
     }
 
+    /**
+     *
+     * @return fecha en la que se añadió la etapa a la trayectoria
+     */
     public Date getAdded() {
         return added;
     }
 
+    /**
+     *
+     * @param added fecha en la que se añadió la etapa a la trayectoria
+     */
     public void setAdded(Date added) {
         this.added = added;
     }
@@ -103,6 +151,10 @@ public class Stage extends Element implements Linkable{
         return Utils.createLink(path, null);
     }
     
+    /**
+     *
+     * @param path enlace a la representación del recurso
+     */
     public void setPath( String path) {
         this.path = path;
     }

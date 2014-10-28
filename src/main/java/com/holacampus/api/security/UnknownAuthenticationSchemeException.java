@@ -24,6 +24,10 @@ package com.holacampus.api.security;
  */
 public class UnknownAuthenticationSchemeException extends Exception{
     
+    /**
+     *
+     * @param message mensaje a mostrar con la excepción
+     */
     public UnknownAuthenticationSchemeException( String message)
     {
         super(message);

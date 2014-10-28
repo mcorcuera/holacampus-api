@@ -30,7 +30,6 @@ import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.PasswordHash;
 import com.holacampus.api.security.UserPrincipal;
-import com.holacampus.api.utils.HALBuilderUtils;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.holacampus.api.utils.Utils;
 import com.holacampus.api.validators.CreationValid;
@@ -60,7 +59,9 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al recurso
+ * University. Es decir, gestiona las peticiones a la URL 
+ * <code>/universities</code>.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 
@@ -72,12 +73,27 @@ public class UniversitiesResource {
     @Context
     private UriInfo uriInfo;
     
+    @Context
+    private SecurityContext sc;
+    
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>/universities</code>. Esta operación devuelve una lista con las 
+     * universidades de la red social
+      * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param q cadena de caracteres que sirve para filtrar por nombre los
+     * resultados
+     * @return lista con las universidades del tamaño especificado 
+     * y filtrada por nombre
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
     @Encoded
-    public HalList<University> getUniversities( @Context SecurityContext sc, 
-            @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
+    public HalList<University> getUniversities( @QueryParam("page") Integer page, 
+            @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
     {
         page = Utils.getValidPage(page);
         size = Utils.getValidSize(size);
@@ -121,6 +137,13 @@ public class UniversitiesResource {
         return universities;
     }
     
+    /**
+     * Esta función gestiona las peticiones POST al recurso 
+     * <code>/universities</code>. Esta operación crea una nueva universidad
+     * en la red social
+     * @param university datos de la universidad a crear
+     * @return representación de la universidad recien creada
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_NONE)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})

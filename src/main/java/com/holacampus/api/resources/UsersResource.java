@@ -28,7 +28,6 @@ import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.PasswordHash;
 import com.holacampus.api.security.UserPrincipal;
-import com.holacampus.api.utils.HALBuilderUtils;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.holacampus.api.utils.Utils;
 import com.holacampus.api.validators.CreationValid;
@@ -38,7 +37,6 @@ import java.net.URLDecoder;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
-import java.util.Objects;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -52,7 +50,9 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al recurso
+ * Users. Es decir, gestiona las peticiones a la URL 
+ * <code>/users</code>.
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 
@@ -64,12 +64,27 @@ public class UsersResource {
     @Context
     private UriInfo uriInfo;
     
+    @Context
+    private SecurityContext sc;
+    
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>/users</code>. Esta operación devuelve una lista con los 
+     * usuarios de la red social
+      * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param q cadena de caracteres que sirve para filtrar por nombre los
+     * resultados
+     * @return lista con los usuarios del tamaño especificado 
+     * y filtrada por nombre
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
     @Encoded  
-    public HalList<User> getUsers( @Context SecurityContext sc, 
-            @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
+    public HalList<User> getUsers(@QueryParam("page") Integer page, @QueryParam( "size") Integer size, 
+            @QueryParam( "q") String q) throws UnsupportedEncodingException
     {
         logger.info( "[GET] " + uriInfo.getPath());
         
@@ -115,6 +130,13 @@ public class UsersResource {
         return users;
     }
     
+   /**
+     * Esta función gestiona las peticiones POST al recurso 
+     * <code>/users</code>. Esta operación crea un nuevo usuario
+     * en la red social
+     * @param user datos del usuario a crear
+     * @return representación del usuario recien creado
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_NONE)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})

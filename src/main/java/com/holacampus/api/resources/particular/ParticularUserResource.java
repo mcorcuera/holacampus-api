@@ -63,7 +63,10 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API a un recurso
+ * User particualr. Es decir, gestiona las peticiones a la URL 
+ * <code>/users/{id}</code> donde <code>id</code> es el identificador
+ * del usuario
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 
@@ -102,6 +105,13 @@ public class ParticularUserResource {
     @Context
     private SecurityContext sc;
     
+    /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con los comentarios del usuario. Esto es, a la URL 
+     * <code>/users/{id}/comments</code>
+     * @param id identificador del usuario
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path("/{id}/comments")
     public CommentsResource getCommentsResource( @PathParam("id") long id) 
     {
@@ -122,9 +132,16 @@ public class ParticularUserResource {
             session.close();
         }
         
-        return new CommentsResource( id, c, uriInfo.getPath(), ParticularUserResource.commentsScheme);
+        return new CommentsResource( c, uriInfo.getPath(), ParticularUserResource.commentsScheme);
     }
     
+    /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con las fotos del usuario. Esto es, a la URL 
+     * <code>/users/{id}/photos</code>
+     * @param id identificador del usuario
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path( "/{id}/photos")
     public PhotosResource getPhotosResource( @PathParam("id") long id)
     {
@@ -145,10 +162,17 @@ public class ParticularUserResource {
             session.close();
         }  
         
-        return new PhotosResource( id, c, uriInfo.getPath(), photosScheme, photosCommentScheme);
+        return new PhotosResource( c, uriInfo.getPath(), photosScheme, photosCommentScheme);
     }
     
-     @Path( "/{id}/profile-photo")
+     /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con la foto de perfil del usuario. Esto es, a la URL 
+     * <code>/users/{id}/profile-photo</code>
+     * @param id identificador del usuario
+     * @return recurso que se encarga de gestionar la petición
+     */
+    @Path( "/{id}/profile-photo")
     public ProfilePhotoResource getProfilePhotoResource( @PathParam("id") long id)
     {
         SqlSession session = MyBatisConnectionFactory.getSession().openSession();
@@ -172,9 +196,16 @@ public class ParticularUserResource {
             session.close();
         }  
         
-        return new ProfilePhotoResource( pc, ppc, id, uriInfo.getPath());
+        return new ProfilePhotoResource( pc, ppc, uriInfo.getPath());
     }
     
+     /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con los amigos del usuario. Esto es, a la URL 
+     * <code>/users/{id}/friends</code>
+     * @param id identificador del usuario
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path( "/{id}/friends")
     public FriendsResource getFriendsResource( @PathParam("id") Long id)
     {
@@ -198,6 +229,14 @@ public class ParticularUserResource {
         return new FriendsResource( id);
     }
     
+   /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con las etapas dentro de la trayectoria académica
+     * del usuario. Esto es, a la URL 
+     * <code>/users/{id}/stages</code>
+     * @param id identificador del usuario
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path( "/{id}/stages")
     public StagesResource getStagesResource( @PathParam("id") Long id)
     {
@@ -221,6 +260,13 @@ public class ParticularUserResource {
         return new StagesResource( user);
     }
     
+      /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con las conversaciones del usuario. Esto es, a la URL 
+     * <code>/users/{id}/conversations</code>
+     * @param id identificador del usuario
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path( "/{id}/conversations")
     public ConversationsResource getConversationsResource( @PathParam("id") Long id)
     {
@@ -244,74 +290,13 @@ public class ParticularUserResource {
         return new ConversationsResource( user);
     }
     
-    @Path( "/{id}/{type:groups|events}")
-    @GET
-    @Produces( { RepresentationFactory.HAL_JSON})
-    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
-    @Encoded
-    public HalList<GroupEvent> getGroupsEvents( @PathParam("id") Long id, @PathParam("type") String type, 
-            @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
-    {
-        page = Utils.getValidPage(page);
-        size = Utils.getValidSize(size);
-        if( q != null) {
-            q   = URLDecoder.decode(q, "UTF-8");
-        }
-        String elementType = null;
-        if( "groups".equals(type))
-            elementType = GroupEvent.TYPE_GROUP;
-        else
-            elementType = GroupEvent.TYPE_EVENT;
-        
-        RowBounds rb                = Utils.createRowBounds(page, size);
-        UserPrincipal up            = (UserPrincipal) sc.getUserPrincipal(); 
-        SqlSession session          = MyBatisConnectionFactory.getSession().openSession();
-        HalList<GroupEvent> groups  = null;
-        
-        try {            
-            GroupEventMapper mapper     = session.getMapper( GroupEventMapper.class);
-            UserMapper userMapper       = session.getMapper( UserMapper.class);
-            
-            User user = userMapper.getUser(id);
-            if( user == null)
-                throw new HTTPErrorException( Status.NOT_FOUND, "User not found");
-            
-            Permission permission = new Permission();
-            
-            userMapper.getPermissions( up.getId(), id, permission);
-            
-            if( Permission.LEVEL_USER.equals( permission.getLevel()))
-                throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
-            
-            List<GroupEvent> groupList  = mapper.getGroupsEventsForActiveElement(elementType, q, id, rb);
-            int total                   = mapper.getTotalGroupsEventsForActiveElement(elementType, q, id);
-            session.commit();
-            
-            for( GroupEvent group : groupList) {
-                Permission permissions = new Permission();
-                mapper.getPermissions( up.getId(), group.getId(), permissions);
-                group.setPermission(permissions); 
-            }
-            
-            groups = new HalList( groupList, total);
-            
-            groups.setResourceRelativePath( uriInfo.getPath());
-            groups.setPage(page);
-            groups.setSize(size);
-            groups.setQuery(q);
-            
-        }catch( Exception e) {
-            logger.error( e.toString());
-            throw new InternalServerErrorException();
-        }
-        finally {
-            session.close();
-        }
-        
-        return groups;
-    }
-    
-    
+      /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>/users/{id}</code>. Esta operación devuelve la representación
+     * del usuario identificado por <b>id</b>
+     * @param id el identificador del usuario
+     * @return la representación del usuario
+     */
     @GET
     @Path("/{id}")
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -351,11 +336,18 @@ public class ParticularUserResource {
         }   
         return user;
     }
-     
+    
+      
+   /**
+     * Esta función gestiona las peticiones DELETE al recurso 
+     * <code>/users/{id}</code>. Esta operación elimina al
+     * usuario identificado por <b>id</b>
+     * @param id el identificador del usuario
+     */
     @DELETE
     @Path("/{id}")
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_BASIC)
-    public void deleteUser( @PathParam( "id") Long id, @Context SecurityContext sc)
+    public void deleteUser( @PathParam( "id") Long id)
     {
         /*
         * Only the user authenticated can delete himself, so we check it here
@@ -380,4 +372,120 @@ public class ParticularUserResource {
             throw new HTTPErrorException( Status.UNAUTHORIZED, "You are not authorized");
         }
     }
+    
+    /**
+      * Esta función gestiona las peticiones GET al recurso 
+     * <code>/users/{id}/groups|events</code>. Esta operación devuelve una 
+     * lista con los grupos o eventos a los que pertenece el 
+     * usuario identificado por <b>id</b>
+     * @param id el identificador del usuario
+     * @param type identifica si se trata de una petición de grupos o eventos
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param q cadena de caracteres que sirve para filtrar por nombre los
+     * resultados
+     * @return lista con los grupos o eventos del tamaño especificado y filtrada
+     * por nombre
+     * @throws UnsupportedEncodingException
+     */
+    @Path( "/{id}/{type:groups|events}")
+    @GET
+    @Produces( { RepresentationFactory.HAL_JSON})
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @Encoded
+    public HalList<GroupEvent> getGroupsEvents( @PathParam("id") Long id, @PathParam("type") String type, 
+            @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
+    {
+        return getGroupsEvents(id, type, page, size, q, false);
+    }
+    
+    /**
+      * Esta función gestiona las peticiones GET al recurso 
+     * <code>/users/{id}/events/past</code>. Esta operación devuelve una 
+     * lista con los eventos ya pasados a los que pertenece el 
+     * usuario identificado por <b>id</b>
+     * @param id el identificador del usuario
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param q cadena de caracteres que sirve para filtrar por nombre los
+     * resultados
+     * @return lista con los eventos pasados del tamaño especificado y filtrada
+     * por nombre
+     * @throws UnsupportedEncodingException
+     */
+    @Path( "/{id}/events/past")
+    @GET
+    @Produces( { RepresentationFactory.HAL_JSON})
+    @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
+    @Encoded
+    public HalList<GroupEvent> getPastEvents( @PathParam("id") Long id, 
+            @QueryParam("page") Integer page, @QueryParam( "size") Integer size, @QueryParam( "q") String q) throws UnsupportedEncodingException
+    {
+        return getGroupsEvents(id, GroupEvent.TYPE_EVENT, page, size, q, false);
+    }
+    
+    private HalList<GroupEvent> getGroupsEvents( Long id,  String type,  
+            Integer page, Integer size,  String q, Boolean pending) throws UnsupportedEncodingException
+    {
+        page = Utils.getValidPage(page);
+        size = Utils.getValidSize(size);
+        if( q != null) {
+            q   = URLDecoder.decode(q, "UTF-8");
+        }
+        String elementType = null;
+        if( "groups".equals(type))
+            elementType = GroupEvent.TYPE_GROUP;
+        else
+            elementType = GroupEvent.TYPE_EVENT;
+        
+        RowBounds rb                = Utils.createRowBounds(page, size);
+        UserPrincipal up            = (UserPrincipal) sc.getUserPrincipal(); 
+        SqlSession session          = MyBatisConnectionFactory.getSession().openSession();
+        HalList<GroupEvent> groups  = null;
+        
+        try {            
+            GroupEventMapper mapper     = session.getMapper( GroupEventMapper.class);
+            UserMapper userMapper       = session.getMapper( UserMapper.class);
+            
+            User user = userMapper.getUser(id);
+            if( user == null)
+                throw new HTTPErrorException( Status.NOT_FOUND, "User not found");
+            
+            Permission permission = new Permission();
+            
+            userMapper.getPermissions( up.getId(), id, permission);
+            
+            if( Permission.LEVEL_USER.equals( permission.getLevel()))
+                throw new HTTPErrorException( Status.FORBIDDEN, "You are not allowed here");
+            
+            List<GroupEvent> groupList  = mapper.getGroupsEventsForActiveElement(elementType, q, id, pending, rb);
+            int total                   = mapper.getTotalGroupsEventsForActiveElement(elementType, q, id, pending);
+            session.commit();
+            
+            for( GroupEvent group : groupList) {
+                Permission permissions = new Permission();
+                mapper.getPermissions( up.getId(), group.getId(), permissions);
+                group.setPermission(permissions); 
+            }
+            
+            groups = new HalList( groupList, total);
+            
+            groups.setResourceRelativePath( uriInfo.getPath());
+            groups.setPage(page);
+            groups.setSize(size);
+            groups.setQuery(q);
+            
+        }catch( Exception e) {
+            logger.error( e.toString());
+            throw new InternalServerErrorException();
+        }
+        finally {
+            session.close();
+        }
+        
+        return groups;
+    }
+    
+    
+   
 }

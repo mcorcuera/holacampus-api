@@ -24,7 +24,7 @@ import com.theoryinpractise.halbuilder.jaxrs.*;
 import java.sql.Timestamp;
 
 /**
- *
+ *  Clase que representa los mensajes de una conversación
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 @HalRootElement
@@ -41,34 +41,66 @@ public class Message extends Element implements Linkable {
     
     private Conversation    conversation;
     
+    /**
+     *
+     * @return conversación a la que pertenece el mensaje
+     */
     public Conversation getConversation() {
         return conversation;
     }
 
+    /**
+     *
+     * @param conversation conversación a la que pertenece el mensaje
+     */
     public void setConversation(Conversation conversation) {
         this.conversation = conversation;
     }
 
+    /**
+     *
+     * @return creador del mensaje
+     */
     public ActiveElement getCreator() {
         return creator;
     }
 
+    /**
+     *
+     * @param creator creador del mensaje
+     */
     public void setCreator(ActiveElement creator) {
         this.creator = creator;
     }
 
+    /**
+     *
+     * @return fecha de creación del mensaje
+     */
     public Timestamp getCreationDate() {
         return creationDate;
     }
 
+    /**
+     *
+     * @param creationDate fecha de creación del mensaje
+     */
     public void setCreationDate(Timestamp creationDate) {
         this.creationDate = creationDate;
     }
 
+    /**
+     *
+     * @return contenido del mensaje
+     */
     public String getContent() {
         return content;
     }
 
+    /**
+     *
+     * @param content contenido del mensaje
+     */
     public void setContent(String content) {
         this.content = content;
     }

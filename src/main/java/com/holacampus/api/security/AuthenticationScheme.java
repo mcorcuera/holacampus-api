@@ -80,6 +80,7 @@ public class AuthenticationScheme {
      * @param scheme Esquema requerido
      * @param headers Cabeceras HTTP
      * Devuelve los credenciales del usario autenticado
+     * @return objeto con los datos del usuario autenticado
      * @throws AuthenticationFailException Cuando los credenciales de usuario no están 
      * presentes o no son correctos
      * @throws AuthenticationBadSintaxException Cuando las cabeceras necesarias para la petición

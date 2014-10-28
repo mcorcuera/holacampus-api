@@ -24,7 +24,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
 /**
- *
+ * Clase que represneta los paises de la red social
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 
@@ -42,19 +42,34 @@ public class Country extends Element implements Linkable {
     @HalProperty( name="location")
     private Location    location;
 
-
+    /**
+     *
+     * @return nnombre del país
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     *
+     * @param name nombre del país
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     *
+     * @return localización del país
+     */
     public Location getLocation() {
         return location;
     }
 
+    /**
+     *
+     * @param location localización del país
+     */
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -65,6 +80,10 @@ public class Country extends Element implements Linkable {
         return Utils.createLink("/countries/" + getId(), null);
     }
     
+    /**
+     *
+     * @return enlace a la representación de las ciudades del país
+     */
     @HalLink( "cities")
     public String getCitiesLink() {
         return getSelfLink() + "/cities";

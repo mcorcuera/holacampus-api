@@ -17,6 +17,7 @@
 
 package com.holacampus.api.security;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -24,11 +25,14 @@ import java.lang.annotation.Target;
 
 /**
  * Anotación utilizada para especificar la autenticación requerida
- * por los métodos que gestionan las peticiones a la API
+ * por los métodos que gestionan las peticiones a la API.
+ * <br/><br/>
+ * Para saber los tipos de autenticación soportados, ver la documentación de
+ * {@link AuthenticationScheme}
  * 
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
-
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target( ElementType.METHOD)
 public @interface AuthenticationRequired {

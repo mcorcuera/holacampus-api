@@ -51,7 +51,11 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al recurso
+ * Countries. Es decir, gestiona las peticiones a la URL 
+ * <code>/countries</code>.
+ * <br/><br/>
+ * Este recurso representa a los paises registrados en la red social
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 
@@ -63,6 +67,17 @@ public class CountriesResource {
     @Context
     private UriInfo uriInfo;
       
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>/countries</code>. Esta operación devuelve un lista con los
+     * países de la red social
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param q cadena de caracteres que sirve para filtrar por nombre los
+     * resultados
+     * @return lista con los países del tamaño especificado y filtrada.
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -108,6 +123,13 @@ public class CountriesResource {
         return countries;
     }
     
+    /**
+     * Esta función gestiona las peticiones POST al recurso 
+     * <code>/countries</code>. Esta operación crea un nuevo país en la 
+     * base de datos
+     * @param country datos del país a crear
+     * @return representación del país recién creado
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})

@@ -19,6 +19,7 @@ package com.holacampus.api.mappers;
 
 import com.holacampus.api.domain.AuthToken;
 import org.apache.ibatis.annotations.Param;
+import com.holacampus.api.domain.*;
 
 /**Mapper para la clase {@link Activity}
  * @author Mikel Corcuera <mik.corcuera@gmail.com>

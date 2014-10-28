@@ -23,6 +23,7 @@ import com.holacampus.api.domain.Permission;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
+import com.holacampus.api.domain.*;
 
 /**
  * 
@@ -32,16 +33,8 @@ import org.apache.ibatis.session.RowBounds;
 public interface CommentMapper {
     
     /**
-     * Inserta un nuevo comentario en la base de datos
-     * @param comment Comentario a insertar
-     * @return Elementos insertados
-     * @throws Exception
-     */
-    public int                  createComment( @Param("comment") Comment comment) throws Exception; 
-    
-    /**
      * Obtiene una lista con los comentarios de un contenedor en concreto
-     * @param id Identificador del comentario
+     * @param id Identificador del {@link CommmentContainer}
      * @return Lista de los comentarios
      * @throws Exception
      */
@@ -50,8 +43,8 @@ public interface CommentMapper {
      
     /**
      * Obtiene una lista con los comentarios de un contenedor en concreto
-     * @param id Identificador del comentario
-     * @param rb limites (inicio y tamaño) del resultado
+     * @param id Identificador del {@link CommmentContainer}
+     * @param rb límites (inicio y tamaño) del resultado
      * @return Lista de los comentarios
      * @throws Exception
      */
@@ -59,15 +52,25 @@ public interface CommentMapper {
     
     /**
      * Obtiene el número total de comentarios en un contenedor de comentarios
-     * @param id Identificador de comentarios
+     * @param id Identificador del {@link CommmentContainer}
      * @return Número total de comentarios
      * @throws Exception
      */
     public int                  getTotalComments( @Param("containerId") Long id) throws Exception;
     
+    
+    /**
+     * Inserta un nuevo comentario en la base de datos
+     * @param comment Comentario a insertar
+     * @return Elementos insertados
+     * @throws Exception
+     */
+    public int                  createComment( @Param("comment") Comment comment) throws Exception; 
+    
+    
     /**
      * Obtiene un comentario en concreto
-     * @param id Identificador del comentario
+     * @param id Identificador del {@link Comment}
      * @return El comentario
      * @throws Exception
      */
@@ -75,8 +78,8 @@ public interface CommentMapper {
     
     /**
      * Obtiene el contenedor de comentarios del comentario, es decir, el contenedor
-     * sobre el cual se realizan las respuestas al comentario
-     * @param id Identificador del comentario
+     * sobre el cual se re alizan las respuestas al comentario
+     * @param id Identificador del {@link Comment}
      * @return El contenedor de comentarios del comentario
      * @throws Exception
      */
@@ -85,7 +88,7 @@ public interface CommentMapper {
     /**
      * Obtiene los permisos de un usuario sobre un comentario en concreto
      * @param userId Identificador del usuario
-     * @param commentId Identificador del comentario
+     * @param commentId Identificador del {@link Comment}
      * @param permission Permisos del usuario sobre el comentario
      * @throws Exception
      */
@@ -93,7 +96,7 @@ public interface CommentMapper {
     
     /**
      * Elimina un comentario
-     * @param id Identificador del comentario a eliminar
+     * @param id Identificador del {@link Comment} a eliminar
      * @return
      * @throws Exception
      */

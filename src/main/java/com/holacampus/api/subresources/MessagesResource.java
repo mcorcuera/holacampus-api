@@ -50,20 +50,37 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al subrecurso
+ * Messages. Es decir, gestiona las peticiones a la URL 
+ * <code>/conversations/{cid}/messages</code>. Estos recursos son los mensajes que
+ * pertenecen a una conversación
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class MessagesResource {
     
     private static final Logger logger = LogManager.getLogger( MessagesResource.class.getName());
 
-    private Conversation conversation;
+    private final Conversation conversation;
     
+    /**
+     * Contructor del subrecurso de mensajes de la conversación
+     * @param conversation conversación a la que pertenece el subrecurso
+     */
     public MessagesResource( Conversation conversation)
     {
         this.conversation = conversation;
     }
         
+    /**
+      * Esta función gestiona las peticiones GET al recurso 
+     * <code>/conversations/{cid}/messages</code>. Esta operación devuelve un lista 
+     * con los mensajes de la conversación
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return lista con los mensajes del tamaño especificado
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -101,6 +118,16 @@ public class MessagesResource {
         return messages;
     }
     
+     /**
+      * Esta función gestiona las peticiones POST al recurso 
+     * <code>/conversations/{cid}/messages</code>. Esta operación envía un nuevo
+     * mensaje a la conversación. El autor del mensaje será el usuario o universidad
+     * que realiza la petición
+     * @param message mensaje a enviar en la conversación
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación del mensaje ya enviado a la conversación
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
@@ -134,6 +161,15 @@ public class MessagesResource {
         return message;
     }
     
+    /**
+      * Esta función gestiona las peticiones GET al recurso 
+     * <code>/conversations/{cid}/messages/{id}</code>. Esta operación obtiene un
+     * mensaje en concreto de la conversación.
+     * @param  id identificador del mensaje
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación del mensaje
+     */
     @Path( "/{id}")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -168,7 +204,8 @@ public class MessagesResource {
         return message;
     }
     
-    public void checkMembership( ConversationMapper mapper, Long userId) throws HTTPErrorException, Exception
+
+    private void checkMembership( ConversationMapper mapper, Long userId) throws HTTPErrorException, Exception
     {
         int isMember = mapper.isMemberOfConversation( conversation.getId(), userId);
             

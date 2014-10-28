@@ -28,7 +28,7 @@ import com.theoryinpractise.halbuilder.jaxrs.HalSelfLink;
 import java.util.Date;
 
 /**
- *
+ * Clase que representa a los comentarios de la red social
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 
@@ -57,59 +57,115 @@ public class Comment extends Element implements Linkable{
     
     private String              selfLink;
 
-  
+    /**
+     *
+     * @return contenido del comentario
+     */
     public String getContent() {
         return content;
     }
 
+    /**
+     *
+     * @param content contenido del comentario
+     */
     public void setContent(String content) {
         this.content = content;
     }
 
+    /**
+     *
+     * @return creador del comentario
+     */
     public ActiveElement getCreator() {
         return creator;
     }
 
+    /**
+     *
+     * @param creator creador del comentario
+     */
     public void setCreator(ActiveElement creator) {
         this.creator = creator;
     }
 
+    /**
+     *
+     * @return true si se trata de una respuesta al comentario, false en caso contrario
+     */
     public boolean isIsRecomment() {
         return isRecomment;
     }
 
+    /**
+     *
+     * @param isRecomment true, establece el comentario como respuesta a otro comentario,
+     * 
+     */
     public void setIsRecomment(boolean isRecomment) {
         this.isRecomment = isRecomment;
     }
 
+    /**
+     *
+     * @return  los permisos sobre el comentario
+     */
     public Permission getPermission() {
         return permission;
     }
 
+    /**
+     *
+     * @param permission los permisos sobre el comentario
+     */
     public void setPermission(Permission permission) {
         this.permission = permission;
     }
     
+    /**
+     *
+     * @return el contenedor de comentarios al que pertenece
+     */
     public CommentContainer getBelongingCommentContainer() {
         return belongingCommentContainer;
     }
 
+    /**
+     *
+     * @param belongingCommentContainer el contenedor de comentarios al que pertenece
+     */
     public void setBelongingCommentContainer(CommentContainer belongingCommentContainer) {
         this.belongingCommentContainer = belongingCommentContainer;
     }
 
+    /**
+     *
+     * @return el contenedor de comentarios para las respuestas al comentarios
+     */
     public CommentContainer getOwnCommentContainer() {
         return ownCommentContainer;
     }
 
+    /**
+     *
+     * @param ownCommentContainer el contenedor de comentarios para las respuestas al comentarios
+     */
     public void setOwnCommentContainer(CommentContainer ownCommentContainer) {
         this.ownCommentContainer = ownCommentContainer;
     }
 
+    /**
+     *
+     * @return fecha de creación del comentario
+     */
     public Date getCreationDate() {
         return creationDate;
     }
 
+    /**
+     *
+     * @param creationDate fecha de creación del comentario
+     */
     public void setCreationDate(Date creationDate) {
         
         this.creationDate = creationDate;
@@ -121,10 +177,18 @@ public class Comment extends Element implements Linkable{
         return Utils.createLink( selfLink, null);
     }
     
+    /**
+     *
+     * @param l el enlace a la representación del objeto
+     */
     public void setSelfLink( String l) {
         selfLink = l;
     }
     
+    /**
+     *
+     * @return enlace a la representación de las respuestas al comentario
+     */
     @HalLink( "recomments")
     public String getRecommentsLink()
     {

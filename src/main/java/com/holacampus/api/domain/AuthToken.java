@@ -26,7 +26,8 @@ import java.util.Date;
 
 
 /**
- *
+ * Está clase da forma a los tokens de autenticación mediante los cuales se
+ * dota de seguridad a la aplicación
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 
@@ -42,31 +43,58 @@ public class AuthToken implements Representable, Linkable{
     @HalProperty( name="creationDate")
     private Date        creationDate;
 
+    /**
+     *
+     * @return la cadena de caracteres que representa el token
+     */
     public String getAuthToken() {
         return authToken;
     }
 
+    /**
+     *
+     * @param authToken la cadena de caracteres que representa el token
+     */
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
     }
 
+    /**
+     *
+     * @return elemento al que pertenece el token
+     */
     public ActiveElement getElement() {
         return element;
     }
 
+    /**
+     *
+     * @param element elemento al que pertenece el token
+     */
     public void setElement(ActiveElement element) {
         this.element = element;
     }
 
-
+    /**
+     *
+     * @return fecha de creación del token
+     */
     public Date getCreationDate() {
         return creationDate;
     }
 
+    /**
+     *
+     * @param creationDate fecha de creación del token
+     */
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
     }
 
+    /**
+     * Añade kis campos del objeto a la representación HAL
+     * @param resource representación HAL a la que añadir los campos
+     */
     @Override
     public void representResource(Representation resource) {
         resource.withLink("self", getSelfLink())

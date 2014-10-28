@@ -17,15 +17,31 @@
 
 package com.holacampus.api.mappers;
 
+import com.holacampus.api.domain.*;
 import org.apache.ibatis.annotations.Param;
 
 /**
- *
+ * Mapper para la clase {@link ProflePhotoContainer}
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public interface ProfilePhotoContainerMapper {
     
+    /**
+     * Establece una foto como foto de portada del {@link ProflePhotoContainer}
+     * @param photoId identificador de la {@link Photo} a establecer como 
+     *          foto de portada
+     * @param profilePhotoId identificador del {@link ProflePhotoContainer}
+     * @return número de elementos modificados
+     * @throws Exception
+     */
     public int setProfilePhoto( @Param("photoId") Long photoId, @Param("profilePhotoId") Long profilePhotoId) throws Exception;
+
+    /**
+     * Elimina la foto de portada del {@link ProflePhotoContainer}
+     * @param profilePhotoId identificador del {@link ProflePhotoContainer}
+     * @return número de elementos modificados
+     * @throws Exception
+     */
     public int deleteProfilePhoto(@Param("profilePhotoId") Long profilePhotoId) throws Exception;
     
 }

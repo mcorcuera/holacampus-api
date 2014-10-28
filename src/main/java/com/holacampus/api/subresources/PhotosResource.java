@@ -61,7 +61,10 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al subrecurso
+ * Photos. Es decir, gestiona las peticiones a la URL 
+ * <code>.../photos</code>. Estos recursos son las fotos
+ * subidas sobre otros elementos de la red social.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 
@@ -70,20 +73,35 @@ public class PhotosResource {
     private static final Logger logger = LogManager.getLogger( PhotosResource.class.getName());
 
     private PhotoContainer          container;
-    private long                    elId;
     private String                  path;
     private final PermissionScheme  permissionScheme;
     private final PermissionScheme  commentsScheme;
     
-    public PhotosResource( long id, PhotoContainer pc, String path, PermissionScheme scheme, PermissionScheme commentScheme)
+    /**
+     *  Contructor del subrecurso de fotos
+     * @param pc contenedor de fotos al que pertenece el subrecurso
+     * @param path ruta que identifica al subrecurso
+     * @param scheme esquema de permisos necesarios sobre el subrecurso
+     * @param commentScheme esquema de permisos necesarios sobre los comentarios
+     * de la foto
+     */
+    public PhotosResource(  PhotoContainer pc, String path, PermissionScheme scheme, PermissionScheme commentScheme)
     {
         this.container          = pc;
-        this.elId               = id;
         this.path               = path;
         this.permissionScheme   = scheme;
         this.commentsScheme     = commentScheme;
     }  
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>.../photos</code>. Esta operación devuelve un lista con las fotos
+     * registradas en el contenedor de fotos.
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param sc información de seguridad y autenticación de la petición
+     * @return lista con las fotos del tamaño especificado
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -146,6 +164,14 @@ public class PhotosResource {
         return photos;
     }
     
+    /**
+     * Esta función gestiona las peticiones POST al recurso 
+     * <code>.../photos</code>. Esta operación añade una nueva foto en el contenedor
+     * de fotos al que pertenece el subrecurso
+     * @param photo datos de la foto a añadir
+     * @param sc información de seguridad y autenticación de la petición
+     * @return representación de la foto ya añadida
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
@@ -200,6 +226,15 @@ public class PhotosResource {
     }
     
     // Photo detail
+
+    /**
+     * Esta función devuelve la clase que se encargará de gestionar las peticiones
+     * relacionadas con los comentarios en una foto. Esto es, a la URL 
+     * <code>.../photos/{id}/comments</code>
+     * @param id identificador de la foto
+     * @param uriInfo  información de la URL de la petición
+     * @return recurso que se encarga de gestionar la petición
+     */
     @Path("{id}/comments")
     public CommentsResource getCommentResource( @PathParam("id") long id, @Context UriInfo uriInfo) 
     {
@@ -229,9 +264,18 @@ public class PhotosResource {
             session.close();
         }   
         
-        return new CommentsResource( id, c, uriInfo.getPath(), commentsScheme);
+        return new CommentsResource(c, uriInfo.getPath(), commentsScheme);
     }
     
+    /**
+     * Esta función gestiona las peticiones GETY al recurso 
+     * <code>.../photos/{id}</code>. Esta operación obtiene la foto identificada
+     * por <b>id</b> del contenedor de fotos al que pertenece el subrecurso
+     * @param id identificador de la foto
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación de la foto
+     */
     @Path("/{id}")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -277,6 +321,16 @@ public class PhotosResource {
         return photo;
     }
     
+    /**
+     * Esta función gestiona las peticiones PUT al recurso 
+     * <code>.../photos/{id}</code>. Esta operación modifica los datos de la foto
+     * identificada por <b>id</b>
+     * @param photo datos de la foto a modificar
+     * @param id identificador de la foto
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación de la foto ya modificada
+     */
     @Path("/{id}")
     @PUT
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -324,6 +378,13 @@ public class PhotosResource {
         return photo;
     }
     
+    /**
+     * Esta función gestiona las peticiones DELETE al recurso 
+     * <code>.../photos/{id}</code>. Esta operación elimina la foto
+     * identificada por <b>id</b>
+     * @param id identificador de la foto
+     * @param sc información de seguridad y autenticación de la petición
+     */
     @Path("/{id}")
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)

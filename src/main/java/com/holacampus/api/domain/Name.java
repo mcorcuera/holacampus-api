@@ -21,7 +21,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- *
+ * Clase que representa el nombre completo de un usuario
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 public class Name {
@@ -35,7 +35,7 @@ public class Name {
     private String lastName;
 
     /**
-     *
+     * Constructor por defecto
      */
     public Name()
     {
@@ -44,8 +44,8 @@ public class Name {
     
     /**
      *
-     * @param firstName
-     * @param lastName
+     * @param firstName nombre
+     * @param lastName apellido
      */
     public Name(String firstName, String lastName) {
         this.firstName = firstName;
@@ -54,7 +54,7 @@ public class Name {
     
     /**
      *
-     * @return
+     * @return nombre
      */
     public String getFirstName() {
         return firstName;
@@ -62,7 +62,7 @@ public class Name {
 
     /**
      *
-     * @param firstName
+     * @param firstName nombre
      */
     public void setFirstName(String firstName) {
         this.firstName = firstName;
@@ -70,7 +70,7 @@ public class Name {
 
     /**
      *
-     * @return
+     * @return apellido
      */
     public String getLastName() {
         return lastName;
@@ -78,7 +78,7 @@ public class Name {
 
     /**
      *
-     * @param lastName
+     * @param lastName apellido
      */
     public void setLastName(String lastName) {
         this.lastName = lastName;

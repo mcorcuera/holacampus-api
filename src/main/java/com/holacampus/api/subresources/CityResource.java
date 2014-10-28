@@ -22,7 +22,6 @@ import com.holacampus.api.domain.Country;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.hal.HalList;
 import com.holacampus.api.mappers.CityMapper;
-import com.holacampus.api.mappers.CountryMapper;
 import com.holacampus.api.security.AuthenticationRequired;
 import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
@@ -45,7 +44,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import org.apache.ibatis.session.RowBounds;
@@ -54,7 +52,9 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al subrecurso
+ * Cities. Es decir, gestiona las peticiones a la URL 
+ * <code>.../cities</code>.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class CityResource {
@@ -62,13 +62,29 @@ public class CityResource {
     private static final Logger logger = LogManager.getLogger( CityResource.class.getName());
 
         
-    private Country country;
+    private final Country country;
     
+    /**
+     * Contructor del subrecurso cities
+     * @param country país al que pertenece el subrecurso
+     */
     public CityResource( Country country)
     {
         this.country = country;
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>.../cities</code>. Esta operación devuelve un lista con las ciudades
+     * registradas en el país
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param q cadena de caracteres que sirve para filtrar por nombre los
+     * resultados
+     * @param uriInfo información de la URL de la petición
+     * @return lista con las ciudades del tamaño especificado y filtrada.
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -114,6 +130,14 @@ public class CityResource {
         return cities;
     }
     
+    /**
+     * Esta función gestiona las peticiones POST al recurso 
+     * <code>.../cities</code>. Esta operación crea una nueva ciudad en el país
+     * al que pertenece el subrecurso
+     * @param city ciudad a crear
+     * @param uriInfo  información de la URL de la petición
+     * @return representación de la ciudad recien creada
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_NONE)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
@@ -147,6 +171,15 @@ public class CityResource {
     }
     
     /* Particular City */
+
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>.../cities/{id}</code>. Esta operación devuelve la representación 
+     * de la ciudad identificada por <b>id</b>
+     * @param id identificador de la ciudad
+     * @return representación de la ciudad
+     */
+    
     
     @Path( "{id}")
     @GET
@@ -177,6 +210,15 @@ public class CityResource {
         return city;
     }
     
+    /**
+     * Esta función gestiona las peticiones PUT al recurso 
+     * <code>.../cities/{id}</code>. Esta operación modifica 
+     * la ciudad identificada por <b>id</b>
+     * @param city datos de la ciudad a modificar
+     * @param id identificador de la ciudad
+     * @param uriInfo información de la URL de la petición
+     * @return representación de la ciudad ya modificada
+     */
     @Path( "{id}")
     @PUT
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -208,6 +250,13 @@ public class CityResource {
         return city;
     }
     
+    /**
+     * Esta función gestiona las peticiones DELETE al recurso 
+     * <code>.../cities/{id}</code>. Esta operación elimina
+     * la ciudad identificada por <b>id</b>
+     * @param id identificador de la ciudad
+     * @param uriInfo  información de la URL de la petición
+     */
     @Path( "{id}")
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)

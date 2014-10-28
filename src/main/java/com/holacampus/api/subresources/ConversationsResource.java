@@ -45,7 +45,12 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al subrecurso
+ * Conversations. Es decir, gestiona las peticiones a la URL 
+ * <code>.../conversations</code>.
+ * <br/><br/>
+ * Este subrecurso se encarga de gestionar las conversaciones con usuarios y 
+ * universidades, así como de crear conversaciones con estos.
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class ConversationsResource {
@@ -55,11 +60,25 @@ public class ConversationsResource {
     
     private ActiveElement activeElement;
     
+    /**
+     * Contructor del subrecurso de conversaciones
+     * @param e Elemento al que pertenece la conversación (Usuario o Universidad)
+     */
     public ConversationsResource ( ActiveElement e)
     {
         this.activeElement = e;
     }
     
+    /**
+      * Esta función gestiona las peticiones GET al recurso 
+     * <code>.../conversations</code>. Esta operación devuelve un lista 
+     * con las conversaciones de un usuario o universidad
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return lista de conversaciones del tamaño especificado
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -95,6 +114,16 @@ public class ConversationsResource {
         return conversations;
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>.../conversations/with-me</code>. Esta operación devuelve la representación
+     * de la conversación entre el usuario que realiza la petición y el elemento
+     * al que pertenece el subrecurso. En caso de no existir la conversación, crea
+     * una nueva y es esta la que devuelve.
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación de la conversación
+     */
     @Path( "/with-me")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)

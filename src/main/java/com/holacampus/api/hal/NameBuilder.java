@@ -24,7 +24,8 @@ import com.theoryinpractise.halbuilder.jaxrs.builders.BuilderException;
 import com.theoryinpractise.halbuilder.jaxrs.builders.PropertyBuilder;
 
 /**
- *
+ * Constructor de un objeto de la clase {@link Name} utilizado por el plugin
+ * HAL-JSON para JAX-RS
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class NameBuilder implements PropertyBuilder<Name>{

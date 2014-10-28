@@ -18,7 +18,6 @@
 package com.holacampus.api.subresources;
 
 import com.holacampus.api.domain.ActiveElement;
-import com.holacampus.api.domain.City;
 import com.holacampus.api.domain.GroupEvent;
 import com.holacampus.api.domain.GroupMember;
 import com.holacampus.api.domain.Permission;
@@ -26,7 +25,6 @@ import com.holacampus.api.domain.University;
 import com.holacampus.api.domain.User;
 import com.holacampus.api.exceptions.HTTPErrorException;
 import com.holacampus.api.hal.HalList;
-import com.holacampus.api.mappers.CityMapper;
 import com.holacampus.api.mappers.GroupEventMapper;
 import com.holacampus.api.mappers.GroupMemberMapper;
 import com.holacampus.api.mappers.UniversityMapper;
@@ -36,12 +34,10 @@ import com.holacampus.api.security.AuthenticationScheme;
 import com.holacampus.api.security.UserPrincipal;
 import com.holacampus.api.utils.MyBatisConnectionFactory;
 import com.holacampus.api.utils.Utils;
-import com.holacampus.api.validators.CreationValid;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
-import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.Encoded;
@@ -63,20 +59,40 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al subrecurso
+ * Members. Es decir, gestiona las peticiones a la URL 
+ * <code>/groups|events/{cid}/members</code>. Estos recursos son los miembros que
+ * pertenecen a un grupo o evento
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class MembersResource {
 
     private static final Logger logger = LogManager.getLogger( MembersResource.class.getName());
 
-    private GroupEvent parent;
+    private final GroupEvent parent;
     
+    /**
+     * Contructor del subrecurso de miembros del grupo o evento
+     * @param parent grupo o evento al que pertenece el subrecurso
+     */
     public MembersResource( GroupEvent parent)
     {
         this.parent = parent;
     }
     
+    /**
+      * Esta función gestiona las peticiones GET al recurso 
+     * <code>/groups|events/{cid}/members</code>. Esta operación devuelve un lista
+     * con los miembro del grupo o evento
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param q cadena de caracteres que sirve para filtrar por nombre los
+     * resultados
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return lista con los miembros del tamaño especificado y filtrada.
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -149,6 +165,15 @@ public class MembersResource {
         return members;
     }
     
+    /**
+      * Esta función gestiona las peticiones POST al recurso 
+     * <code>/groups|events/{cid}/members</code>. Esta operación añade un 
+     * miembro al grupo o evento
+     * @param ae Usuario o Universidad a añadir
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación del miembro ya añadido al grupo o evento
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
@@ -195,6 +220,19 @@ public class MembersResource {
         return member;
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>/groups|events/{cid}/members/elegibles</code>. Esta operación devuelve un lista
+     * con los posibles {@link ActiveElement} que pueden ser añadidos al grupo
+     * por el usuario que realiza la petición
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return lista de {@link ActiveElement} que pueden ser añadidos como miembros
+     * al grupo o evento
+     * @throws UnsupportedEncodingException
+     */
     @Path("/eligible")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -249,7 +287,15 @@ public class MembersResource {
         }
         return eligibles;
     }
-    
+   
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>/groups|events/{cid}/members/{id}</code>. Esta operación devuelve 
+     * el miembro identificado por <b>id</b> del grupo o evento 
+     * @param id identificador del miembro
+     * @param sc información de seguridad y autenticación de la petición
+     * @return la representación del miembro
+     */
     @Path( "{id}")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -289,6 +335,13 @@ public class MembersResource {
         return member;
     }
     
+    /**
+     * Esta función gestiona las peticiones DELETE al recurso 
+     * <code>/groups|events/{cid}/members/{id}</code>. Esta operación elimina 
+     * el miembro identificado por <b>id</b> del grupo o evento
+     * @param id identificador del miembro
+     * @param sc información de seguridad y autenticación de la petición
+     */
     @Path( "{id}")
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)

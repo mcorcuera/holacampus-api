@@ -27,7 +27,7 @@ import java.sql.Timestamp;
 
 
 /**
- *
+ * Clase que representa a los miembros de un grupo o evento
  *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
 
@@ -42,31 +42,56 @@ public class GroupMember implements Linkable{
 
     private GroupEvent parent;
     
+    @Override
     @HalSelfLink
     public String getSelfLink() {
         return parent.getSelfLink() + "/members/" + member.getId();
     }
 
+    /**
+     *
+     * @return fecha de unión al grupo
+     */
     public Timestamp getJoinDate() {
         return joinDate;
     }
 
+    /**
+     *
+     * @param joinDate fecha de unión al grupo
+     */
     public void setJoinDate(Timestamp joinDate) {
         this.joinDate = joinDate;
     }
 
+    /**
+     *
+     * @return usuario o universidad que representa este miembro
+     */
     public ActiveElement getMember() {
         return member;
     }
 
+    /**
+     *
+     * @param member usuario o universidad que representa este miembro
+     */
     public void setMember(ActiveElement member) {
         this.member = member;
     }
 
+    /**
+     *
+     * @return grupo o evenoto al que pertenece el miembro
+     */
     public GroupEvent getParent() {
         return parent;
     }
 
+    /**
+     *
+     * @param parent grupo o evento al que pertenece el miembro
+     */
     public void setParent(GroupEvent parent) {
         this.parent = parent;
     }

@@ -40,7 +40,21 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al recurso
+ * activity. Es decir, gestiona las peticiones a la URL <code>/activity</code>
+ * <br/><br/>
+ * Este recurso represneta la actividad reciente de los contáctos (amigos y
+ * univerisdades) de un contácto.
+ * <br/><br/>
+ * Esta actividad es la siguiente:
+ * <ul>
+ *  <li>Nuevos comentarios</li>
+ *  <li>Nuevas fotos</li>
+ *  <li>Nuevos grupos o eventos</li>
+ *  <li>Nuevas amistades</li>
+ *  <li>Nuevas etapas en la trayectoria académica</li>
+ *  <li>etc</li>
+ * </ul>
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 @Path( "/activity")
@@ -55,6 +69,12 @@ public class ActivityResource {
     @Context
     private UriInfo uriInfo;
 
+    /**
+     * Esta función gestiona las peticiones GET al recurso.
+     * @param page pagina de los resultados
+     * @param size tamaño de los resultados
+     * @return lista con la actividad reciente del contácto
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})

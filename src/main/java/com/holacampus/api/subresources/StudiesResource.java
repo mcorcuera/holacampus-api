@@ -60,20 +60,41 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Esta clase se encarga de gestionar las peticiones de la API al subrecurso
+ * Studies. Es decir, gestiona las peticiones a la URL 
+ * <code>universities/{uid}/studies</code>.
+ * <br/><br/>
+ * Este subrecurso se encarga de gestionar los diferentes estudios ofertados 
+ * por una universidad
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 public class StudiesResource {
     
-    private University university;
+    private final University university;
     
     private static final Logger logger = LogManager.getLogger( StudiesResource.class.getName());
     
+    /**
+     * Constructor del subrecurso de estudios
+     * @param university universidad a la que pertenecen los estudios
+     */
     public StudiesResource( University university)
     {
         this.university = university;
     }
     
+    /**
+      * Esta función gestiona las peticiones GET al recurso 
+     * <code>universities/{uid}/studies</code>. Esta operación devuelve un lista 
+     * con los estudios ofertados por la universidad
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param q cadena de caracteres que sirve para filtrar por nombre los
+     * resultados
+     * @param uriInfo  información de la URL de la petición
+     * @return lista con los estudios ofertados del tamaño especificado y filtrada
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Produces( { RepresentationFactory.HAL_JSON})
@@ -119,6 +140,15 @@ public class StudiesResource {
         return studies;
     }
     
+    /**
+     * Esta función gestiona las peticiones POST al recurso 
+     * <code>universities/{uid}/studies</code>. Esta operación añade un nuevo
+     * estudio a los ofertados por la universidad
+     * @param study datos del estudio a añadir
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representación del estudio recien añadido
+     */
     @POST
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
     @Consumes( { RepresentationFactory.HAL_JSON, MediaType.APPLICATION_JSON})
@@ -156,6 +186,17 @@ public class StudiesResource {
     }
     
       /* Particular Study */
+
+    /**
+      * Esta función gestiona las peticiones GET al recurso 
+     * <code>universities/{uid}/studies/{id}</code>. Esta operación devuelve el 
+     * estudio identificado por <b>id</b> dentro de la oferta académica de la 
+     * universidad
+     * @param id identificador del estudio
+     * @param uriInfo  información de la URL de la petición
+     * @return representación del estudio
+     */
+    
     
     @Path( "{id}")
     @GET
@@ -187,6 +228,17 @@ public class StudiesResource {
         return study;
     }
     
+    /**
+    * Esta función gestiona las peticiones PUT al recurso 
+     * <code>universities/{uid}/studies/{id}</code>. Esta operación modifica los
+     * datos del estudio identificado por <b>id</b> dentro de la oferta 
+     * académica de la universidad
+     * @param study datos del estudio a modificar
+     * @param id identificador del estudio
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return representafción del estudio ya modificado
+     */
     @Path( "{id}")
     @PUT
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -226,6 +278,15 @@ public class StudiesResource {
         return study;
     }
     
+    /**
+     * Esta función gestiona las peticiones DELETE al recurso 
+     * <code>universities/{uid}/studies/{id}</code>. Esta operación elimina 
+     * el estudio identificado por <b>id</b> dentro de la oferta 
+     * académica de la universidad
+     * @param id identificador del estudio
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     */
     @Path( "{id}")
     @DELETE
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)
@@ -265,6 +326,22 @@ public class StudiesResource {
         }
     }
     
+    /**
+     * Esta función gestiona las peticiones GET al recurso 
+     * <code>universities/{uid}/studies/{id}/students</code>. Esta operación 
+     * devuelve un lista con los usuarios estudiantes del estudio identificado por
+     * <b>id</b>
+     * @param page página de los resultados
+     * @param size tamaño de los resultados
+     * @param q cadena de caracteres que sirve para filtrar por nombre los
+     * resultados
+     * @param id identificador del estudio
+     * @param sc información de seguridad y autenticación de la petición
+     * @param uriInfo  información de la URL de la petición
+     * @return lista con los usuario que estudian en el estudio especificado
+     * del tamaño especificado y filtrada
+     * @throws UnsupportedEncodingException
+     */
     @Path( "{id}/students")
     @GET
     @AuthenticationRequired( AuthenticationScheme.AUTHENTICATION_SCHEME_TOKEN)

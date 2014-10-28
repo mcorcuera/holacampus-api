@@ -18,19 +18,23 @@
 package com.holacampus.api.validators;
 
 import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
 import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Target;
 
 /**
- *
+ * Anota las propiedades que deben
+ * ser distinto de null cuando este se está creando. Se ignora para la
+ * modificación del recurso
  * @author Mikel Corcuera <mik.corcuera@gmail.com>
  */
 @Target({FIELD})
 @Retention(RUNTIME)
 public @interface CreationNeeded {
     
+    /**
+     *
+     * @return mensaje a generar cuando hay un error de validación
+     */
     public String message() default "{property.missing}";
 }

@@ -1,6 +1,6 @@
 package com.holacampus.api.mappers;
 
-import com.holacampus.api.domain.Permission;
+import com.holacampus.api.domain.*;
 import org.apache.ibatis.annotations.Param;
 
 /*
@@ -22,10 +22,21 @@ import org.apache.ibatis.annotations.Param;
 
 /**
  *
- * @author Mikel Corcuera <mik.corcuera@gmail.com>
+ * Mapper para la clase {@link PhotoContainer}
+ *  @author Mikel Corcuera <mik.corcuera@gmail.com>  
  */
+
+import com.holacampus.api.domain.*;
+
 public interface PhotoContainerMapper {
     
+      /**
+     * Obtiene los permisos de un usuario sobre un contenedor de fotos en concreto
+     * @param userId Identificador del usuario o universidad ({@link ActiveElement})
+     * @param containerId Identificador del contenedor
+     * @param permission Permisos que tiene el usuario sobre el elemento
+     * @throws Exception
+     */
     public void getPermissions(  @Param("userId") Long userId, @Param("containerId") Long containerId, @Param("permission") Permission permission) throws Exception;
 
 }
